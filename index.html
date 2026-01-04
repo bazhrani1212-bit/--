@@ -36,6 +36,7 @@
     }
 
     *{box-sizing:border-box}
+    html, body{width:100%; max-width:100%; overflow-x:hidden;}
     body{
       margin:0;
       font-family:"Cairo", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
@@ -59,12 +60,14 @@
       background:linear-gradient(135deg,#22c55e,#0ea5e9);
       display:grid; place-items:center;
       color:white; font-weight:900;
+      flex:0 0 auto;
     }
     h1{margin:0; font-size:18px}
     .sub{color:var(--muted); font-size:12px; margin-top:2px}
 
     .top-actions{
       display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+      max-width:100%;
     }
 
     button, .btn{
@@ -95,6 +98,7 @@
       display:grid;
       grid-template-columns: 360px 1fr;
       gap:12px;
+      max-width:100%;
     }
     @media (max-width: 980px){
       main{grid-template-columns:1fr}
@@ -106,6 +110,7 @@
       border-radius:14px;
       overflow:hidden;
       box-shadow:0 1px 0 rgba(17,24,39,.04);
+      max-width:100%;
     }
     .card-hd{
       padding:12px 12px;
@@ -138,6 +143,7 @@
       font-size:13px;
       background:#fff;
       outline:none;
+      max-width:100%;
     }
     textarea{min-height:88px; resize:vertical}
 
@@ -165,6 +171,7 @@
       font-size:12px;
       color:var(--muted);
       font-weight:900;
+      max-width:100%;
     }
     .dot{width:10px;height:10px;border-radius:50%;}
     .dot.ok{background:var(--ok)}
@@ -175,7 +182,8 @@
       background:#fff;
       border:1px solid var(--line);
       border-radius:14px;
-      overflow:auto;
+      overflow:hidden;
+      max-width:100%;
     }
 
     .form-header{
@@ -198,6 +206,7 @@
       gap:8px;
       align-items:center;
       justify-content:flex-end;
+      max-width:100%;
     }
     .meta .kv{
       border:1px solid var(--line);
@@ -208,19 +217,23 @@
       background:#fff;
       font-weight:900;
       white-space:nowrap;
+      max-width:100%;
     }
 
+    /* جدول الدرجات على الكمبيوتر */
     table{
       width:100%;
       border-collapse:collapse;
       font-size:12px;
+      table-layout:fixed;
     }
     th, td{
       border:1px solid #111;
       padding:6px 6px;
       text-align:center;
       vertical-align:middle;
-      white-space:nowrap;
+      white-space:normal; /* مهم لمنع العرض الأفقي */
+      word-break:break-word;
     }
     th{font-weight:900}
     .p1{background:var(--p1)}
@@ -229,9 +242,7 @@
     .avg{background:var(--avg)}
     .final{background:var(--final)}
     .total{background:var(--total)}
-    .namecell{text-align:right; min-width:160px; font-weight:900}
-    .narrow{min-width:70px}
-    .tiny{min-width:56px}
+    .namecell{text-align:right; font-weight:900}
 
     .inline-input{
       width:100%;
@@ -242,8 +253,14 @@
       font-size:12px;
       text-align:center;
       background:#fff;
+      max-width:100%;
     }
     .inline-input.name{text-align:right;font-weight:900}
+
+    /* إلغاء الأسهم في بعض المتصفحات */
+    input[type=number]::-webkit-outer-spin-button,
+    input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
 
     .footer-note{
       padding:10px 14px 14px;
@@ -278,6 +295,55 @@
     .chip.warn{border-color:#f59e0b}
     .chip.bad{border-color:#ef4444}
 
+    /* في الجوال: نحول جدول الدرجات لبطاقات (بدون شريط أفقي) */
+    @media (max-width: 820px){
+      .grades-table-desktop{display:none !important;}
+      .grades-cards-mobile{display:block !important;}
+    }
+    @media (min-width: 821px){
+      .grades-table-desktop{display:block !important;}
+      .grades-cards-mobile{display:none !important;}
+    }
+
+    .student-card{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px;
+      margin:10px 12px;
+      background:#fff;
+    }
+    .student-card .head{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      align-items:center;
+      margin-bottom:8px;
+      flex-wrap:wrap;
+    }
+    .student-card .idx{
+      font-weight:900;
+      color:var(--muted);
+      font-size:12px;
+    }
+    .student-card .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:8px;
+    }
+    .student-card .field{
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:8px;
+      background:#fafafa;
+      text-align:right;
+    }
+    .student-card .field b{
+      display:block;
+      font-size:11px;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+
     @media print{
       body{background:#fff}
       header, .card.left, .top-actions, .no-print{display:none !important}
@@ -285,7 +351,6 @@
       #printArea{
         border:none !important;
         border-radius:0 !important;
-        overflow:visible !important;
       }
       @page{ size: A4 landscape; margin: 10mm; }
       table{font-size:11px}
@@ -299,7 +364,7 @@
     <div class="badge">✓</div>
     <div>
       <h1>استمارات الرصد التفاعلية</h1>
-      <div class="sub">حفظ سحابي (Google Sheet) + طباعة + PDF + خطط علاجية/إثرائية</div>
+      <div class="sub">حفظ سحابي (Google Sheet) + طباعة + PDF + تعميم درجات + بدون شريط أفقي</div>
     </div>
   </div>
 
@@ -308,10 +373,11 @@
     <span class="pill" id="globalPill">زيارات عالمية: …</span>
     <span class="pill" id="visitPill">زيارات الجهاز: …</span>
     <span class="pill" id="userPill">مستخدم: …</span>
+    <button class="btn" id="btnCloudReload">استرجاع من السحابة الآن</button>
     <button class="btn" id="btnExportJSON">تصدير بيانات (JSON)</button>
     <button class="btn" id="btnImportJSON">استيراد بيانات (JSON)</button>
     <input id="jsonFile" type="file" accept="application/json" hidden />
-    <button class="danger" id="btnReset">تصفير البيانات</button>
+    <button class="danger" id="btnReset">تصفير البيانات (محليًا فقط)</button>
   </div>
 </header>
 
@@ -357,7 +423,7 @@
       </div>
 
       <div class="status" id="cloudStatus">
-        <b>الحفظ السحابي:</b> يتم حفظ البيانات على Google Sheet تلقائيًا.
+        <b>الحفظ السحابي:</b> يتم حفظ البيانات على Google Sheet تلقائيًا — وتبقى محفوظة حتى بعد سنة.
         <br><b>تعدد المستخدمين:</b> افتحي الرابط مع ?user=اسم_المستخدمة (مثل: ?user=معلمة_نورة).
       </div>
 
@@ -423,7 +489,7 @@ function getUserKey(){
   return u ? u : "default";
 }
 const USER_KEY = getUserKey();
-const STORAGE_KEY = "irs_v3_" + USER_KEY;
+const STORAGE_KEY = "irs_v4_" + USER_KEY;
 
 /* =========================
    State
@@ -436,11 +502,23 @@ const state = {
   date: "",
   students: [],
 
-  followup: { studentName:"", issue:"", actions:"", teacher:"", notes:"" },
+  // سجل متابعة (محدث)
+  followup: {
+    studentName:"",
+    gradeClass:"",
+    followType:"تعليمي",
+    reason:"",
+    actions:"",
+    result:"تحسن ✅",
+    parentContact:"لم يتم",
+    teacher:"",
+    notes:""
+  },
+
   referral: { studentName:"", reason:"", details:"", teacher:"", receiver:"", actions:"", notes:"" },
   parent: { studentName:"", parentName:"", parentPhone:"", message:"", teacher:"", notes:"" },
 
-  plans: { entries: [] } // {grade, planType, subject, skill, date, pre, post, change, procedure, notes}
+  plans: { entries: [] }
 };
 
 /* =========================
@@ -449,7 +527,7 @@ const state = {
 const GRADES_SCHEMA = { p1A: 40, p1B: 20, p2A: 40, p2B: 20, final: 40 };
 
 /* =========================
-   تقييم وصفي (قبلي/بعدي) + ترتيب للمقارنة
+   تقييم وصفي (للخطط)
    ========================= */
 const EVAL_LEVELS = [
   "متفوق",
@@ -461,7 +539,6 @@ const EVAL_LEVELS = [
   "ضعيف جدًا"
 ];
 
-// ترتيب للمقارنة (الأعلى أفضل)
 const EVAL_RANK = {
   "متفوق": 6,
   "تحسن بتفوق": 5,
@@ -476,7 +553,6 @@ function normalizeEval(v){
   const s = (v || "").toString().trim();
   return EVAL_LEVELS.includes(s) ? s : "يحتاج متابعة";
 }
-
 function getChangeLabel(pre, post){
   const a = EVAL_RANK[normalizeEval(pre)];
   const b = EVAL_RANK[normalizeEval(post)];
@@ -486,74 +562,19 @@ function getChangeLabel(pre, post){
 }
 
 /* =========================
-   مواد + مهارات + إجراءات (قابلة للتعديل)
+   مواد + مهارات + إجراءات
    ========================= */
 const SUBJECTS = ["لغتي","رياضيات","علوم","إنجليزي","إسلامية","اجتماعيات"];
 
 const SKILLS_MAP = {
-  1: {
-    "لغتي": ["التمييز بين الحروف المتشابهة","قراءة كلمات قصيرة","كتابة كلمات من مقاطع","فهم جملة قصيرة"],
-    "رياضيات": ["العدّ حتى 100","مقارنة الأعداد","جمع ضمن 20","طرح ضمن 20"],
-    "علوم": ["الحواس الخمس","احتياجات الكائنات الحية","تصنيف (حي/غير حي)","الطقس اليومي"],
-    "إنجليزي": ["حروف وأصوات","كلمات أساسية","جملة بسيطة","استماع ومطابقة"],
-    "إسلامية": ["آداب السلوك","حفظ قصار السور","الوضوء عمليًا","أركان الصلاة"],
-    "اجتماعيات": ["الأسرة","المدرسة","المجتمع","الرموز الوطنية"]
-  },
-  2: {
-    "لغتي": ["قراءة نص قصير","استخراج الفكرة الرئيسة","تجزئة الكلمات","إملاء كلمات شائعة"],
-    "رياضيات": ["جمع وطرح حتى 100","القيمة المنزلية","القياس البسيط","الأنماط"],
-    "علوم": ["دورات الحياة","خصائص المادة","المغناطيس","البيئة القريبة"],
-    "إنجليزي": ["مفردات يومية","مضارع بسيط","أسئلة قصيرة","قراءة جمل"],
-    "إسلامية": ["التوحيد مبسط","آداب الطعام","أذكار","واجبات الصلاة"],
-    "اجتماعيات": ["الاتجاهات","خريطة بسيطة","المهن","المعالم"]
-  },
-  3: {
-    "لغتي": ["تمييز الفكرة الرئيسة","الترتيب الزمني","علامات الترقيم","كتابة فقرة قصيرة"],
-    "رياضيات": ["الضرب","القسمة","الكسور البسيطة","المحيط والمساحة"],
-    "علوم": ["الأنظمة البيئية","تغيرات المادة","القوة والحركة","التكيف"],
-    "إنجليزي": ["قراءة فقرة","كتابة جمل","محادثة بسيطة","قواعد أساسية"],
-    "إسلامية": ["أركان الإيمان","أحكام الطهارة","حفظ سور","قيم وسلوك"],
-    "اجتماعيات": ["الموارد","المناخ","السكان","الخدمات العامة"]
-  },
-  4: {
-    "لغتي": ["استنتاج المعنى من السياق","تلخيص نص","أساليب لغوية","كتابة تقرير قصير"],
-    "رياضيات": ["كسور وعشرية","عوامل ومضاعفات","الزوايا","المساحة"],
-    "علوم": ["سلاسل غذائية","أجهزة جسم الإنسان","الطاقة","كهرباء بسيطة"],
-    "إنجليزي": ["قراءة نص","كتابة فقرة","أزمنة بسيطة","استماع وفهم"],
-    "إسلامية": ["العبادات","السيرة مختصر","آداب","تجويد مبسط"],
-    "اجتماعيات": ["المناطق","التاريخ الوطني","الاقتصاد","التقنية بالمجتمع"]
-  },
-  5: {
-    "لغتي": ["تحليل أفكار النص","التلخيص وإعادة الصياغة","كتابة مقال قصير","الإملاء والقواعد"],
-    "رياضيات": ["النسبة والتناسب","عمليات على الكسور","التمثيل البياني","الحجوم"],
-    "علوم": ["تصنيف مصادر الطاقة","الدورات (الماء/الكربون)","الاحتكاك","المناخ"],
-    "إنجليزي": ["قراءة واستنتاج","كتابة منظمة","قواعد أوسع","عرض شفهي"],
-    "إسلامية": ["فقه مبسط","تفسير قصار","سيرة","قيم ومواطنة"],
-    "اجتماعيات": ["الأنظمة","الخرائط","الجغرافيا","المشروعات الوطنية"]
-  },
-  6: {
-    "لغتي": ["الفهم القرائي العميق","استخراج الأدلة","تلخيص وتحليل","كتابة تقرير/مقال"],
-    "رياضيات": ["المعادلات","الإحصاء والاحتمال","الهندسة","النسب المئوية"],
-    "علوم": ["الخلايا وأجزاؤها","الوراثة","الأنظمة البيئية","المادة والطاقة"],
-    "إنجليزي": ["قراءة طويلة","كتابة فقرتين","تحدث وعرض","قواعد متقدمة"],
-    "إسلامية": ["تجويد وتلاوة","فقه","عقيدة","سيرة"],
-    "اجتماعيات": ["التاريخ","الجغرافيا","المواطنة","الموارد والتنمية"]
-  }
+  1: { "لغتي":["تمييز الحروف","قراءة كلمات","كتابة كلمات","فهم جملة"], "رياضيات":["العد","المقارنة","جمع ضمن 20","طرح ضمن 20"], "علوم":["الحواس","احتياجات الكائن","حي/غير حي","الطقس"], "إنجليزي":["حروف","مفردات","جملة","مطابقة"], "إسلامية":["آداب","سور قصيرة","وضوء","صلاة"], "اجتماعيات":["الأسرة","المدرسة","المجتمع","رموز وطنية"] },
+  2: { "لغتي":["قراءة نص","فكرة رئيسة","تجزئة كلمات","إملاء"], "رياضيات":["جمع/طرح 100","قيمة منزلية","قياس","أنماط"], "علوم":["دورات حياة","خصائص المادة","مغناطيس","البيئة"], "إنجليزي":["مفردات","مضارع","أسئلة","قراءة جمل"], "إسلامية":["توحيد","آداب","أذكار","صلاة"], "اجتماعيات":["اتجاهات","خريطة","مهن","معالم"] },
+  3: { "لغتي":["فكرة رئيسة","ترتيب زمني","ترقيم","فقرة"], "رياضيات":["ضرب","قسمة","كسور","محيط/مساحة"], "علوم":["أنظمة بيئية","تغيرات المادة","قوة/حركة","تكيف"], "إنجليزي":["قراءة فقرة","جمل","محادثة","قواعد"], "إسلامية":["إيمان","طهارة","سور","قيم"], "اجتماعيات":["موارد","مناخ","سكان","خدمات"] },
+  4: { "لغتي":["معنى من سياق","تلخيص","أساليب","تقرير"], "رياضيات":["كسور/عشرية","عوامل","زوايا","مساحة"], "علوم":["سلاسل غذائية","أجهزة الجسم","طاقة","كهرباء"], "إنجليزي":["قراءة","فقرة","أزمنة","استماع"], "إسلامية":["عبادات","سيرة","آداب","تجويد"], "اجتماعيات":["مناطق","تاريخ","اقتصاد","تقنية"] },
+  5: { "لغتي":["تحليل","تلخيص","مقال","قواعد"], "رياضيات":["نسبة","كسور","بياني","حجوم"], "علوم":["مصادر الطاقة","دورات","احتكاك","مناخ"], "إنجليزي":["استنتاج","كتابة","قواعد","عرض"], "إسلامية":["فقه","تفسير","سيرة","قيم"], "اجتماعيات":["أنظمة","خرائط","جغرافيا","مشروعات"] },
+  6: { "لغتي":["فهم عميق","أدلة","تحليل","تقرير/مقال"], "رياضيات":["معادلات","إحصاء","هندسة","نسب مئوية"], "علوم":["خلايا","وراثة","أنظمة بيئية","مادة/طاقة"], "إنجليزي":["قراءة طويلة","كتابة","تحدث","قواعد"], "إسلامية":["تجويد","فقه","عقيدة","سيرة"], "اجتماعيات":["تاريخ","جغرافيا","مواطنة","تنمية"] }
 };
-
-const PROCEDURES = [
-  "ورقة عمل مركزة",
-  "تعليم فردي (1:1)",
-  "مجموعة علاجية صغيرة",
-  "مجموعة إثرائية",
-  "تعلم بالأقران",
-  "لعبة تعليمية رقمية",
-  "واجب علاجي منزلي",
-  "نشاط عملي/تجربة",
-  "بطاقات/أسئلة شفوية",
-  "اختبار قصير (Quiz)"
-];
-
+const PROCEDURES = ["ورقة عمل مركزة","تعليم فردي (1:1)","مجموعة علاجية صغيرة","مجموعة إثرائية","تعلم بالأقران","لعبة تعليمية رقمية","واجب علاجي منزلي","نشاط عملي/تجربة","بطاقات/شفهي","اختبار قصير"];
 function getSkills(grade, subject){
   const g = SKILLS_MAP[grade] || {};
   return g[subject] || ["مهارة (أضيفيها حسب حاجتك)"];
@@ -572,32 +593,27 @@ function escapeHtml(s){
 }
 
 function clampNum(x, max){
-  const n = Number(x);
+  // يدعم الكتابة بدون أسهم
+  const cleaned = (x ?? "").toString().replace(/[^\d.]/g,"");
+  const n = Number(cleaned);
   if(Number.isNaN(n)) return 0;
   return Math.max(0, Math.min(max, n));
 }
 
 /* =========================
-   Local Save/Load (احتياط)
+   Local Save/Load
    ========================= */
 let saveTimer = null;
-function saveLocal(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
+function saveLocal(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 function loadLocal(){
   const raw = localStorage.getItem(STORAGE_KEY);
   if(!raw) return;
-  try{
-    const obj = JSON.parse(raw);
-    Object.assign(state, obj);
-  }catch(e){}
+  try{ Object.assign(state, JSON.parse(raw)); }catch(e){}
 }
 
 /* =========================
    Cloud Save/Load
    ========================= */
-let cloudOk = false;
-
 function setCloudPill(status, ok=null){
   const pill = el("cloudPill");
   const dot = pill.querySelector(".dot");
@@ -610,12 +626,8 @@ function setCloudPill(status, ok=null){
 async function fetchWithTimeout(url, opts={}, timeoutMs=15000){
   const ctrl = new AbortController();
   const t = setTimeout(()=>ctrl.abort(), timeoutMs);
-  try{
-    const res = await fetch(url, {...opts, signal: ctrl.signal});
-    return res;
-  } finally {
-    clearTimeout(t);
-  }
+  try{ return await fetch(url, {...opts, signal: ctrl.signal}); }
+  finally{ clearTimeout(t); }
 }
 
 async function cloudLoad(){
@@ -624,33 +636,28 @@ async function cloudLoad(){
     url.searchParams.set("action","load");
     url.searchParams.set("userKey", USER_KEY);
     url.searchParams.set("token", APP_TOKEN);
-
-    const res = await fetchWithTimeout(url.toString(), {method:"GET"}, 15000);
+    const res = await fetchWithTimeout(url.toString(), {method:"GET"});
     const data = await res.json();
 
     if(data.ok && data.found && data.state){
       Object.assign(state, data.state);
-      // تأكيد أي قيم قديمة للقبلي/البعدي
+      // تطبيع تقييم الخطط إذا وجدت
       if(state.plans && Array.isArray(state.plans.entries)){
         state.plans.entries.forEach(r=>{
           r.pre = normalizeEval(r.pre);
           r.post = normalizeEval(r.post);
         });
       }
-      cloudOk = true;
       setCloudPill("متصل ✓ (تم التحميل)", true);
       saveLocal();
       syncInputs();
       render();
     }else if(data.ok){
-      cloudOk = true;
       setCloudPill("متصل ✓ (لا يوجد بيانات بعد)", true);
     }else{
-      cloudOk = false;
       setCloudPill("مشكلة توكن/صلاحية", false);
     }
   }catch(e){
-    cloudOk = false;
     setCloudPill("غير متصل (سيعمل محليًا)", false);
   }
 }
@@ -667,18 +674,11 @@ async function cloudSave(){
       method:"POST",
       headers:{ "Content-Type":"application/json" },
       body: JSON.stringify(payload)
-    }, 15000);
-
+    });
     const data = await res.json();
-    if(data.ok){
-      cloudOk = true;
-      setCloudPill("متصل ✓ (تم الحفظ)", true);
-    }else{
-      cloudOk = false;
-      setCloudPill("رفض/توكن غير صحيح", false);
-    }
+    if(data.ok) setCloudPill("متصل ✓ (تم الحفظ)", true);
+    else setCloudPill("رفض/توكن غير صحيح", false);
   }catch(e){
-    cloudOk = false;
     setCloudPill("انقطاع (تم الحفظ محليًا)", false);
   }
 }
@@ -689,44 +689,26 @@ async function cloudVisit(){
     url.searchParams.set("action","visit");
     url.searchParams.set("userKey", USER_KEY);
     url.searchParams.set("token", APP_TOKEN);
-    url.searchParams.set("formType", state.formType || "");
-    url.searchParams.set("subject", state.subject || "");
-    url.searchParams.set("school", state.school || "");
-    url.searchParams.set("classroom", state.classroom || "");
-    url.searchParams.set("ua", navigator.userAgent || "");
-
-    const res = await fetchWithTimeout(url.toString(), {method:"GET"}, 15000);
+    const res = await fetchWithTimeout(url.toString(), {method:"GET"});
     const data = await res.json();
-    if(data.ok && typeof data.globalVisits === "number"){
-      el("globalPill").textContent = "زيارات عالمية: " + data.globalVisits;
-    }else{
-      el("globalPill").textContent = "زيارات عالمية: —";
-    }
+    el("globalPill").textContent = "زيارات عالمية: " + (data.globalVisits ?? "—");
   }catch(e){
     el("globalPill").textContent = "زيارات عالمية: —";
   }
 }
 
-/* =========================
-   Save (Local + Cloud)
-   ========================= */
 function save(){
   saveLocal();
   cloudSaveDebounced();
 }
 
-/* =========================
-   Local Visits (device)
-   ========================= */
 function bumpLocalVisits(){
   const vk = "irs_visits_" + USER_KEY;
   const v = parseInt(localStorage.getItem(vk) || "0", 10) + 1;
   localStorage.setItem(vk, String(v));
   el("visitPill").textContent = "زيارات الجهاز: " + v;
 }
-function showUser(){
-  el("userPill").textContent = "مستخدم: " + USER_KEY;
-}
+function showUser(){ el("userPill").textContent = "مستخدم: " + USER_KEY; }
 
 /* =========================
    UI Sync
@@ -744,7 +726,7 @@ function getFormTitle(){
   switch(state.formType){
     case "grades": return "سجل درجات مادة";
     case "plans": return "متابعة الخطط العلاجية والإثرائية";
-    case "followup": return "سجل متابعة";
+    case "followup": return "سجل متابعة الطالبة";
     case "counselor": return "نموذج تحويل للموجهة الطلابية";
     case "principal": return "نموذج تحويل للمديرة";
     case "parent": return "تبليغ لولي الأمر";
@@ -785,13 +767,13 @@ function render(){
 
   if(state.formType === "grades"){
     area.appendChild(renderGradesForm());
-    area.appendChild(makeFooter("سجل الدرجات تفاعلي: أدخلي الدرجات وسيحسب المجموع تلقائياً. يمكن الطباعة أو تصدير PDF."));
+    area.appendChild(makeFooter("سجل الدرجات: إدخال بدون أسهم + تعميم درجات على عمود كامل + شكل جوال بدون شريط أفقي."));
   }else if(state.formType === "plans"){
     area.appendChild(renderPlansForm());
-    area.appendChild(makeFooter("متابعة الخطط: اختاري الصف والمادة والمهارة والخطة، وحددي القبلي/البعدي من القائمة، وسيظهر (نتيجة التغير) تلقائيًا."));
+    area.appendChild(makeFooter("متابعة الخطط: القبلي/البعدي وصفي + نتيجة تغير تلقائية."));
   }else if(state.formType === "followup"){
-    area.appendChild(renderFollowupForm());
-    area.appendChild(makeFooter("سجل متابعة: اكتبي الملاحظة والإجراءات، ثم اطبعي أو صدّري PDF."));
+    area.appendChild(renderFollowupFormNew());
+    area.appendChild(makeFooter("سجل متابعة منظم وجاهز للطباعة والتصدير."));
   }else if(state.formType === "counselor"){
     area.appendChild(renderReferralForm("الموجهة الطلابية"));
     area.appendChild(makeFooter("تحويل للموجهة الطلابية: نموذج رسمي مبسط قابل للطباعة والتصدير."));
@@ -807,11 +789,47 @@ function render(){
 }
 
 /* =========================
-   Grades Form
+   Grades Form + تعميم عمود
    ========================= */
 function renderGradesForm(){
   const wrap = document.createElement("div");
   wrap.style.padding = "12px";
+
+  // لوحة تعميم (بدون طباعة)
+  const bulk = document.createElement("div");
+  bulk.className = "no-print";
+  bulk.style.border = "1px solid var(--line)";
+  bulk.style.borderRadius = "12px";
+  bulk.style.padding = "10px";
+  bulk.style.marginBottom = "10px";
+  bulk.innerHTML = `
+    <div style="font-weight:900; margin-bottom:8px;">تعميم درجة على عمود كامل</div>
+    <div class="row3">
+      <div>
+        <label>اختاري العمود</label>
+        <select id="bulkCol">
+          <option value="p1_a">الفترة الأولى: المهام الأدائية (40)</option>
+          <option value="p1_b">الفترة الأولى: تقويمات تحريرية (20)</option>
+          <option value="p2_a">الفترة الثانية: المهام الأدائية (40)</option>
+          <option value="p2_b">الفترة الثانية: تقويمات تحريرية (20)</option>
+          <option value="final">اختبار نهاية الفصل (40)</option>
+        </select>
+      </div>
+      <div>
+        <label>اكتبي الدرجة</label>
+        <input id="bulkVal" inputmode="numeric" placeholder="مثال: 10" />
+      </div>
+      <div style="display:flex;align-items:end;gap:8px;">
+        <button class="primary" id="btnApplyBulk" style="width:100%;">تطبيق على جميع الطالبات</button>
+      </div>
+    </div>
+    <div class="hint">يستخدم عند رغبتك بتسجيل درجة موحدة لعمود كامل بسرعة.</div>
+  `;
+  wrap.appendChild(bulk);
+
+  // جدول الدرجات (سطح مكتب)
+  const tableWrap = document.createElement("div");
+  tableWrap.className = "grades-table-desktop";
 
   const table = document.createElement("table");
   table.id = "gradesTable";
@@ -819,25 +837,25 @@ function renderGradesForm(){
   const thead = document.createElement("thead");
   thead.innerHTML = `
     <tr>
-      <th rowspan="2" class="total tiny">م</th>
+      <th rowspan="2" class="total">م</th>
       <th rowspan="2" class="total namecell">اسم الطالبة</th>
 
       <th colspan="3" class="p1">الفترة الأولى</th>
       <th colspan="3" class="p2">الفترة الثانية</th>
 
-      <th rowspan="2" class="sum narrow">مجموع الفترتين</th>
-      <th rowspan="2" class="avg narrow">متوسط مجموع الفترتين</th>
-      <th rowspan="2" class="final narrow">اختبار نهاية الفصل</th>
-      <th rowspan="2" class="total narrow">المجموع الكلي</th>
+      <th rowspan="2" class="sum">مجموع الفترتين</th>
+      <th rowspan="2" class="avg">متوسط مجموع الفترتين</th>
+      <th rowspan="2" class="final">اختبار نهاية الفصل</th>
+      <th rowspan="2" class="total">المجموع الكلي</th>
     </tr>
     <tr>
-      <th class="p1">المهام الأدائية<br><span style="font-weight:900">(${GRADES_SCHEMA.p1A})</span></th>
-      <th class="p1">تقويمات تحريرية<br><span style="font-weight:900">(${GRADES_SCHEMA.p1B})</span></th>
-      <th class="p1">المجموع<br><span style="font-weight:900">(60)</span></th>
+      <th class="p1">المهام الأدائية<br><b>(${GRADES_SCHEMA.p1A})</b></th>
+      <th class="p1">تقويمات تحريرية<br><b>(${GRADES_SCHEMA.p1B})</b></th>
+      <th class="p1">المجموع<br><b>(60)</b></th>
 
-      <th class="p2">المهام الأدائية<br><span style="font-weight:900">(${GRADES_SCHEMA.p2A})</span></th>
-      <th class="p2">تقويمات تحريرية<br><span style="font-weight:900">(${GRADES_SCHEMA.p2B})</span></th>
-      <th class="p2">المجموع<br><span style="font-weight:900">(60)</span></th>
+      <th class="p2">المهام الأدائية<br><b>(${GRADES_SCHEMA.p2A})</b></th>
+      <th class="p2">تقويمات تحريرية<br><b>(${GRADES_SCHEMA.p2B})</b></th>
+      <th class="p2">المجموع<br><b>(60)</b></th>
     </tr>
   `;
   table.appendChild(thead);
@@ -861,40 +879,111 @@ function renderGradesForm(){
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td class="total tiny">${i+1}</td>
+      <td class="total">${i+1}</td>
       <td class="total namecell">
         <input class="inline-input name" data-kind="name" data-i="${i}" value="${escapeHtml(st.name || "")}" placeholder="اسم الطالبة">
       </td>
 
-      <td class="p1"><input class="inline-input" data-kind="p1_a" data-i="${i}" value="${p1a}" type="number" min="0" max="${GRADES_SCHEMA.p1A}"></td>
-      <td class="p1"><input class="inline-input" data-kind="p1_b" data-i="${i}" value="${p1b}" type="number" min="0" max="${GRADES_SCHEMA.p1B}"></td>
+      <td class="p1">
+        <input class="inline-input" data-kind="p1_a" data-i="${i}" inputmode="numeric" value="${p1a}" placeholder="0">
+      </td>
+      <td class="p1">
+        <input class="inline-input" data-kind="p1_b" data-i="${i}" inputmode="numeric" value="${p1b}" placeholder="0">
+      </td>
       <td class="p1"><b>${p1t}</b></td>
 
-      <td class="p2"><input class="inline-input" data-kind="p2_a" data-i="${i}" value="${p2a}" type="number" min="0" max="${GRADES_SCHEMA.p2A}"></td>
-      <td class="p2"><input class="inline-input" data-kind="p2_b" data-i="${i}" value="${p2b}" type="number" min="0" max="${GRADES_SCHEMA.p2B}"></td>
+      <td class="p2">
+        <input class="inline-input" data-kind="p2_a" data-i="${i}" inputmode="numeric" value="${p2a}" placeholder="0">
+      </td>
+      <td class="p2">
+        <input class="inline-input" data-kind="p2_b" data-i="${i}" inputmode="numeric" value="${p2b}" placeholder="0">
+      </td>
       <td class="p2"><b>${p2t}</b></td>
 
       <td class="sum"><b>${sum}</b></td>
       <td class="avg"><b>${avg}</b></td>
-      <td class="final"><input class="inline-input" data-kind="final" data-i="${i}" value="${fin}" type="number" min="0" max="${GRADES_SCHEMA.final}"></td>
+      <td class="final">
+        <input class="inline-input" data-kind="final" data-i="${i}" inputmode="numeric" value="${fin}" placeholder="0">
+      </td>
       <td class="total"><b>${total}</b></td>
     `;
     tbody.appendChild(tr);
   }
 
   table.appendChild(tbody);
-  wrap.appendChild(table);
+  tableWrap.appendChild(table);
+  wrap.appendChild(tableWrap);
+
+  // بطاقات الجوال (بدون جدول عريض)
+  const cardsWrap = document.createElement("div");
+  cardsWrap.className = "grades-cards-mobile";
+
+  students.forEach((st, i)=>{
+    const p1a = clampNum(st.p1_a ?? 0, GRADES_SCHEMA.p1A);
+    const p1b = clampNum(st.p1_b ?? 0, GRADES_SCHEMA.p1B);
+    const p2a = clampNum(st.p2_a ?? 0, GRADES_SCHEMA.p2A);
+    const p2b = clampNum(st.p2_b ?? 0, GRADES_SCHEMA.p2B);
+    const fin = clampNum(st.final ?? 0, GRADES_SCHEMA.final);
+
+    const p1t = p1a + p1b;
+    const p2t = p2a + p2b;
+    const sum = p1t + p2t;
+    const avg = Math.round((sum/2)*10)/10;
+    const total = Math.round((avg + fin)*10)/10;
+
+    const card = document.createElement("div");
+    card.className = "student-card";
+    card.innerHTML = `
+      <div class="head">
+        <div class="idx">#${i+1}</div>
+        <input class="inline-input name" data-kind="name" data-i="${i}" value="${escapeHtml(st.name || "")}" placeholder="اسم الطالبة">
+      </div>
+
+      <div class="grid">
+        <div class="field"><b>ف1 مهام (40)</b><input class="inline-input" data-kind="p1_a" data-i="${i}" inputmode="numeric" value="${p1a}"></div>
+        <div class="field"><b>ف1 تحريرية (20)</b><input class="inline-input" data-kind="p1_b" data-i="${i}" inputmode="numeric" value="${p1b}"></div>
+
+        <div class="field"><b>ف2 مهام (40)</b><input class="inline-input" data-kind="p2_a" data-i="${i}" inputmode="numeric" value="${p2a}"></div>
+        <div class="field"><b>ف2 تحريرية (20)</b><input class="inline-input" data-kind="p2_b" data-i="${i}" inputmode="numeric" value="${p2b}"></div>
+
+        <div class="field"><b>اختبار نهائي (40)</b><input class="inline-input" data-kind="final" data-i="${i}" inputmode="numeric" value="${fin}"></div>
+        <div class="field"><b>المجموع الكلي</b><div style="font-weight:900;text-align:center">${total}</div></div>
+
+        <div class="field"><b>مجموع الفترتين</b><div style="font-weight:900;text-align:center">${sum}</div></div>
+        <div class="field"><b>متوسط الفترتين</b><div style="font-weight:900;text-align:center">${avg}</div></div>
+      </div>
+    `;
+    cardsWrap.appendChild(card);
+  });
+
+  wrap.appendChild(cardsWrap);
 
   const note = document.createElement("div");
   note.className = "status";
-  note.innerHTML = `<b>تنبيه:</b> أوزان الدرجات حالياً: (40+20) لكل فترة، المتوسط + الاختبار النهائي = 100.`;
+  note.innerHTML = `<b>تنبيه:</b> أوزان الدرجات: (40+20) لكل فترة، المتوسط + الاختبار النهائي = 100.`;
   wrap.appendChild(note);
+
+  setTimeout(()=>{
+    const btn = document.getElementById("btnApplyBulk");
+    if(btn){
+      btn.onclick = ()=>{
+        const col = document.getElementById("bulkCol").value;
+        const valRaw = document.getElementById("bulkVal").value;
+        const maxMap = { p1_a: GRADES_SCHEMA.p1A, p1_b: GRADES_SCHEMA.p1B, p2_a: GRADES_SCHEMA.p2A, p2_b: GRADES_SCHEMA.p2B, final: GRADES_SCHEMA.final };
+        const v = clampNum(valRaw, maxMap[col]);
+        state.students.forEach(s=>{ s[col] = v; });
+        save();
+        render();
+        syncInputs();
+      };
+    }
+  },0);
 
   return wrap;
 }
 
 /* =========================
-   Plans Form
+   Plans Form (كما كانت)
    ========================= */
 function renderPlansForm(){
   const wrap = document.createElement("div");
@@ -903,7 +992,6 @@ function renderPlansForm(){
   if(!state.plans) state.plans = {entries:[]};
   if(!Array.isArray(state.plans.entries)) state.plans.entries = [];
 
-  // سطر افتراضي
   if(state.plans.entries.length === 0){
     state.plans.entries.push({
       grade: 1,
@@ -937,18 +1025,18 @@ function renderPlansForm(){
   const thead = document.createElement("thead");
   thead.innerHTML = `
     <tr>
-      <th class="total tiny">م</th>
+      <th class="total">م</th>
       <th class="avg">الصف</th>
       <th class="p1">نوع الخطة</th>
       <th class="p2">المادة</th>
       <th class="sum">المهارة</th>
       <th class="avg">التاريخ</th>
-      <th class="p1">التقييم القبلي</th>
-      <th class="p2">التقييم البعدي</th>
+      <th class="p1">القبلي</th>
+      <th class="p2">البعدي</th>
       <th class="sum">نتيجة التغير</th>
-      <th class="final">نوع الإجراء المستخدم</th>
+      <th class="final">الإجراء</th>
       <th class="total">ملاحظات</th>
-      <th class="total tiny no-print">حذف</th>
+      <th class="total no-print">حذف</th>
     </tr>
   `;
   table.appendChild(thead);
@@ -956,88 +1044,45 @@ function renderPlansForm(){
   const tbody = document.createElement("tbody");
 
   state.plans.entries.forEach((r, i)=>{
-    const tr = document.createElement("tr");
-
     const grade = Number(r.grade || 1);
     const subject = r.subject || "لغتي";
     const skills = getSkills(grade, subject);
-    const skill = (r.skill && skills.includes(r.skill)) ? r.skill : skills[0];
-
     r.grade = grade;
     r.subject = subject;
-    r.skill = skill;
+    r.skill = (r.skill && skills.includes(r.skill)) ? r.skill : skills[0];
 
     r.pre = normalizeEval(r.pre);
     r.post = normalizeEval(r.post);
-
     const change = getChangeLabel(r.pre, r.post);
 
     const gradeOptions = [1,2,3,4,5,6].map(g=>`<option value="${g}" ${g===grade?"selected":""}>${g}</option>`).join("");
     const planOptions = ["علاجية","إثرائية"].map(t=>`<option value="${t}" ${t===r.planType?"selected":""}>${t}</option>`).join("");
     const subjOptions = SUBJECTS.map(s=>`<option value="${s}" ${s===subject?"selected":""}>${s}</option>`).join("");
-    const skillOptions = skills.map(s=>`<option value="${escapeHtml(s)}" ${s===skill?"selected":""}>${escapeHtml(s)}</option>`).join("");
+    const skillOptions = skills.map(s=>`<option value="${escapeHtml(s)}" ${s===r.skill?"selected":""}>${escapeHtml(s)}</option>`).join("");
     const procOptions = PROCEDURES.map(p=>`<option value="${escapeHtml(p)}" ${p===r.procedure?"selected":""}>${escapeHtml(p)}</option>`).join("");
-
     const evalOptionsPre = EVAL_LEVELS.map(x=>`<option value="${escapeHtml(x)}" ${x===r.pre?"selected":""}>${escapeHtml(x)}</option>`).join("");
     const evalOptionsPost = EVAL_LEVELS.map(x=>`<option value="${escapeHtml(x)}" ${x===r.post?"selected":""}>${escapeHtml(x)}</option>`).join("");
 
+    const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td class="total tiny">${i+1}</td>
-
-      <td class="avg">
-        <select class="inline-input" data-plans-i="${i}" data-plans-k="grade">${gradeOptions}</select>
-      </td>
-
-      <td class="p1">
-        <select class="inline-input" data-plans-i="${i}" data-plans-k="planType">${planOptions}</select>
-      </td>
-
-      <td class="p2">
-        <select class="inline-input" data-plans-i="${i}" data-plans-k="subject">${subjOptions}</select>
-      </td>
-
-      <td class="sum" style="white-space:normal;min-width:220px">
-        <select class="inline-input" data-plans-i="${i}" data-plans-k="skill">${skillOptions}</select>
-      </td>
-
-      <td class="avg">
-        <input class="inline-input" data-plans-i="${i}" data-plans-k="date" type="date" value="${escapeHtml(r.date || "")}">
-      </td>
-
-      <td class="p1">
-        <select class="inline-input" data-plans-i="${i}" data-plans-k="pre">${evalOptionsPre}</select>
-      </td>
-
-      <td class="p2">
-        <select class="inline-input" data-plans-i="${i}" data-plans-k="post">${evalOptionsPost}</select>
-      </td>
-
-      <td class="sum">
-        <span class="chip ${change.cls}">${escapeHtml(change.text)}</span>
-      </td>
-
-      <td class="final" style="min-width:200px">
-        <select class="inline-input" data-plans-i="${i}" data-plans-k="procedure">${procOptions}</select>
-      </td>
-
-      <td class="total" style="white-space:normal;min-width:200px">
-        <input class="inline-input" data-plans-i="${i}" data-plans-k="notes" placeholder="ملاحظات" value="${escapeHtml(r.notes || "")}">
-      </td>
-
-      <td class="total tiny no-print">
-        <button class="danger" data-plans-del="${i}" style="padding:6px 10px;border-radius:8px">×</button>
-      </td>
+      <td class="total">${i+1}</td>
+      <td class="avg"><select class="inline-input" data-plans-i="${i}" data-plans-k="grade">${gradeOptions}</select></td>
+      <td class="p1"><select class="inline-input" data-plans-i="${i}" data-plans-k="planType">${planOptions}</select></td>
+      <td class="p2"><select class="inline-input" data-plans-i="${i}" data-plans-k="subject">${subjOptions}</select></td>
+      <td class="sum" style="min-width:180px"><select class="inline-input" data-plans-i="${i}" data-plans-k="skill">${skillOptions}</select></td>
+      <td class="avg"><input class="inline-input" data-plans-i="${i}" data-plans-k="date" type="date" value="${escapeHtml(r.date || "")}"></td>
+      <td class="p1"><select class="inline-input" data-plans-i="${i}" data-plans-k="pre">${evalOptionsPre}</select></td>
+      <td class="p2"><select class="inline-input" data-plans-i="${i}" data-plans-k="post">${evalOptionsPost}</select></td>
+      <td class="sum"><span class="chip ${change.cls}">${escapeHtml(change.text)}</span></td>
+      <td class="final" style="min-width:180px"><select class="inline-input" data-plans-i="${i}" data-plans-k="procedure">${procOptions}</select></td>
+      <td class="total" style="min-width:160px"><input class="inline-input" data-plans-i="${i}" data-plans-k="notes" value="${escapeHtml(r.notes || "")}" placeholder="ملاحظات"></td>
+      <td class="total no-print"><button class="danger" data-plans-del="${i}" style="padding:6px 10px;border-radius:8px">×</button></td>
     `;
     tbody.appendChild(tr);
   });
 
   table.appendChild(tbody);
   wrap.appendChild(table);
-
-  const note = document.createElement("div");
-  note.className = "status";
-  note.innerHTML = `<b>ملاحظة:</b> قائمة المهارات مقترحة وقابلة للتعديل داخل SKILLS_MAP. ويمكن تعديل ترتيب (التغير) من EVAL_RANK إذا رغبتِ.`;
-  wrap.appendChild(note);
 
   setTimeout(()=>{
     const addBtn = document.getElementById("btnAddPlanRow");
@@ -1054,8 +1099,7 @@ function renderPlansForm(){
           procedure: PROCEDURES[0],
           notes: ""
         });
-        save();
-        render();
+        save(); render();
       };
     }
     const clearBtn = document.getElementById("btnClearPlans");
@@ -1063,8 +1107,7 @@ function renderPlansForm(){
       clearBtn.onclick = ()=>{
         if(!confirm("تأكيد تصفير سجل الخطط؟")) return;
         state.plans.entries = [];
-        save();
-        render();
+        save(); render();
       };
     }
   }, 0);
@@ -1073,47 +1116,81 @@ function renderPlansForm(){
 }
 
 /* =========================
-   Followup / Referral / Parent
+   سجل متابعة (محدث ومنظم)
    ========================= */
-function renderFollowupForm(){
-  const wrap = document.createElement("div");
-  wrap.style.padding = "14px";
+function renderFollowupFormNew(){
+  const w = document.createElement("div");
+  w.style.padding = "14px";
 
-  wrap.innerHTML = `
-    <div class="row">
+  const types = ["تعليمي","سلوكي","مواظبة","صحي","أخرى"];
+  const results = ["تحسن ✅","ثابت ➖","تراجع ⚠️"];
+  const parentContact = ["لم يتم","تم اتصال","تم رسالة","تم حضور ولي أمر"];
+
+  w.innerHTML = `
+    <div class="row3">
       <div>
         <label>اسم الطالبة</label>
-        <input data-form="followup" data-key="studentName" value="${escapeHtml(state.followup.studentName || "")}" placeholder="اسم الطالبة">
+        <input data-fu="studentName" value="${escapeHtml(state.followup.studentName || "")}" placeholder="اسم الطالبة">
+      </div>
+      <div>
+        <label>الصف / الشعبة</label>
+        <input data-fu="gradeClass" value="${escapeHtml(state.followup.gradeClass || state.classroom || "")}" placeholder="مثال: سادس/أ">
       </div>
       <div>
         <label>اسم المعلمة</label>
-        <input data-form="followup" data-key="teacher" value="${escapeHtml(state.followup.teacher || "")}" placeholder="اسم المعلمة">
+        <input data-fu="teacher" value="${escapeHtml(state.followup.teacher || "")}" placeholder="اسم المعلمة">
+      </div>
+    </div>
+
+    <div class="row3" style="margin-top:10px">
+      <div>
+        <label>نوع المتابعة</label>
+        <select data-fu="followType">
+          ${types.map(t=>`<option ${t===state.followup.followType?"selected":""}>${t}</option>`).join("")}
+        </select>
+      </div>
+      <div>
+        <label>نتيجة المتابعة</label>
+        <select data-fu="result">
+          ${results.map(t=>`<option ${t===state.followup.result?"selected":""}>${t}</option>`).join("")}
+        </select>
+      </div>
+      <div>
+        <label>التواصل مع ولي الأمر</label>
+        <select data-fu="parentContact">
+          ${parentContact.map(t=>`<option ${t===state.followup.parentContact?"selected":""}>${t}</option>`).join("")}
+        </select>
       </div>
     </div>
 
     <div style="margin-top:10px">
-      <label>الملاحظة / سبب المتابعة</label>
-      <textarea data-form="followup" data-key="issue" placeholder="اكتبي الملاحظة بشكل واضح">${escapeHtml(state.followup.issue || "")}</textarea>
+      <label>سبب المتابعة / الملاحظة</label>
+      <textarea data-fu="reason" placeholder="اكتبي السبب بشكل واضح">${escapeHtml(state.followup.reason || "")}</textarea>
     </div>
 
     <div style="margin-top:10px">
       <label>الإجراءات المتخذة</label>
-      <textarea data-form="followup" data-key="actions" placeholder="مثال: تنبيه شفهي، خطة دعم، تواصل…">${escapeHtml(state.followup.actions || "")}</textarea>
+      <textarea data-fu="actions" placeholder="مثال: علاج فردي، ورقة عمل، تواصل ولي أمر...">${escapeHtml(state.followup.actions || "")}</textarea>
     </div>
 
     <div style="margin-top:10px">
       <label>ملاحظات إضافية</label>
-      <textarea data-form="followup" data-key="notes">${escapeHtml(state.followup.notes || "")}</textarea>
+      <textarea data-fu="notes">${escapeHtml(state.followup.notes || "")}</textarea>
     </div>
 
-    <div style="margin-top:12px" class="row">
-      <div class="kv" style="padding:10px;border:1px solid var(--line);border-radius:10px">التوقيع: ............................</div>
-      <div class="kv" style="padding:10px;border:1px solid var(--line);border-radius:10px">الختم: ............................</div>
+    <div style="margin-top:12px" class="row3">
+      <div class="kv" style="padding:10px;border:1px solid var(--line);border-radius:10px">توقيع المعلمة: ............................</div>
+      <div class="kv" style="padding:10px;border:1px solid var(--line);border-radius:10px">توقيع ولي الأمر (إن وجد): ............................</div>
+      <div class="kv" style="padding:10px;border:1px solid var(--line);border-radius:10px">اعتماد الإدارة: ............................</div>
     </div>
   `;
-  return wrap;
+
+  return w;
 }
 
+/* =========================
+   Referral / Parent (كما كانت)
+   ========================= */
 function renderReferralForm(receiverLabel){
   const wrap = document.createElement("div");
   wrap.style.padding = "14px";
@@ -1169,7 +1246,6 @@ function renderReferralForm(receiverLabel){
 function renderParentNoticeForm(){
   const wrap = document.createElement("div");
   wrap.style.padding = "14px";
-
   const defaultMsg = `نود إشعاركم بما يلي بخصوص الطالبة، ونؤكد أهمية التعاون لتحقيق أفضل النتائج.`;
 
   wrap.innerHTML = `
@@ -1217,7 +1293,7 @@ function renderParentNoticeForm(){
    Wire Inputs
    ========================= */
 function wireDynamicInputs(){
-  // Grades
+  // درجات (كل الحقول)
   const gInputs = document.querySelectorAll("#printArea input.inline-input[data-kind]");
   gInputs.forEach(inp=>{
     inp.addEventListener("input", ()=>{
@@ -1230,7 +1306,6 @@ function wireDynamicInputs(){
       }else{
         const maxMap = { p1_a: GRADES_SCHEMA.p1A, p1_b: GRADES_SCHEMA.p1B, p2_a: GRADES_SCHEMA.p2A, p2_b: GRADES_SCHEMA.p2B, final: GRADES_SCHEMA.final };
         state.students[i][kind] = clampNum(inp.value, maxMap[kind]);
-        inp.value = state.students[i][kind];
       }
       save();
       render();
@@ -1238,7 +1313,17 @@ function wireDynamicInputs(){
     });
   });
 
-  // Other forms
+  // سجل متابعة (محدث)
+  const fuInputs = document.querySelectorAll("#printArea [data-fu]");
+  fuInputs.forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      const k = inp.dataset.fu;
+      state.followup[k] = inp.value;
+      save();
+    });
+  });
+
+  // Referral/Parent
   const formInputs = document.querySelectorAll("#printArea [data-form]");
   formInputs.forEach(inp=>{
     inp.addEventListener("input", ()=>{
@@ -1262,20 +1347,15 @@ function wireDynamicInputs(){
       if(k === "pre" || k === "post"){
         row[k] = normalizeEval(row[k]);
       }
-
       if(k === "grade" || k === "subject"){
         const g = Number(row.grade || 1);
         row.grade = g;
         const subj = row.subject || "لغتي";
         const skills = getSkills(g, subj);
         if(!skills.includes(row.skill)) row.skill = skills[0];
-        save();
-        render();
-        return;
+        save(); render(); return;
       }
-
-      save();
-      render(); // لإعادة تحديث “نتيجة التغير”
+      save(); render();
     });
   });
 
@@ -1283,10 +1363,8 @@ function wireDynamicInputs(){
   delBtns.forEach(btn=>{
     btn.addEventListener("click", ()=>{
       const i = Number(btn.dataset.plansDel);
-      if(!state.plans || !state.plans.entries) return;
       state.plans.entries.splice(i,1);
-      save();
-      render();
+      save(); render();
     });
   });
 }
@@ -1301,9 +1379,7 @@ function setStudentsFromNames(names){
     const old = oldByName.get(name);
     return old ? {...old, name} : {name, p1_a:0, p1_b:0, p2_a:0, p2_b:0, final:0};
   });
-  save();
-  syncInputs();
-  render();
+  save(); syncInputs(); render();
 }
 
 function parseCSV(text){
@@ -1321,16 +1397,9 @@ function parseCSV(text){
 async function ocrNamesFromImage(file){
   el("cloudStatus").innerHTML = "<b>OCR:</b> جاري استخراج النص من الصورة…";
   try{
-    const { data } = await Tesseract.recognize(file, "ara", {
-      logger: m => {
-        if(m.status && m.progress != null){
-          el("cloudStatus").innerHTML = `<b>OCR:</b> ${escapeHtml(m.status)} — ${Math.round(m.progress*100)}%`;
-        }
-      }
-    });
+    const { data } = await Tesseract.recognize(file, "ara");
     const text = (data.text || "").trim();
-    const names = text.split(/\r?\n/).map(s=>s.trim()).filter(s=>s && s.length>=2)
-      .filter(s=> !/وزارة|Education|الفترة|المجموع|اختبار|متوسط/i.test(s));
+    const names = text.split(/\r?\n/).map(s=>s.trim()).filter(s=>s && s.length>=2);
     el("namesPaste").value = names.join("\n");
     el("cloudStatus").innerHTML = "<b>OCR:</b> تم. اضغطي (تطبيق الأسماء).";
   }catch(e){
@@ -1360,7 +1429,6 @@ async function exportPDF(){
 
   const pageW = pdf.internal.pageSize.getWidth();
   const pageH = pdf.internal.pageSize.getHeight();
-
   const imgW = pageW;
   const imgH = (canvas.height * imgW) / canvas.width;
 
@@ -1424,8 +1492,14 @@ function attachTopEvents(){
   el("btnPrint").addEventListener("click", doPrint);
   el("btnPDF").addEventListener("click", exportPDF);
 
+  // استرجاع يدوي من السحابة
+  el("btnCloudReload").addEventListener("click", async ()=>{
+    await cloudLoad();
+    await cloudVisit();
+  });
+
   el("btnReset").addEventListener("click", ()=>{
-    if(!confirm("هل تريدين تصفير بيانات هذا المستخدم؟")) return;
+    if(!confirm("سيتم تصفير البيانات محليًا فقط (السحابة تبقى محفوظة). هل تتابعين؟")) return;
     localStorage.removeItem(STORAGE_KEY);
     location.reload();
   });
@@ -1446,9 +1520,7 @@ function attachTopEvents(){
     const f = e.target.files?.[0];
     if(!f) return;
     try{
-      const obj = JSON.parse(await f.text());
-      Object.assign(state, obj);
-      // تطبيع قبلي/بعدي
+      Object.assign(state, JSON.parse(await f.text()));
       if(state.plans && Array.isArray(state.plans.entries)){
         state.plans.entries.forEach(r=>{
           r.pre = normalizeEval(r.pre);
@@ -1493,24 +1565,15 @@ function attachTopEvents(){
     ];
   }
 
-  // تطبيع قبلي/بعدي إن وجدت بيانات قديمة
-  if(state.plans && Array.isArray(state.plans.entries)){
-    state.plans.entries.forEach(r=>{
-      r.pre = normalizeEval(r.pre);
-      r.post = normalizeEval(r.post);
-    });
-  }
-
   attachTopEvents();
   syncInputs();
   render();
 
-  // سحابي: تحميل + تسجيل زيارة + عداد عالمي
+  // سحابي
   setCloudPill("جاري الاتصال…", null);
   cloudLoad();
   cloudVisit();
 
-  // حفظ قبل الإغلاق
   window.addEventListener("beforeunload", saveLocal);
 })();
 </script>
