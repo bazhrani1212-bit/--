@@ -13,7 +13,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
-  <!-- OCR عربي (اختياري) لاستيراد أسماء من صورة -->
+  <!-- OCR عربي (اختياري) -->
   <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
   <style>
@@ -59,9 +59,7 @@
       justify-content:space-between;
       flex-wrap:wrap;
     }
-    .title{
-      display:flex; gap:10px; align-items:center;
-    }
+    .title{display:flex; gap:10px; align-items:center;}
     .badge{
       width:44px; height:44px; border-radius:12px;
       background:linear-gradient(135deg,#22c55e,#0ea5e9);
@@ -103,7 +101,7 @@
     main{
       padding:0 16px 18px;
       display:grid;
-      grid-template-columns: 360px 1fr;
+      grid-template-columns: 390px 1fr;
       gap:12px;
       max-width:100%;
     }
@@ -128,10 +126,7 @@
       gap:10px;
       flex-wrap:wrap;
     }
-    .card-hd .hd-title{
-      font-weight:900;
-      font-size:14px;
-    }
+    .card-hd .hd-title{font-weight:900;font-size:14px;}
     .card-bd{padding:12px}
 
     label{
@@ -263,7 +258,6 @@
     }
     .inline-input.name{text-align:right;font-weight:900}
 
-    /* بدون أسهم */
     input[type=number]::-webkit-outer-spin-button,
     input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     input[type=number] { -moz-appearance: textfield; }
@@ -286,7 +280,6 @@
       background:#fafafa;
     }
 
-    /* كروت للهواتف */
     @media (max-width: 820px){
       .grades-table-desktop{display:none !important;}
       .grades-cards-mobile{display:block !important;}
@@ -339,7 +332,6 @@
       margin-bottom:6px;
     }
 
-    /* مربعات صح/خطأ */
     .mark-btn{
       width:26px;height:26px;
       border-radius:6px;
@@ -362,17 +354,50 @@
     .crit-h.perf{background:color-mix(in oklab, var(--c-perf) 30%, white)}
     .crit-h.class{background:color-mix(in oklab, var(--c-class) 30%, white)}
 
-    .mini-title{
-      font-weight:900;
-      margin:0 12px 6px;
+    .mini-title{font-weight:900;margin:0 12px 6px;color:#111;font-size:13px;}
+
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      padding:2px 8px;
+      border:1px solid var(--line);
+      border-radius:8px;
+      background:#fff;
       color:#111;
-      font-size:13px;
+      font-weight:800;
     }
 
-    /* طباعة */
+    /* login overlay */
+    .overlay{
+      position:fixed; inset:0;
+      background:rgba(17,24,39,.55);
+      display:none;
+      align-items:center; justify-content:center;
+      padding:18px;
+      z-index:9999;
+    }
+    .overlay.show{display:flex;}
+    .overlay .modal{
+      width:min(520px, 100%);
+      background:#fff;
+      border-radius:16px;
+      border:1px solid var(--line);
+      overflow:hidden;
+      box-shadow:0 10px 40px rgba(0,0,0,.15);
+    }
+    .modal-hd{
+      padding:14px 14px;
+      border-bottom:1px solid var(--line);
+      font-weight:900;
+    }
+    .modal-bd{padding:14px;}
+    .modal-bd p{margin:0 0 10px; color:var(--muted); font-size:13px; line-height:1.7;}
+    .modal-actions{display:flex; gap:8px; padding:0 14px 14px; flex-wrap:wrap;}
+    .modal-actions button{flex:1}
+
     @media print{
       body{background:#fff}
-      header, .card.left, .top-actions, .no-print{display:none !important}
+      header, .card.left, .top-actions, .no-print, .overlay{display:none !important}
       main{display:block; padding:0}
       #printArea{border:none !important;border-radius:0 !important;}
       @page{ size: A4 landscape; margin: 10mm; }
@@ -383,12 +408,30 @@
 </head>
 
 <body>
+
+<!-- Login overlay (إذا ما في ?user= ) -->
+<div class="overlay" id="loginOverlay">
+  <div class="modal">
+    <div class="modal-hd">تسجيل دخول المعلمة</div>
+    <div class="modal-bd">
+      <p>اكتبي اسم المعلمة (يستخدم للحفظ السحابي). سيتم فتح الرابط تلقائيًا بهذا الشكل: <span class="kbd">?user=اسم_المعلمة</span></p>
+      <label>اسم المعلمة</label>
+      <input id="loginName" placeholder="مثال: معلمة نورة" />
+      <div class="hint">إذا كان عندكم أكثر من معلمة تستخدم نفس الموقع: كل معلمة تدخل باسمها ليصير لها سجلاتها الخاصة.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="primary" id="btnLoginGo">دخول</button>
+      <button id="btnLoginClose">إغلاق (استخدام افتراضي)</button>
+    </div>
+  </div>
+</div>
+
 <header>
   <div class="title">
     <div class="badge">✓</div>
     <div>
       <h1>استمارات الرصد التفاعلية</h1>
-      <div class="sub">حفظ سحابي (Google Sheet) + طباعة + PDF + متابعة شهرية (صح/خطأ) + مهارات تفاعلية</div>
+      <div class="sub">سجلات متعددة لكل معلمة + حفظ سحابي Google Sheet + PDF + متابعة شهرية (صح/خطأ)</div>
     </div>
   </div>
 
@@ -397,11 +440,12 @@
     <span class="pill" id="globalPill">زيارات عالمية: …</span>
     <span class="pill" id="visitPill">زيارات الجهاز: …</span>
     <span class="pill" id="userPill">مستخدم: …</span>
+    <button class="btn" id="btnSwitchUser">تبديل المعلمة</button>
     <button class="btn" id="btnCloudReload">استرجاع من السحابة الآن</button>
     <button class="btn" id="btnExportJSON">تصدير بيانات (JSON)</button>
     <button class="btn" id="btnImportJSON">استيراد بيانات (JSON)</button>
     <input id="jsonFile" type="file" accept="application/json" hidden />
-    <button class="danger" id="btnReset">تصفير البيانات (محليًا فقط)</button>
+    <button class="danger" id="btnResetLocal">تصفير محلي فقط</button>
   </div>
 </header>
 
@@ -409,10 +453,54 @@
   <!-- يسار -->
   <section class="card left">
     <div class="card-hd">
-      <div class="hd-title">الإعدادات</div>
+      <div class="hd-title">السجلات المحفوظة</div>
       <span class="pill" id="autosavePill">حفظ تلقائي: يعمل</span>
     </div>
+
     <div class="card-bd">
+      <!-- سجل/Record picker -->
+      <div>
+        <label>اختيار السجل</label>
+        <select id="recordSelect"></select>
+      </div>
+
+      <div class="row" style="margin-top:8px">
+        <button class="primary" id="btnNewRecord">إضافة سجل جديد</button>
+        <button id="btnRenameRecord">إعادة تسمية</button>
+      </div>
+
+      <div class="row" style="margin-top:8px">
+        <button id="btnDuplicateRecord">نسخ سجل</button>
+        <button class="danger" id="btnDeleteRecord">حذف السجل</button>
+      </div>
+
+      <div class="status">
+        ✅ كل سجل مستقل (صف/شعبة/مادة/استمارة).<br>
+        ✅ يمكن إنشاء سجلات بعدد الصفوف دفعة واحدة من القسم التالي.
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--line); margin:14px 0">
+
+      <!-- Bulk create records by classes -->
+      <div>
+        <label>إنشاء سجلات متعددة (كل صف/شعبة في سطر)</label>
+        <textarea id="bulkRecords" placeholder="مثال:
+سادس/أ
+سادس/ب
+خامس/أ"></textarea>
+        <div class="row" style="margin-top:8px">
+          <button class="primary" id="btnCreateMany">إنشاء السجلات</button>
+          <button id="btnClearMany">مسح</button>
+        </div>
+        <div class="hint">ينشئ لكل سطر سجلًا جديدًا بنفس الإعدادات (يمكنك تعديل المادة/النوع لاحقًا داخل كل سجل).</div>
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--line); margin:14px 0">
+
+      <div class="card-hd" style="padding:0 0 10px;border:0">
+        <div class="hd-title">إعدادات السجل الحالي</div>
+      </div>
+
       <div class="row">
         <div>
           <label>نوع الاستمارة</label>
@@ -446,15 +534,35 @@
         </div>
       </div>
 
+      <div class="row3" style="margin-top:10px">
+        <div>
+          <label>الفصل الدراسي (بالعربي)</label>
+          <select id="termAr">
+            <option value="الأول">الأول</option>
+            <option value="الثاني">الثاني</option>
+            <option value="الثالث">الثالث</option>
+          </select>
+        </div>
+        <div>
+          <label>العام الدراسي (بالعربي)</label>
+          <input id="academicYearAr" placeholder="مثال: ١٤٤٧هـ" />
+          <div class="hint">يحوّل 1447 تلقائيًا إلى ١٤٤٧</div>
+        </div>
+        <div>
+          <label>عنوان السجل</label>
+          <input id="recordTitle" placeholder="مثال: سجل درجات علوم - سادس/أ" />
+        </div>
+      </div>
+
       <div class="status" id="cloudStatus">
-        <b>الحفظ السحابي:</b> يتم حفظ البيانات على Google Sheet تلقائيًا — وتبقى محفوظة حتى بعد سنة وأكثر.
-        <br><b>تعدد المستخدمين:</b> افتحي الرابط مع ?user=اسم_المستخدمة (مثل: ?user=معلمة_نورة).
+        <b>الحفظ السحابي:</b> يحفظ كل السجلات (وليس سجل واحد) داخل Google Sheet حسب المعلمة.  
+        <br><b>معلومة:</b> يمكنك فتح رابط المعلمة مباشرة: <span class="kbd">?user=اسم_المعلمة</span>
       </div>
 
       <hr style="border:none;border-top:1px solid var(--line); margin:14px 0">
 
       <div class="card-hd" style="padding:0 0 10px;border:0">
-        <div class="hd-title">أسماء الطالبات</div>
+        <div class="hd-title">أسماء الطالبات (للسجل الحالي)</div>
       </div>
 
       <div class="row">
@@ -486,7 +594,7 @@
   <!-- يمين -->
   <section class="card">
     <div class="card-hd no-print">
-      <div class="hd-title">معاينة الاستمارة</div>
+      <div class="hd-title">معاينة الاستمارة (السجل الحالي)</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button id="btnPrint">طباعة</button>
         <button class="primary" id="btnPDF">تصدير PDF</button>
@@ -502,62 +610,61 @@
    Google Sheet Web App
    ========================= */
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMZOvfhuzGY3Unz2jqyFVfSLkvN5xQKxuXyOqpUV9hkdcokD4vxjjDxjZtqkoWzvir/exec";
-const APP_TOKEN = ""; // إذا سكربتك يطلب توكن اكتبيه هنا
+const APP_TOKEN = ""; // إذا كان عندك توكن اكتبيه هنا
 
 /* =========================
-   تعدد المستخدمين: ?user=
+   Helpers
+   ========================= */
+const el = (id)=>document.getElementById(id);
+
+function escapeHtml(s){
+  return (s ?? "").toString()
+    .replaceAll("&","&amp;").replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"quot;")
+    .replaceAll("'","&#039;");
+}
+function uid(){
+  return "r_" + Math.random().toString(16).slice(2) + "_" + Date.now().toString(16);
+}
+function toArabicDigits(str){
+  const map = {'0':'٠','1':'١','2':'٢','3':'٣','4':'٤','5':'٥','6':'٦','7':'٧','8':'٨','9':'٩'};
+  return (str ?? "").toString().replace(/[0-9]/g, d=>map[d]);
+}
+function normalizeAcademicYear(input){
+  // يترك هـ إن وجدت، ويحوّل الأرقام
+  const s = (input ?? "").toString().trim();
+  if(!s) return "";
+  const converted = toArabicDigits(s);
+  return converted.includes("هـ") ? converted : (converted.endsWith("ه") ? converted : converted + (converted.match(/[٠-٩]/) ? "هـ" : ""));
+}
+function clampNum(x, max){
+  const cleaned = (x ?? "").toString().replace(/[^\d.]/g,"");
+  const n = Number(cleaned);
+  if(Number.isNaN(n)) return 0;
+  return Math.max(0, Math.min(max, n));
+}
+function arabicMonthName(m){
+  const months = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+  return months[(m-1)] || "";
+}
+
+/* =========================
+   userKey from URL
    ========================= */
 function getUserKey(){
   const params = new URLSearchParams(location.search);
-  const u = (params.get("user") || "default").trim();
+  const u = (params.get("user") || "").trim();
   return u ? u : "default";
 }
-const USER_KEY = getUserKey();
-const STORAGE_KEY = "irs_v5_" + USER_KEY;
+let USER_KEY = getUserKey();
+let STORAGE_KEY = "irs_records_v1_" + USER_KEY;
 
 /* =========================
-   State
-   ========================= */
-const state = {
-  formType: "grades",
-  subject: "",
-  school: "",
-  classroom: "",
-  date: "",
-  students: [],
-
-  // كشف متابعة شهري (صح/خطأ)
-  monthly: {
-    year: new Date().getFullYear(),
-    month: (new Date().getMonth()+1),
-    term: "",
-    academicYear: "1446هـ",
-    // نفس أعمدة الصورة (قابلة لتعديلك)
-    criteria: [
-      {key:"participation", label:"المشاركة", cls:"part"},
-      {key:"homework", label:"الواجبات", cls:"home"},
-      {key:"performance", label:"المهام الأدائية", cls:"perf"},
-      {key:"classwork", label:"أنشطة صفية", cls:"class"}
-    ],
-    weeks: 5, // شهري (5 أسابيع افتراضي)
-    // البيانات ستخزن لكل طالبة داخل students.monthlyMarks
-  },
-
-  // خطط علاجية/إثرائية
-  plans: { entries: [] },
-
-  referral: { studentName:"", reason:"", details:"", teacher:"", receiver:"", actions:"", notes:"" },
-  parent: { studentName:"", parentName:"", parentPhone:"", message:"", teacher:"", notes:"" }
-};
-
-/* =========================
-   درجات (حسب نموذجك)
+   State: multi-records per teacher
    ========================= */
 const GRADES_SCHEMA = { p1A: 40, p1B: 20, p2A: 40, p2B: 20, final: 40 };
 
-/* =========================
-   تقييم وصفي (للخطط)
-   ========================= */
 const EVAL_LEVELS = [
   "متفوق",
   "تحسن بتفوق",
@@ -567,7 +674,6 @@ const EVAL_LEVELS = [
   "ضعيف",
   "ضعيف جدًا"
 ];
-
 const EVAL_RANK = {
   "متفوق": 6,
   "تحسن بتفوق": 5,
@@ -577,7 +683,6 @@ const EVAL_RANK = {
   "ضعيف": 1,
   "ضعيف جدًا": 0
 };
-
 function normalizeEval(v){
   const s = (v || "").toString().trim();
   return EVAL_LEVELS.includes(s) ? s : "يحتاج متابعة";
@@ -590,21 +695,14 @@ function getChangeLabel(pre, post){
   return {text:"ثابت ➖", cls:"warn"};
 }
 
-/* =========================
-   مهارات من ملفاتك (علوم للصف 3/5/6) — مضافة تفاعليًا
-   ========================= */
+const SUBJECTS = ["لغتي","رياضيات","علوم","إنجليزي","إسلامية","اجتماعيات"];
+const PROCEDURES = ["ورقة عمل مركزة","تعليم فردي (1:1)","مجموعة علاجية صغيرة","مجموعة إثرائية","تعلم بالأقران","لعبة تعليمية رقمية","واجب علاجي منزلي","نشاط عملي/تجربة","بطاقات/شفهي","اختبار قصير"];
+
 const SCI_SKILLS_FROM_FILES = {
   3: ["تطبيق الطريقة العلمية التي يستخدمها العلماء بصورة مبسطة في تعلم العلوم ..","تعداد خصائص المخلوقات الحية","استنتاج حاجات المخلوقات الحية .","تفسير مفهوم دورة الحياة.","تعداد مراحل دورة الحياة في الحيوان والنبات","استنتاج العلاقة بين التكاثر وبقاء النوع","ذكر أنواع التكاثر في المخلوقات الحية","ذكر خصائص كل من التكاثر الجنسي واللاجنسي","تفسير كيف يكون التكاثر اللاجنسي في الهيدرا والنجم.","ذكر مفهوم الإخصاب في التكاثر الجنسي","تحديد أجزاء الزهرة ووظيفة كل جزء منها","تفسير كيفية حدوث الإخصاب في الأزهار","توضيح معنى التلقيح مع ذكر أهم طرقه","توضيح مفهوم الثمرة وكيف تتكون","ذكر مفهوم البذرة وكيف تتكون","تفسير ما معنى الإنبات","ذكر العوامل اللازمة للإنبات","تفسير ما المقصود بعملية البناء الضوئي","تحديد مكان حدوث البناء الضوئي في النبات","توضيح مفهوم التنفس الخلوي","المقارنة بين البناء الضوئي والتنفس الخلوي","توضيح مفهوم الغذاء في المخلوقات الحية","توضيح مفهوم السلسلة الغذائية","ترتيب مكونات السلسلة الغذائية","توضيح مفهوم الشبكة الغذائية","شرح مفهوم المستهلك والمنتج والمحلل في النظام البيئي","توضيح مفهوم الجماعة الحيوية والمجتمع الحيوي","تفسير مفهوم التكيف في المخلوقات الحية","ذكر أنواع التكيف في المخلوقات الحية","توضيح كيف تتكيف الحيوانات والنباتات للبقاء","توضيح مفهوم السلوك في المخلوقات الحية","توضيح مفهوم الغريزة في السلوك","تفسير مفهوم تعلم السلوك","ذكر أنواع السلوك المكتسب","توضيح مفهوم الهجرة في السلوك","توضيح مفهوم السبات في السلوك","توضيح مفهوم التضاد في السلوك","تفسير مفهوم التنافس في السلوك","توضيح مفهوم الافتراس في السلوك","تفسير مفهوم التمويه في السلوك","استنتاج الفرق بين دورة حياة الضفدع والجمل من خلال قراءة مجموعة من الرسوم التوضيحية ."],
   5: ["ممارسة الطريقة العلمية التي يتبعها العلماء في دراسة العلوم بصورة مبسطة ..","تعداد الممالك الست في المخلوقات الحية مع رسم مخطط مبسط لإحدى الممالك","تعداد أقسام النبات في المملكة النباتية","تعداد خصائص النباتات الوعائية واللاوعائية","تعداد خصائص النباتات الوعائية البذرية واللا بذرية","توضيح مفهوم البذرة وأهميتها","تحديد أجزاء البذرة ووظيفة كل جزء","تفسير مفهوم الإنبات","تحديد العوامل اللازمة للإنبات","توضيح مفهوم التبرعم","توضيح مفهوم التطعيم","توضيح مفهوم التركيب الضوئي","تفسير مفهوم التمثيل الضوئي","تحديد العوامل اللازمة لحدوث التمثيل الضوئي","تفسير مفهوم التنفس الخلوي","توضيح مفهوم الهرم الغذائي","تحديد مستويات الهرم الغذائي","توضيح مفهوم السلسلة الغذائية","ترتيب مكونات السلسلة الغذائية","توضيح مفهوم الشبكة الغذائية","توضيح مفهوم التحلل","تفسير مفهوم التحلل الحيوي","توضيح مفهوم البيئة","تحديد العوامل الحيوية واللاحيوية في البيئة","توضيح مفهوم الموارد الطبيعية","توضيح مفهوم الموارد المتجددة والغير متجددة","تفسير مفهوم الوقود الأحفوري","توضيح كيفية تكون الوقود الأحفوري","توضيح مفهوم الطاقة","تحديد أشكال الطاقة","توضيح مفهوم تحول الطاقة","ذكر أمثلة على تحول الطاقة","توضيح مفهوم الحرارة","تفسير مفهوم درجة الحرارة","تفسير مفهوم الموصل والعازل الحراري","توضيح مفهوم الإشعاع الحراري","توضيح مفهوم الحمل الحراري","توضيح مفهوم التوصيل الحراري","توضيح مفهوم الانعكاس","توضيح مفهوم الانكسار","تحديد العلاقة بين سرعة الضوء والكثافة","توضيح مفهوم الصوت","توضيح مفهوم طبقة الأوزون وأهميتها","تفسير مفهوم التلوث","توضيح مفهوم التلوث البيئي","ذكر أنواع التلوث","تحديد أثر التلوث على البيئة","توضيح مفهوم إعادة التدوير","ذكر طرق المحافظة على البيئة","توضيح مفهوم الاحتباس الحراري","ذكر أسباب الاحتباس الحراري"],
   6: ["ممارسة الطريقة العلمية التي يستخدمها العلماء في دراسة العلوم بصورة مبسطة ..","ذكر مفهوم النظرية الخلوية","توضيح أن الخلية هي وحدة البناء والوظيفة في المخلوقات الحية","رسم مخطط يوضح تسلسل مستويات التنظيم في المخلوقات الحية","ذكر بعض المركبات الموجودة في خلايا المخلوقات الحية ووظائفها","المقارنة بين الخلية النباتية والخلية الحيوانية","تحديد وظيفة كل عضو من أعضاء الخلية","توضيح مفهوم الانتشار والتناضح","تحديد الفرق بين النقل السلبي والنقل النشط ..","توضيح مفهوم البناء الضوئي","توضيح مفهوم التنفس الخلوي","التمييز بين عمليتي البناء الضوئي والتنفس الخلوي","تلخيص دورة حياة الخلية","تعداد أنواع الانقسام في الخلية","المقارنة بين الانقسام المنصف والانقسام المتساوي","معرفة مفهوم الوراثة","توضيح مفهوم الصفة الوراثية","توضيح مفهوم الجين","توضيح مفهوم الكروموسوم","توضيح مفهوم الطفرة","توضيح مفهوم التكيف","تفسير مفهوم الانتخاب الطبيعي","توضيح مفهوم التنوع الحيوي","ذكر مفهوم الانقراض","توضيح مفهوم الجماعة الحيوية","توضيح مفهوم المجتمع الحيوي","توضيح مفهوم النظام البيئي","تحديد العوامل الحيوية واللاحيوية في النظام البيئي","توضيح مفهوم السلسلة الغذائية","ترتيب مكونات السلسلة الغذائية","توضيح مفهوم الشبكة الغذائية","ذكر مفهوم الهرم الغذائي","توضيح مفهوم الموارد الطبيعية","توضيح مفهوم الموارد المتجددة والغير متجددة","تفسير مفهوم الوقود الأحفوري","توضيح كيفية تكون الوقود الأحفوري","ذكر مفهوم الطاقة","تحديد أشكال الطاقة","توضيح مفهوم تحول الطاقة","ذكر أمثلة على تحول الطاقة","توضيح مفهوم الكهرباء","توضيح مفهوم الدائرة الكهربائية","ذكر مكونات الدائرة الكهربائية","تمييز الدوائر الكهربائية (مفتوحة/مغلقة)","توضيح مفهوم الموصل والعازل الكهربائي","توضيح مفهوم المغناطيس","توضيح مفهوم الكواكب","ترتيب كواكب المجموعة الشمسية","توضيح مفهوم الكسوف والخسوف","ذكر مفهوم المد والجزر","تفسير مفهوم الزلازل","تفسير مفهوم البراكين","ذكر طرق السلامة أثناء الزلازل والبراكين"]
 };
-
-/* =========================
-   مواد + مهارات + إجراءات
-   ========================= */
-const SUBJECTS = ["لغتي","رياضيات","علوم","إنجليزي","إسلامية","اجتماعيات"];
-const PROCEDURES = ["ورقة عمل مركزة","تعليم فردي (1:1)","مجموعة علاجية صغيرة","مجموعة إثرائية","تعلم بالأقران","لعبة تعليمية رقمية","واجب علاجي منزلي","نشاط عملي/تجربة","بطاقات/شفهي","اختبار قصير"];
-
 const SKILLS_MAP_FALLBACK = {
   1: { "لغتي":["تمييز الحروف","قراءة كلمات","كتابة كلمات","فهم جملة"], "رياضيات":["العد","المقارنة","جمع ضمن 20","طرح ضمن 20"], "علوم":["الحواس","احتياجات الكائن","حي/غير حي","الطقس"], "إنجليزي":["حروف","مفردات","جملة","مطابقة"], "إسلامية":["آداب","سور قصيرة","وضوء","صلاة"], "اجتماعيات":["الأسرة","المدرسة","المجتمع","رموز وطنية"] },
   2: { "لغتي":["قراءة نص","فكرة رئيسة","تجزئة كلمات","إملاء"], "رياضيات":["جمع/طرح 100","قيمة منزلية","قياس","أنماط"], "علوم":["دورات حياة","خصائص المادة","مغناطيس","البيئة"], "إنجليزي":["مفردات","مضارع","أسئلة","قراءة جمل"], "إسلامية":["توحيد","آداب","أذكار","صلاة"], "اجتماعيات":["اتجاهات","خريطة","مهن","معالم"] },
@@ -613,54 +711,94 @@ const SKILLS_MAP_FALLBACK = {
   5: { "لغتي":["تحليل","تلخيص","مقال","قواعد"], "رياضيات":["نسبة","كسور","بياني","حجوم"], "علوم":["مصادر الطاقة","دورات","احتكاك","مناخ"], "إنجليزي":["استنتاج","كتابة","قواعد","عرض"], "إسلامية":["فقه","تفسير","سيرة","قيم"], "اجتماعيات":["أنظمة","خرائط","جغرافيا","مشروعات"] },
   6: { "لغتي":["فهم عميق","أدلة","تحليل","تقرير/مقال"], "رياضيات":["معادلات","إحصاء","هندسة","نسب مئوية"], "علوم":["خلايا","وراثة","أنظمة بيئية","مادة/طاقة"], "إنجليزي":["قراءة طويلة","كتابة","تحدث","قواعد"], "إسلامية":["تجويد","فقه","عقيدة","سيرة"], "اجتماعيات":["تاريخ","جغرافيا","مواطنة","تنمية"] }
 };
-
 function getSkills(grade, subject){
-  // أولوية لمهارات علوم من ملفاتك (3/5/6)
-  if(subject === "علوم" && SCI_SKILLS_FROM_FILES[grade]){
-    return SCI_SKILLS_FROM_FILES[grade];
-  }
+  if(subject === "علوم" && SCI_SKILLS_FROM_FILES[grade]) return SCI_SKILLS_FROM_FILES[grade];
   const g = SKILLS_MAP_FALLBACK[grade] || {};
   return g[subject] || ["مهارة (أضيفيها حسب حاجتك)"];
 }
 
+function defaultRecord(overrides={}){
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  const date = `${yyyy}-${mm}-${dd}`;
+
+  const id = uid();
+  const rec = {
+    id,
+    title: overrides.title || "سجل جديد",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+
+    formType: overrides.formType || "grades",
+    subject: overrides.subject || "",
+    school: overrides.school || "",
+    classroom: overrides.classroom || "",
+    date: overrides.date || date,
+    termAr: overrides.termAr || "الأول",
+    academicYearAr: overrides.academicYearAr || "١٤٤٦هـ",
+
+    students: overrides.students || [],
+
+    monthly: {
+      year: yyyy,
+      month: (d.getMonth()+1),
+      term: overrides.termAr || "الأول",
+      academicYear: overrides.academicYearAr || "١٤٤٦هـ",
+      criteria: [
+        {key:"participation", label:"المشاركة", cls:"part"},
+        {key:"homework", label:"الواجبات", cls:"home"},
+        {key:"performance", label:"المهام الأدائية", cls:"perf"},
+        {key:"classwork", label:"أنشطة صفية", cls:"class"}
+      ],
+      weeks: 5
+    },
+
+    plans: { entries: [] },
+    referral: { studentName:"", reason:"", details:"", teacher:"", receiver:"", actions:"", notes:"" },
+    parent: { studentName:"", parentName:"", parentPhone:"", message:"", teacher:"", notes:"" }
+  };
+
+  return rec;
+}
+
 /* =========================
-   Helpers
+   Global app state
    ========================= */
-const el = (id)=>document.getElementById(id);
+const state = {
+  version: 1,
+  userKey: USER_KEY,
+  records: [],
+  activeId: null
+};
 
-function escapeHtml(s){
-  return (s ?? "").toString()
-    .replaceAll("&","&amp;").replaceAll("<","&lt;")
-    .replaceAll(">","&gt;").replaceAll('"',"quot;")
-    .replaceAll("'","&#039;");
+function getActiveRecord(){
+  if(!state.activeId && state.records.length) state.activeId = state.records[0].id;
+  return state.records.find(r=>r.id===state.activeId) || null;
 }
-
-function clampNum(x, max){
-  const cleaned = (x ?? "").toString().replace(/[^\d.]/g,"");
-  const n = Number(cleaned);
-  if(Number.isNaN(n)) return 0;
-  return Math.max(0, Math.min(max, n));
-}
-
-function arabicMonthName(m){
-  const months = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
-  return months[(m-1)] || "";
+function touchRecord(rec){
+  rec.updatedAt = new Date().toISOString();
 }
 
 /* =========================
    Local Save/Load
    ========================= */
-let saveTimer = null;
 function saveLocal(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
 function loadLocal(){
   const raw = localStorage.getItem(STORAGE_KEY);
-  if(!raw) return;
-  try{ Object.assign(state, JSON.parse(raw)); }catch(e){}
+  if(!raw) return false;
+  try{
+    const parsed = JSON.parse(raw);
+    if(parsed && parsed.records) Object.assign(state, parsed);
+    return true;
+  }catch(e){ return false; }
 }
 
 /* =========================
-   Cloud Save/Load
+   Cloud Save/Load (يحفظ state كامل)
    ========================= */
+let saveTimer = null;
 function setCloudPill(status, ok=null){
   const pill = el("cloudPill");
   let cls = "dot neu";
@@ -668,44 +806,43 @@ function setCloudPill(status, ok=null){
   if(ok === false) cls = "dot bad";
   pill.innerHTML = `<span class="${cls}"></span> سحابي: ${escapeHtml(status)}`;
 }
-
 async function fetchWithTimeout(url, opts={}, timeoutMs=15000){
   const ctrl = new AbortController();
   const t = setTimeout(()=>ctrl.abort(), timeoutMs);
   try{ return await fetch(url, {...opts, signal: ctrl.signal}); }
   finally{ clearTimeout(t); }
 }
-
 async function cloudLoad(){
   try{
     const url = new URL(SCRIPT_URL);
     url.searchParams.set("action","load");
     url.searchParams.set("userKey", USER_KEY);
     url.searchParams.set("token", APP_TOKEN);
+
     const res = await fetchWithTimeout(url.toString(), {method:"GET"});
     const data = await res.json();
 
     if(data.ok && data.found && data.state){
       Object.assign(state, data.state);
+      if(!state.userKey) state.userKey = USER_KEY;
+      if(!state.records) state.records = [];
       setCloudPill("متصل ✓ (تم التحميل)", true);
       saveLocal();
-      syncInputs();
+      syncUI();
       render();
     }else if(data.ok){
       setCloudPill("متصل ✓ (لا يوجد بيانات بعد)", true);
     }else{
-      setCloudPill("مشكلة توكن/صلاحية", false);
+      setCloudPill("مشكلة صلاحية/توكن", false);
     }
   }catch(e){
-    setCloudPill("غير متصل (سيعمل محليًا)", false);
+    setCloudPill("غير متصل (محليًا)", false);
   }
 }
-
 function cloudSaveDebounced(){
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(()=>cloudSave(), 900);
+  saveTimer = setTimeout(()=>cloudSave(), 800);
 }
-
 async function cloudSave(){
   try{
     const payload = { action:"save", token: APP_TOKEN, userKey: USER_KEY, state };
@@ -721,7 +858,6 @@ async function cloudSave(){
     setCloudPill("انقطاع (تم الحفظ محليًا)", false);
   }
 }
-
 async function cloudVisit(){
   try{
     const url = new URL(SCRIPT_URL);
@@ -735,12 +871,14 @@ async function cloudVisit(){
     el("globalPill").textContent = "زيارات عالمية: —";
   }
 }
-
-function save(){
+function saveAll(){
   saveLocal();
   cloudSaveDebounced();
 }
 
+/* =========================
+   Visits + user info
+   ========================= */
 function bumpLocalVisits(){
   const vk = "irs_visits_" + USER_KEY;
   const v = parseInt(localStorage.getItem(vk) || "0", 10) + 1;
@@ -750,19 +888,83 @@ function bumpLocalVisits(){
 function showUser(){ el("userPill").textContent = "مستخدم: " + USER_KEY; }
 
 /* =========================
-   UI Sync
+   Monthly helpers
    ========================= */
-function syncInputs(){
-  el("formType").value = state.formType;
-  el("subject").value = state.subject || "";
-  el("school").value = state.school || "";
-  el("classroom").value = state.classroom || "";
-  el("date").value = state.date || "";
-  el("namesCountHint").textContent = "عدد الطالبات: " + (state.students?.length || 0);
+function ensureMonthlyForStudents(rec){
+  const weeks = rec.monthly.weeks || 5;
+  const criteria = rec.monthly.criteria || [];
+  (rec.students || []).forEach(st=>{
+    if(!st.monthlyMarks) st.monthlyMarks = {};
+    criteria.forEach(cr=>{
+      if(!Array.isArray(st.monthlyMarks[cr.key])) st.monthlyMarks[cr.key] = new Array(weeks).fill(null);
+      if(st.monthlyMarks[cr.key].length !== weeks){
+        const old = st.monthlyMarks[cr.key].slice(0, weeks);
+        while(old.length < weeks) old.push(null);
+        st.monthlyMarks[cr.key] = old;
+      }
+    });
+  });
+}
+function toggleMarkValue(current){
+  if(current === null || current === undefined) return true;
+  if(current === true) return false;
+  return null;
+}
+function markClass(v){ if(v===true) return "ok"; if(v===false) return "bad"; return "neu"; }
+function markText(v){ if(v===true) return "✓"; if(v===false) return "✗"; return ""; }
+
+/* =========================
+   UI sync
+   ========================= */
+function buildRecordTitle(rec){
+  const parts = [];
+  if(rec.formType === "grades") parts.push("سجل درجات");
+  if(rec.formType === "monthly") parts.push("كشف متابعة شهري");
+  if(rec.formType === "plans") parts.push("خطط علاجية/إثرائية");
+  if(rec.formType === "counselor") parts.push("تحويل للموجهة");
+  if(rec.formType === "principal") parts.push("تحويل للمديرة");
+  if(rec.formType === "parent") parts.push("تبليغ ولي الأمر");
+  if(rec.subject) parts.push(rec.subject);
+  if(rec.classroom) parts.push(rec.classroom);
+  return parts.join(" - ") || "سجل";
+}
+function refreshRecordSelect(){
+  const sel = el("recordSelect");
+  sel.innerHTML = "";
+  state.records.forEach(r=>{
+    const opt = document.createElement("option");
+    opt.value = r.id;
+    opt.textContent = (r.title && r.title.trim()) ? r.title.trim() : buildRecordTitle(r);
+    if(r.id === state.activeId) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+function syncUI(){
+  refreshRecordSelect();
+
+  const rec = getActiveRecord();
+  if(!rec){
+    el("namesCountHint").textContent = "عدد الطالبات: 0";
+    return;
+  }
+
+  el("formType").value = rec.formType;
+  el("subject").value = rec.subject || "";
+  el("school").value = rec.school || "";
+  el("classroom").value = rec.classroom || "";
+  el("date").value = rec.date || "";
+  el("termAr").value = rec.termAr || "الأول";
+  el("academicYearAr").value = rec.academicYearAr || "";
+  el("recordTitle").value = rec.title || "";
+
+  el("namesCountHint").textContent = "عدد الطالبات: " + (rec.students?.length || 0);
 }
 
-function getFormTitle(){
-  switch(state.formType){
+/* =========================
+   Render
+   ========================= */
+function getFormTitle(rec){
+  switch(rec.formType){
     case "grades": return "سجل درجات مادة";
     case "monthly": return "كشف متابعة شهري";
     case "plans": return "متابعة الخطط العلاجية والإثرائية";
@@ -772,7 +974,6 @@ function getFormTitle(){
     default: return "استمارة";
   }
 }
-
 function makeFooter(text){
   const f = document.createElement("div");
   f.className = "footer-note";
@@ -780,57 +981,65 @@ function makeFooter(text){
   return f;
 }
 
-/* =========================
-   Render
-   ========================= */
 function render(){
   const area = el("printArea");
   area.innerHTML = "";
+
+  const rec = getActiveRecord();
+  if(!rec){
+    area.innerHTML = `<div style="padding:16px;color:var(--muted);font-weight:900">لا يوجد سجلات بعد. اضغطي “إضافة سجل جديد”.</div>`;
+    return;
+  }
+
+  // sync monthly headers
+  rec.monthly.term = rec.termAr || "الأول";
+  rec.monthly.academicYear = rec.academicYearAr || rec.monthly.academicYear;
 
   const header = document.createElement("div");
   header.className = "form-header";
   header.innerHTML = `
     <div>
-      <h2>${escapeHtml(getFormTitle())}</h2>
+      <h2>${escapeHtml(getFormTitle(rec))}</h2>
       <div class="sub" style="margin-top:4px;color:var(--muted)">
-        ${state.subject ? "العنوان/المادة: " + escapeHtml(state.subject) : ""}
+        ${rec.subject ? "العنوان/المادة: " + escapeHtml(rec.subject) : ""}
+      </div>
+      <div class="sub" style="margin-top:4px;color:var(--muted)">
+        العام الدراسي: <b>${escapeHtml(rec.academicYearAr || "—")}</b> — الفصل: <b>${escapeHtml(rec.termAr || "—")}</b>
       </div>
     </div>
     <div class="meta">
-      <div class="kv">المدرسة: ${escapeHtml(state.school || "—")}</div>
-      <div class="kv">الصف/الشعبة: ${escapeHtml(state.classroom || "—")}</div>
-      <div class="kv">التاريخ: ${escapeHtml(state.date || "—")}</div>
+      <div class="kv">المدرسة: ${escapeHtml(rec.school || "—")}</div>
+      <div class="kv">الصف/الشعبة: ${escapeHtml(rec.classroom || "—")}</div>
+      <div class="kv">التاريخ: ${escapeHtml(rec.date || "—")}</div>
+      <div class="kv">السجل: ${escapeHtml((rec.title||"").trim() || buildRecordTitle(rec))}</div>
     </div>
   `;
   area.appendChild(header);
 
-  if(state.formType === "grades"){
-    area.appendChild(renderGradesForm());
-    area.appendChild(makeFooter("سجل الدرجات: إدخال تفاعلي + بدون أسهم + حفظ سحابي."));
-  }else if(state.formType === "monthly"){
-    area.appendChild(renderMonthlyFollowup());
-    area.appendChild(makeFooter("كشف متابعة شهري: اضغطي على كل مربع للتبديل بين (صح ✅) و(خطأ ❌)."));
-  }else if(state.formType === "plans"){
-    area.appendChild(renderPlansForm());
-    area.appendChild(makeFooter("الخطط العلاجية/الإثرائية: مهارات تفاعلية (علوم للصف 3/5/6 من ملفاتك) + قبلي/بعدي وصفي."));
-  }else if(state.formType === "counselor"){
-    area.appendChild(renderReferralForm("الموجهة الطلابية"));
-    area.appendChild(makeFooter("تحويل للموجهة الطلابية: نموذج رسمي مبسط قابل للطباعة والتصدير."));
-  }else if(state.formType === "principal"){
-    area.appendChild(renderReferralForm("المديرة"));
-    area.appendChild(makeFooter("تحويل للمديرة: نموذج رسمي مبسط قابل للطباعة والتصدير."));
-  }else if(state.formType === "parent"){
-    area.appendChild(renderParentNoticeForm());
-    area.appendChild(makeFooter("تبليغ لولي الأمر: اكتبي نص الرسالة وسيظهر جاهز للطباعة والتصدير."));
+  if(rec.formType === "grades"){
+    area.appendChild(renderGradesForm(rec));
+    area.appendChild(makeFooter("سجل الدرجات: إدخال تفاعلي + حفظ سحابي + سجلات متعددة لكل صف."));
+  }else if(rec.formType === "monthly"){
+    area.appendChild(renderMonthlyFollowup(rec));
+    area.appendChild(makeFooter("كشف متابعة شهري: اضغطي كل مربع للتبديل (✅ ثم ❌ ثم فراغ)."));
+  }else if(rec.formType === "plans"){
+    area.appendChild(renderPlansForm(rec));
+    area.appendChild(makeFooter("الخطط: مهارات تفاعلية + قبلي/بعدي وصفي + حفظ سحابي."));
+  }else if(rec.formType === "counselor"){
+    area.appendChild(renderReferralForm(rec, "الموجهة الطلابية"));
+  }else if(rec.formType === "principal"){
+    area.appendChild(renderReferralForm(rec, "المديرة"));
+  }else if(rec.formType === "parent"){
+    area.appendChild(renderParentNoticeForm(rec));
   }
 
-  wireDynamicInputs();
+  wireDynamicInputs(rec);
 }
 
 /* =========================
-   Grades Form (كما سبق)
+   Grades Form
    ========================= */
-function renderGradesForm(){
+function renderGradesForm(rec){
   const wrap = document.createElement("div");
   wrap.style.padding = "12px";
 
@@ -861,7 +1070,6 @@ function renderGradesForm(){
         <button class="primary" id="btnApplyBulk" style="width:100%;">تطبيق على جميع الطالبات</button>
       </div>
     </div>
-    <div class="hint">يستخدم عند رغبتك بتسجيل درجة موحدة لعمود كامل بسرعة.</div>
   `;
   wrap.appendChild(bulk);
 
@@ -886,19 +1094,19 @@ function renderGradesForm(){
       <th rowspan="2" class="total">المجموع الكلي</th>
     </tr>
     <tr>
-      <th class="p1">المهام الأدائية<br><b>(${GRADES_SCHEMA.p1A})</b></th>
-      <th class="p1">تقويمات تحريرية<br><b>(${GRADES_SCHEMA.p1B})</b></th>
+      <th class="p1">المهام الأدائية<br><b>(40)</b></th>
+      <th class="p1">تقويمات تحريرية<br><b>(20)</b></th>
       <th class="p1">المجموع<br><b>(60)</b></th>
 
-      <th class="p2">المهام الأدائية<br><b>(${GRADES_SCHEMA.p2A})</b></th>
-      <th class="p2">تقويمات تحريرية<br><b>(${GRADES_SCHEMA.p2B})</b></th>
+      <th class="p2">المهام الأدائية<br><b>(40)</b></th>
+      <th class="p2">تقويمات تحريرية<br><b>(20)</b></th>
       <th class="p2">المجموع<br><b>(60)</b></th>
     </tr>
   `;
   table.appendChild(thead);
 
   const tbody = document.createElement("tbody");
-  const students = state.students || [];
+  const students = rec.students || [];
 
   for(let i=0;i<students.length;i++){
     const st = students[i];
@@ -921,47 +1129,34 @@ function renderGradesForm(){
         <input class="inline-input name" data-kind="name" data-i="${i}" value="${escapeHtml(st.name || "")}" placeholder="اسم الطالبة">
       </td>
 
-      <td class="p1">
-        <input class="inline-input" data-kind="p1_a" data-i="${i}" inputmode="numeric" value="${p1a}" placeholder="0">
-      </td>
-      <td class="p1">
-        <input class="inline-input" data-kind="p1_b" data-i="${i}" inputmode="numeric" value="${p1b}" placeholder="0">
-      </td>
+      <td class="p1"><input class="inline-input" data-kind="p1_a" data-i="${i}" inputmode="numeric" value="${p1a}"></td>
+      <td class="p1"><input class="inline-input" data-kind="p1_b" data-i="${i}" inputmode="numeric" value="${p1b}"></td>
       <td class="p1"><b>${p1t}</b></td>
 
-      <td class="p2">
-        <input class="inline-input" data-kind="p2_a" data-i="${i}" inputmode="numeric" value="${p2a}" placeholder="0">
-      </td>
-      <td class="p2">
-        <input class="inline-input" data-kind="p2_b" data-i="${i}" inputmode="numeric" value="${p2b}" placeholder="0">
-      </td>
+      <td class="p2"><input class="inline-input" data-kind="p2_a" data-i="${i}" inputmode="numeric" value="${p2a}"></td>
+      <td class="p2"><input class="inline-input" data-kind="p2_b" data-i="${i}" inputmode="numeric" value="${p2b}"></td>
       <td class="p2"><b>${p2t}</b></td>
 
       <td class="sum"><b>${sum}</b></td>
       <td class="avg"><b>${avg}</b></td>
-      <td class="final">
-        <input class="inline-input" data-kind="final" data-i="${i}" inputmode="numeric" value="${fin}" placeholder="0">
-      </td>
+      <td class="final"><input class="inline-input" data-kind="final" data-i="${i}" inputmode="numeric" value="${fin}"></td>
       <td class="total"><b>${total}</b></td>
     `;
     tbody.appendChild(tr);
   }
-
   table.appendChild(tbody);
   tableWrap.appendChild(table);
   wrap.appendChild(tableWrap);
 
-  // بطاقات الجوال (بدون جدول عريض)
+  // جوال
   const cardsWrap = document.createElement("div");
   cardsWrap.className = "grades-cards-mobile";
-
   students.forEach((st, i)=>{
     const p1a = clampNum(st.p1_a ?? 0, GRADES_SCHEMA.p1A);
     const p1b = clampNum(st.p1_b ?? 0, GRADES_SCHEMA.p1B);
     const p2a = clampNum(st.p2_a ?? 0, GRADES_SCHEMA.p2A);
     const p2b = clampNum(st.p2_b ?? 0, GRADES_SCHEMA.p2B);
     const fin = clampNum(st.final ?? 0, GRADES_SCHEMA.final);
-
     const p1t = p1a + p1b;
     const p2t = p2a + p2b;
     const sum = p1t + p2t;
@@ -975,30 +1170,20 @@ function renderGradesForm(){
         <div class="idx">#${i+1}</div>
         <input class="inline-input name" data-kind="name" data-i="${i}" value="${escapeHtml(st.name || "")}" placeholder="اسم الطالبة">
       </div>
-
       <div class="grid">
-        <div class="field"><b>ف1 مهام (40)</b><input class="inline-input" data-kind="p1_a" data-i="${i}" inputmode="numeric" value="${p1a}"></div>
-        <div class="field"><b>ف1 تحريرية (20)</b><input class="inline-input" data-kind="p1_b" data-i="${i}" inputmode="numeric" value="${p1b}"></div>
-
-        <div class="field"><b>ف2 مهام (40)</b><input class="inline-input" data-kind="p2_a" data-i="${i}" inputmode="numeric" value="${p2a}"></div>
-        <div class="field"><b>ف2 تحريرية (20)</b><input class="inline-input" data-kind="p2_b" data-i="${i}" inputmode="numeric" value="${p2b}"></div>
-
-        <div class="field"><b>اختبار نهائي (40)</b><input class="inline-input" data-kind="final" data-i="${i}" inputmode="numeric" value="${fin}"></div>
-        <div class="field"><b>المجموع الكلي</b><div style="font-weight:900;text-align:center">${total}</div></div>
-
+        <div class="field"><b>ف1 مهام</b><input class="inline-input" data-kind="p1_a" data-i="${i}" inputmode="numeric" value="${p1a}"></div>
+        <div class="field"><b>ف1 تحريرية</b><input class="inline-input" data-kind="p1_b" data-i="${i}" inputmode="numeric" value="${p1b}"></div>
+        <div class="field"><b>ف2 مهام</b><input class="inline-input" data-kind="p2_a" data-i="${i}" inputmode="numeric" value="${p2a}"></div>
+        <div class="field"><b>ف2 تحريرية</b><input class="inline-input" data-kind="p2_b" data-i="${i}" inputmode="numeric" value="${p2b}"></div>
+        <div class="field"><b>اختبار نهائي</b><input class="inline-input" data-kind="final" data-i="${i}" inputmode="numeric" value="${fin}"></div>
+        <div class="field"><b>المجموع</b><div style="font-weight:900;text-align:center">${total}</div></div>
         <div class="field"><b>مجموع الفترتين</b><div style="font-weight:900;text-align:center">${sum}</div></div>
         <div class="field"><b>متوسط الفترتين</b><div style="font-weight:900;text-align:center">${avg}</div></div>
       </div>
     `;
     cardsWrap.appendChild(card);
   });
-
   wrap.appendChild(cardsWrap);
-
-  const note = document.createElement("div");
-  note.className = "status";
-  note.innerHTML = `<b>تنبيه:</b> أوزان الدرجات: (40+20) لكل فترة، المتوسط + الاختبار النهائي = 100.`;
-  wrap.appendChild(note);
 
   setTimeout(()=>{
     const btn = document.getElementById("btnApplyBulk");
@@ -1006,12 +1191,13 @@ function renderGradesForm(){
       btn.onclick = ()=>{
         const col = document.getElementById("bulkCol").value;
         const valRaw = document.getElementById("bulkVal").value;
-        const maxMap = { p1_a: GRADES_SCHEMA.p1A, p1_b: GRADES_SCHEMA.p1B, p2_a: GRADES_SCHEMA.p2A, p2_b: GRADES_SCHEMA.p2B, final: GRADES_SCHEMA.final };
+        const maxMap = { p1_a: 40, p1_b: 20, p2_a: 40, p2_b: 20, final: 40 };
         const v = clampNum(valRaw, maxMap[col]);
-        state.students.forEach(s=>{ s[col] = v; });
-        save();
+        (rec.students||[]).forEach(s=>{ s[col] = v; });
+        touchRecord(rec);
+        saveAll();
+        syncUI();
         render();
-        syncInputs();
       };
     }
   },0);
@@ -1020,45 +1206,10 @@ function renderGradesForm(){
 }
 
 /* =========================
-   كشف متابعة شهري (مثل الصورة + صح/خطأ لكل مربع)
+   Monthly Followup
    ========================= */
-function ensureMonthlyForStudents(){
-  const weeks = state.monthly.weeks || 5;
-  const criteria = state.monthly.criteria || [];
-  (state.students || []).forEach(st=>{
-    if(!st.monthlyMarks) st.monthlyMarks = {};
-    criteria.forEach(cr=>{
-      if(!Array.isArray(st.monthlyMarks[cr.key])) st.monthlyMarks[cr.key] = new Array(weeks).fill(null);
-      // طول صحيح
-      if(st.monthlyMarks[cr.key].length !== weeks){
-        const old = st.monthlyMarks[cr.key].slice(0, weeks);
-        while(old.length < weeks) old.push(null);
-        st.monthlyMarks[cr.key] = old;
-      }
-    });
-  });
-}
-
-function toggleMarkValue(current){
-  // null -> true(✅) -> false(❌) -> null
-  if(current === null || current === undefined) return true;
-  if(current === true) return false;
-  return null;
-}
-
-function markClass(v){
-  if(v === true) return "ok";
-  if(v === false) return "bad";
-  return "neu";
-}
-function markText(v){
-  if(v === true) return "✓";
-  if(v === false) return "✗";
-  return "";
-}
-
-function renderMonthlyFollowup(){
-  ensureMonthlyForStudents();
+function renderMonthlyFollowup(rec){
+  ensureMonthlyForStudents(rec);
 
   const wrap = document.createElement("div");
   wrap.style.padding = "12px";
@@ -1072,10 +1223,9 @@ function renderMonthlyFollowup(){
 
   const monthOptions = Array.from({length:12}, (_,i)=> {
     const m=i+1;
-    return `<option value="${m}" ${m===state.monthly.month?"selected":""}>${arabicMonthName(m)}</option>`;
+    return `<option value="${m}" ${m===rec.monthly.month?"selected":""}>${arabicMonthName(m)}</option>`;
   }).join("");
-
-  const weekOptions = [4,5].map(w=>`<option value="${w}" ${w===(state.monthly.weeks||5)?"selected":""}>${w}</option>`).join("");
+  const weekOptions = [4,5].map(w=>`<option value="${w}" ${w===(rec.monthly.weeks||5)?"selected":""}>${w}</option>`).join("");
 
   monthControls.innerHTML = `
     <div style="font-weight:900; margin-bottom:8px;">إعدادات الكشف الشهري</div>
@@ -1086,7 +1236,7 @@ function renderMonthlyFollowup(){
       </div>
       <div>
         <label>السنة</label>
-        <input id="mYear" inputmode="numeric" value="${state.monthly.year || new Date().getFullYear()}">
+        <input id="mYear" inputmode="numeric" value="${rec.monthly.year || new Date().getFullYear()}">
       </div>
       <div>
         <label>عدد أسابيع الشهر</label>
@@ -1096,11 +1246,11 @@ function renderMonthlyFollowup(){
     <div class="row3" style="margin-top:10px">
       <div>
         <label>الفصل الدراسي</label>
-        <input id="mTerm" value="${escapeHtml(state.monthly.term || "")}" placeholder="مثال: الأول / الثاني">
+        <input id="mTerm" value="${escapeHtml(rec.termAr || "الأول")}" placeholder="الأول / الثاني">
       </div>
       <div>
         <label>العام الدراسي</label>
-        <input id="mAcad" value="${escapeHtml(state.monthly.academicYear || "1446هـ")}">
+        <input id="mAcad" value="${escapeHtml(rec.academicYearAr || "١٤٤٦هـ")}">
       </div>
       <div style="display:flex;align-items:end;gap:8px;">
         <button class="danger" id="mClear" style="width:100%;">تصفير علامات الشهر</button>
@@ -1110,28 +1260,26 @@ function renderMonthlyFollowup(){
   `;
   wrap.appendChild(monthControls);
 
-  // عنوان مثل الصورة
   const topTitle = document.createElement("div");
   topTitle.style.padding = "6px 12px 0";
   topTitle.style.textAlign = "center";
   topTitle.style.fontWeight = "900";
   topTitle.style.fontSize = "18px";
   topTitle.innerHTML = `
-    كشف متابعة مادة <span style="text-decoration:underline;">${escapeHtml(state.subject || "........")}</span>
-    الصف <span style="text-decoration:underline;">${escapeHtml(state.classroom || "........")}</span>
-    الفصل الدراسي <span style="text-decoration:underline;">${escapeHtml(state.monthly.term || "........")}</span>
-    للعام <span style="text-decoration:underline;">${escapeHtml(state.monthly.academicYear || "........")}</span>
+    كشف متابعة مادة <span style="text-decoration:underline;">${escapeHtml(rec.subject || "........")}</span>
+    الصف <span style="text-decoration:underline;">${escapeHtml(rec.classroom || "........")}</span>
+    الفصل الدراسي <span style="text-decoration:underline;">${escapeHtml(rec.termAr || "........")}</span>
+    للعام <span style="text-decoration:underline;">${escapeHtml(rec.academicYearAr || "........")}</span>
     <div style="font-size:13px;color:var(--muted);margin-top:4px;">
-      شهر: ${arabicMonthName(state.monthly.month)} ${escapeHtml(state.monthly.year)}
+      شهر: ${arabicMonthName(rec.monthly.month)} ${escapeHtml(rec.monthly.year)}
     </div>
   `;
   wrap.appendChild(topTitle);
 
-  const weeks = state.monthly.weeks || 5;
-  const criteria = state.monthly.criteria || [];
-  const students = state.students || [];
+  const weeks = rec.monthly.weeks || 5;
+  const criteria = rec.monthly.criteria || [];
+  const students = rec.students || [];
 
-  /* ===== Desktop Table ===== */
   const tableWrap = document.createElement("div");
   tableWrap.className = "monthly-table-desktop";
   tableWrap.style.marginTop = "10px";
@@ -1139,7 +1287,6 @@ function renderMonthlyFollowup(){
   const table = document.createElement("table");
   table.id = "monthlyTable";
 
-  // header row 1
   const h1 = document.createElement("tr");
   h1.innerHTML = `
     <th rowspan="2" class="total" style="width:42px">م</th>
@@ -1151,7 +1298,6 @@ function renderMonthlyFollowup(){
   const thead = document.createElement("thead");
   thead.appendChild(h1);
 
-  // header row 2 (weeks)
   const h2 = document.createElement("tr");
   criteria.forEach(cr=>{
     for(let w=1; w<=weeks; w++){
@@ -1170,7 +1316,6 @@ function renderMonthlyFollowup(){
         <input class="inline-input name" data-kind="name" data-i="${i}" value="${escapeHtml(st.name || "")}" placeholder="اسم الطالبة">
       </td>
     `;
-
     criteria.forEach(cr=>{
       for(let w=0; w<weeks; w++){
         const v = st.monthlyMarks?.[cr.key]?.[w] ?? null;
@@ -1183,14 +1328,13 @@ function renderMonthlyFollowup(){
         `;
       }
     });
-
     tbody.appendChild(tr);
   });
   table.appendChild(tbody);
   tableWrap.appendChild(table);
   wrap.appendChild(tableWrap);
 
-  /* ===== Mobile Cards ===== */
+  // mobile cards
   const cards = document.createElement("div");
   cards.className = "monthly-cards-mobile";
   cards.style.marginTop = "10px";
@@ -1209,7 +1353,6 @@ function renderMonthlyFollowup(){
         <input class="inline-input name" data-kind="name" data-i="${i}" value="${escapeHtml(st.name || "")}" placeholder="اسم الطالبة">
       </div>
     `;
-
     criteria.forEach(cr=>{
       html += `<div style="margin:8px 0 6px;font-weight:900">${escapeHtml(cr.label)}</div>`;
       html += `<div style="display:flex;gap:6px;flex-wrap:wrap">`;
@@ -1223,7 +1366,6 @@ function renderMonthlyFollowup(){
       }
       html += `</div>`;
     });
-
     card.innerHTML = html;
     cards.appendChild(card);
   });
@@ -1238,25 +1380,32 @@ function renderMonthlyFollowup(){
     const mAcad = document.getElementById("mAcad");
     const mClear = document.getElementById("mClear");
 
-    if(mMonth) mMonth.onchange = ()=>{ state.monthly.month = Number(mMonth.value); save(); render(); };
-    if(mYear) mYear.oninput = ()=>{ state.monthly.year = Number(mYear.value || new Date().getFullYear()); save(); render(); };
+    if(mMonth) mMonth.onchange = ()=>{ rec.monthly.month = Number(mMonth.value); touchRecord(rec); saveAll(); render(); };
+    if(mYear) mYear.oninput = ()=>{ rec.monthly.year = Number(mYear.value || new Date().getFullYear()); touchRecord(rec); saveAll(); render(); };
     if(mWeeks) mWeeks.onchange = ()=>{
-      state.monthly.weeks = Number(mWeeks.value);
-      // إعادة تهيئة مصفوفات العلامات
-      ensureMonthlyForStudents();
-      save(); render();
+      rec.monthly.weeks = Number(mWeeks.value);
+      ensureMonthlyForStudents(rec);
+      touchRecord(rec); saveAll(); render();
     };
-    if(mTerm) mTerm.oninput = ()=>{ state.monthly.term = mTerm.value; save(); };
-    if(mAcad) mAcad.oninput = ()=>{ state.monthly.academicYear = mAcad.value; save(); };
+    if(mTerm) mTerm.oninput = ()=>{
+      rec.termAr = mTerm.value || "الأول";
+      rec.monthly.term = rec.termAr;
+      touchRecord(rec); saveAll(); render();
+    };
+    if(mAcad) mAcad.oninput = ()=>{
+      rec.academicYearAr = normalizeAcademicYear(mAcad.value);
+      rec.monthly.academicYear = rec.academicYearAr;
+      touchRecord(rec); saveAll(); render();
+    };
     if(mClear) mClear.onclick = ()=>{
       if(!confirm("تأكيد تصفير علامات هذا الشهر لجميع الطالبات؟")) return;
-      (state.students||[]).forEach(st=>{
+      (rec.students||[]).forEach(st=>{
         if(!st.monthlyMarks) return;
         Object.keys(st.monthlyMarks).forEach(k=>{
-          st.monthlyMarks[k] = new Array(state.monthly.weeks||5).fill(null);
+          st.monthlyMarks[k] = new Array(rec.monthly.weeks||5).fill(null);
         });
       });
-      save(); render();
+      touchRecord(rec); saveAll(); render();
     };
   }, 0);
 
@@ -1264,28 +1413,27 @@ function renderMonthlyFollowup(){
 }
 
 /* =========================
-   Plans Form (مهارات تفاعلية + من ملفاتك)
+   Plans
    ========================= */
-function renderPlansForm(){
+function renderPlansForm(rec){
   const wrap = document.createElement("div");
   wrap.style.padding = "12px";
 
-  if(!state.plans) state.plans = {entries:[]};
-  if(!Array.isArray(state.plans.entries)) state.plans.entries = [];
+  if(!rec.plans) rec.plans = {entries:[]};
+  if(!Array.isArray(rec.plans.entries)) rec.plans.entries = [];
 
-  if(state.plans.entries.length === 0){
-    state.plans.entries.push({
+  if(rec.plans.entries.length === 0){
+    rec.plans.entries.push({
       grade: 1,
       planType: "علاجية",
       subject: "لغتي",
       skill: getSkills(1,"لغتي")[0],
-      date: state.date || "",
+      date: rec.date || "",
       pre: "يحتاج متابعة",
       post: "يحتاج متابعة",
       procedure: PROCEDURES[0],
       notes: ""
     });
-    save();
   }
 
   const controls = document.createElement("div");
@@ -1324,7 +1472,7 @@ function renderPlansForm(){
 
   const tbody = document.createElement("tbody");
 
-  state.plans.entries.forEach((r, i)=>{
+  rec.plans.entries.forEach((r, i)=>{
     const grade = Number(r.grade || 1);
     const subject = r.subject || "لغتي";
     const skills = getSkills(grade, subject);
@@ -1366,71 +1514,618 @@ function renderPlansForm(){
   table.appendChild(tbody);
   wrap.appendChild(table);
 
-  // مستعرض مهارات تفاعلي (من ملفاتك للعلوم 3/5/6)
-  const browser = document.createElement("div");
-  browser.className = "no-print";
-  browser.style.marginTop = "12px";
-  browser.style.border = "1px solid var(--line)";
-  browser.style.borderRadius = "12px";
-  browser.style.padding = "10px";
-  browser.innerHTML = `
-    <div style="font-weight:900;margin-bottom:8px;">مستعرض المهارات (تفاعلي)</div>
-    <div class="row3">
-      <div>
-        <label>اختر الصف</label>
-        <select id="sbGrade">${[1,2,3,4,5,6].map(g=>`<option value="${g}">${g}</option>`).join("")}</select>
-      </div>
-      <div>
-        <label>اختر المادة</label>
-        <select id="sbSubject">${SUBJECTS.map(s=>`<option value="${s}">${s}</option>`).join("")}</select>
-      </div>
-      <div>
-        <label>بحث</label>
-        <input id="sbSearch" placeholder="ابحث عن كلمة داخل المهارات">
-      </div>
-    </div>
-    <div style="margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:8px;background:#fafafa;max-height:220px;overflow:auto" id="sbList"></div>
-    <div class="hint">ملاحظة: مهارات (علوم) للصف 3/5/6 مأخوذة من ملفاتك المرفوعة، وتظهر هنا بالكامل.</div>
-  `;
-  wrap.appendChild(browser);
-
   setTimeout(()=>{
     const addBtn = document.getElementById("btnAddPlanRow");
     const clearBtn = document.getElementById("btnClearPlans");
     if(addBtn){
       addBtn.onclick = ()=>{
-        state.plans.entries.push({
+        rec.plans.entries.push({
           grade: 1,
           planType: "علاجية",
           subject: "لغتي",
           skill: getSkills(1,"لغتي")[0],
-          date: state.date || "",
+          date: rec.date || "",
           pre: "يحتاج متابعة",
           post: "يحتاج متابعة",
           procedure: PROCEDURES[0],
           notes: ""
         });
-        save(); render();
+        touchRecord(rec); saveAll(); render();
       };
     }
     if(clearBtn){
       clearBtn.onclick = ()=>{
         if(!confirm("تأكيد تصفير سجل الخطط؟")) return;
-        state.plans.entries = [];
-        save(); render();
+        rec.plans.entries = [];
+        touchRecord(rec); saveAll(); render();
       };
     }
+  },0);
 
-    // skill browser
-    const sbGrade = document.getElementById("sbGrade");
-    const sbSubject = document.getElementById("sbSubject");
-    const sbSearch = document.getElementById("sbSearch");
-    const sbList = document.getElementById("sbList");
+  return wrap;
+}
 
-    function renderSkillList(){
-      const g = Number(sbGrade.value);
-      const s = sbSubject.value;
-      const q = (sbSearch.value || "").trim();
-      const skills = getSkills(g, s).filter(x => !q || x.includes(q));
-      sbList.innerHTML = skills.map(x => `
-        <div style="display:flex;gap
+/* =========================
+   Referral / Parent
+   ========================= */
+function renderReferralForm(rec, receiverLabel){
+  const wrap = document.createElement("div");
+  wrap.style.padding = "14px";
+  rec.referral.receiver = receiverLabel;
+
+  wrap.innerHTML = `
+    <div class="row">
+      <div>
+        <label>اسم الطالبة</label>
+        <input data-form="referral" data-key="studentName" value="${escapeHtml(rec.referral.studentName || "")}" placeholder="اسم الطالبة">
+      </div>
+      <div>
+        <label>المُحوِّلة (اسم المعلمة)</label>
+        <input data-form="referral" data-key="teacher" value="${escapeHtml(rec.referral.teacher || "")}" placeholder="اسم المعلمة">
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <div>
+        <label>جهة التحويل</label>
+        <input value="${escapeHtml(receiverLabel)}" disabled>
+      </div>
+      <div>
+        <label>سبب التحويل (مختصر)</label>
+        <input data-form="referral" data-key="reason" value="${escapeHtml(rec.referral.reason || "")}" placeholder="مثال: سلوكي/تعليمي/غياب…">
+      </div>
+    </div>
+
+    <div style="margin-top:10px">
+      <label>تفاصيل الحالة</label>
+      <textarea data-form="referral" data-key="details">${escapeHtml(rec.referral.details || "")}</textarea>
+    </div>
+
+    <div style="margin-top:10px">
+      <label>الإجراءات المقترحة</label>
+      <textarea data-form="referral" data-key="actions">${escapeHtml(rec.referral.actions || "")}</textarea>
+    </div>
+
+    <div style="margin-top:10px">
+      <label>ملاحظات</label>
+      <textarea data-form="referral" data-key="notes">${escapeHtml(rec.referral.notes || "")}</textarea>
+    </div>
+  `;
+  return wrap;
+}
+function renderParentNoticeForm(rec){
+  const wrap = document.createElement("div");
+  wrap.style.padding = "14px";
+  const defaultMsg = `نود إشعاركم بما يلي بخصوص الطالبة، ونؤكد أهمية التعاون لتحقيق أفضل النتائج.`;
+
+  wrap.innerHTML = `
+    <div class="row">
+      <div>
+        <label>اسم الطالبة</label>
+        <input data-form="parent" data-key="studentName" value="${escapeHtml(rec.parent.studentName || "")}" placeholder="اسم الطالبة">
+      </div>
+      <div>
+        <label>اسم المعلمة</label>
+        <input data-form="parent" data-key="teacher" value="${escapeHtml(rec.parent.teacher || "")}" placeholder="اسم المعلمة">
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <div>
+        <label>اسم ولي الأمر</label>
+        <input data-form="parent" data-key="parentName" value="${escapeHtml(rec.parent.parentName || "")}" placeholder="اسم ولي الأمر">
+      </div>
+      <div>
+        <label>رقم الجوال (اختياري)</label>
+        <input data-form="parent" data-key="parentPhone" value="${escapeHtml(rec.parent.parentPhone || "")}" placeholder="05xxxxxxxx">
+      </div>
+    </div>
+
+    <div style="margin-top:10px">
+      <label>نص التبليغ</label>
+      <textarea data-form="parent" data-key="message">${escapeHtml(rec.parent.message || defaultMsg)}</textarea>
+    </div>
+
+    <div style="margin-top:10px">
+      <label>ملاحظات</label>
+      <textarea data-form="parent" data-key="notes">${escapeHtml(rec.parent.notes || "")}</textarea>
+    </div>
+  `;
+  return wrap;
+}
+
+/* =========================
+   Wire dynamic inputs
+   ========================= */
+function wireDynamicInputs(rec){
+  // grades + names
+  document.querySelectorAll("#printArea input.inline-input[data-kind]").forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      const i = Number(inp.dataset.i);
+      const kind = inp.dataset.kind;
+      if(!rec.students[i]) return;
+
+      if(kind === "name"){
+        rec.students[i].name = inp.value;
+      }else{
+        const maxMap = { p1_a: 40, p1_b: 20, p2_a: 40, p2_b: 20, final: 40 };
+        rec.students[i][kind] = clampNum(inp.value, maxMap[kind]);
+      }
+      touchRecord(rec);
+      saveAll();
+      syncUI();
+      render();
+    });
+  });
+
+  // monthly toggle
+  document.querySelectorAll("#printArea [data-m-i]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const i = Number(btn.dataset.mI);
+      const k = btn.dataset.mK;
+      const w = Number(btn.dataset.mW);
+      if(!rec.students[i]) return;
+      ensureMonthlyForStudents(rec);
+      const cur = rec.students[i].monthlyMarks?.[k]?.[w] ?? null;
+      rec.students[i].monthlyMarks[k][w] = toggleMarkValue(cur);
+      touchRecord(rec);
+      saveAll();
+      render();
+    });
+  });
+
+  // plans
+  document.querySelectorAll("#printArea [data-plans-i]").forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      const i = Number(inp.dataset.plansI);
+      const k = inp.dataset.plansK;
+      if(!rec.plans || !rec.plans.entries || !rec.plans.entries[i]) return;
+      const row = rec.plans.entries[i];
+      row[k] = inp.value;
+
+      if(k === "pre" || k === "post") row[k] = normalizeEval(row[k]);
+      if(k === "grade" || k === "subject"){
+        const g = Number(row.grade || 1);
+        row.grade = g;
+        const subj = row.subject || "لغتي";
+        const skills = getSkills(g, subj);
+        if(!skills.includes(row.skill)) row.skill = skills[0];
+        touchRecord(rec);
+        saveAll();
+        render();
+        return;
+      }
+      touchRecord(rec);
+      saveAll();
+      render();
+    });
+  });
+  document.querySelectorAll("#printArea [data-plans-del]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const i = Number(btn.dataset.plansDel);
+      rec.plans.entries.splice(i,1);
+      touchRecord(rec);
+      saveAll();
+      render();
+    });
+  });
+
+  // referral/parent
+  document.querySelectorAll("#printArea [data-form]").forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      const form = inp.dataset.form;
+      const key = inp.dataset.key;
+      rec[form][key] = inp.value;
+      touchRecord(rec);
+      saveAll();
+    });
+  });
+}
+
+/* =========================
+   Names import
+   ========================= */
+function setStudentsFromNames(rec, names){
+  const clean = names.map(s=>(s||"").toString().trim()).filter(s=>s.length>=2);
+  const oldByName = new Map((rec.students||[]).map(s=>[s.name, s]));
+  rec.students = clean.map(name=>{
+    const old = oldByName.get(name);
+    const st = old ? {...old, name} : {name, p1_a:0, p1_b:0, p2_a:0, p2_b:0, final:0};
+    if(!st.monthlyMarks) st.monthlyMarks = {};
+    return st;
+  });
+  ensureMonthlyForStudents(rec);
+  touchRecord(rec);
+  saveAll();
+  syncUI();
+  render();
+}
+function parseCSV(text){
+  const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  const names = [];
+  for(const line of lines){
+    const parts = line.split(/[;,]/).map(x=>x.trim()).filter(Boolean);
+    if(parts.length===0) continue;
+    if(names.length===0 && /اسم|name/i.test(parts[0])) continue;
+    names.push(parts[0]);
+  }
+  return names;
+}
+async function ocrNamesFromImage(file){
+  el("cloudStatus").innerHTML = "<b>OCR:</b> جاري استخراج النص من الصورة…";
+  try{
+    const { data } = await Tesseract.recognize(file, "ara");
+    const text = (data.text || "").trim();
+    const names = text.split(/\r?\n/).map(s=>s.trim()).filter(s=>s && s.length>=2);
+    el("namesPaste").value = names.join("\n");
+    el("cloudStatus").innerHTML = "<b>OCR:</b> تم. اضغطي (تطبيق الأسماء).";
+  }catch(e){
+    el("cloudStatus").innerHTML = "<b>OCR:</b> تعذر الاستخراج. استخدمي CSV أو اللصق.";
+  }
+}
+
+/* =========================
+   PDF & Print
+   ========================= */
+function doPrint(){ window.print(); }
+async function exportPDF(){
+  const btn = el("btnPDF");
+  btn.disabled = true;
+  btn.textContent = "جاري إنشاء PDF…";
+
+  const rec = getActiveRecord();
+  const isWide = (rec.formType === "grades" || rec.formType === "plans" || rec.formType === "monthly");
+  const orientation = isWide ? "landscape" : "portrait";
+
+  const area = el("printArea");
+  const canvas = await html2canvas(area, { scale: 2, useCORS: true, backgroundColor:"#ffffff" });
+  const imgData = canvas.toDataURL("image/png");
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation, unit:"mm", format:"a4" });
+
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+  const imgW = pageW;
+  const imgH = (canvas.height * imgW) / canvas.width;
+
+  if(imgH <= pageH){
+    pdf.addImage(imgData, "PNG", 0, 0, imgW, imgH);
+  }else{
+    let position = 0;
+    let remaining = imgH;
+    while(remaining > 0){
+      pdf.addImage(imgData, "PNG", 0, position, imgW, imgH);
+      remaining -= pageH;
+      if(remaining > 0){
+        pdf.addPage();
+        position -= pageH;
+      }
+    }
+  }
+
+  const safeTitle = ((rec.title||"") || "سجل").replace(/[\\/:*?"<>|]/g,"-");
+  pdf.save(safeTitle + ".pdf");
+
+  btn.disabled = false;
+  btn.textContent = "تصدير PDF";
+}
+
+/* =========================
+   Records actions
+   ========================= */
+function addRecord(rec){
+  state.records.push(rec);
+  state.activeId = rec.id;
+}
+function ensureAtLeastOneRecord(){
+  if(state.records.length === 0){
+    const r = defaultRecord({title:"سجل أول"});
+    addRecord(r);
+  }
+}
+function renameRecord(rec){
+  const newName = prompt("اسم السجل الجديد:", (rec.title||"").trim() || buildRecordTitle(rec));
+  if(newName === null) return;
+  rec.title = newName.trim() || buildRecordTitle(rec);
+  touchRecord(rec);
+  saveAll();
+  syncUI();
+  render();
+}
+function duplicateRecord(rec){
+  const clone = JSON.parse(JSON.stringify(rec));
+  clone.id = uid();
+  clone.title = ( (rec.title||buildRecordTitle(rec)) + " (نسخة)" );
+  clone.createdAt = new Date().toISOString();
+  clone.updatedAt = new Date().toISOString();
+  addRecord(clone);
+  saveAll();
+  syncUI();
+  render();
+}
+function deleteRecord(rec){
+  if(!confirm("تأكيد حذف السجل الحالي؟")) return;
+  state.records = state.records.filter(r=>r.id !== rec.id);
+  if(state.records.length) state.activeId = state.records[0].id;
+  else state.activeId = null;
+  saveAll();
+  syncUI();
+  render();
+}
+
+/* =========================
+   Top events
+   ========================= */
+function attachTopEvents(){
+  // record select
+  el("recordSelect").addEventListener("change", (e)=>{
+    state.activeId = e.target.value;
+    saveLocal();
+    syncUI();
+    render();
+  });
+
+  el("btnNewRecord").addEventListener("click", ()=>{
+    const rec0 = getActiveRecord();
+    const r = defaultRecord({
+      school: rec0?.school || "",
+      termAr: rec0?.termAr || "الأول",
+      academicYearAr: rec0?.academicYearAr || "١٤٤٦هـ"
+    });
+    r.title = "سجل جديد";
+    addRecord(r);
+    saveAll();
+    syncUI();
+    render();
+    setTimeout(()=>renameRecord(r), 50);
+  });
+
+  el("btnRenameRecord").addEventListener("click", ()=>{
+    const rec = getActiveRecord();
+    if(rec) renameRecord(rec);
+  });
+
+  el("btnDuplicateRecord").addEventListener("click", ()=>{
+    const rec = getActiveRecord();
+    if(rec) duplicateRecord(rec);
+  });
+
+  el("btnDeleteRecord").addEventListener("click", ()=>{
+    const rec = getActiveRecord();
+    if(rec) deleteRecord(rec);
+  });
+
+  el("btnCreateMany").addEventListener("click", ()=>{
+    const txt = el("bulkRecords").value.trim();
+    if(!txt) return;
+    const lines = txt.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+    if(lines.length === 0) return;
+
+    const base = getActiveRecord();
+    const baseSchool = base?.school || "";
+    const baseTerm = base?.termAr || "الأول";
+    const baseYear = base?.academicYearAr || "١٤٤٦هـ";
+
+    lines.forEach(line=>{
+      const r = defaultRecord({
+        school: baseSchool,
+        termAr: baseTerm,
+        academicYearAr: baseYear,
+        classroom: line
+      });
+      r.title = `سجل ${line}`;
+      addRecord(r);
+    });
+
+    saveAll();
+    syncUI();
+    render();
+    alert("تم إنشاء السجلات: " + lines.length);
+  });
+
+  el("btnClearMany").addEventListener("click", ()=>{ el("bulkRecords").value = ""; });
+
+  // record current settings
+  el("formType").addEventListener("change", (e)=>{
+    const rec = getActiveRecord(); if(!rec) return;
+    rec.formType = e.target.value;
+    if(!rec.title || rec.title === "سجل جديد") rec.title = buildRecordTitle(rec);
+    touchRecord(rec); saveAll(); syncUI(); render();
+  });
+
+  el("subject").addEventListener("input", (e)=>{
+    const rec = getActiveRecord(); if(!rec) return;
+    rec.subject = e.target.value;
+    touchRecord(rec); saveAll(); render();
+  });
+
+  el("school").addEventListener("input", (e)=>{
+    const rec = getActiveRecord(); if(!rec) return;
+    rec.school = e.target.value;
+    touchRecord(rec); saveAll(); render();
+  });
+
+  el("classroom").addEventListener("input", (e)=>{
+    const rec = getActiveRecord(); if(!rec) return;
+    rec.classroom = e.target.value;
+    touchRecord(rec); saveAll(); render();
+  });
+
+  el("date").addEventListener("input", (e)=>{
+    const rec = getActiveRecord(); if(!rec) return;
+    rec.date = e.target.value;
+    touchRecord(rec); saveAll(); render();
+  });
+
+  el("termAr").addEventListener("change", (e)=>{
+    const rec = getActiveRecord(); if(!rec) return;
+    rec.termAr = e.target.value;
+    rec.monthly.term = rec.termAr;
+    touchRecord(rec); saveAll(); render();
+  });
+
+  el("academicYearAr").addEventListener("input", (e)=>{
+    const rec = getActiveRecord(); if(!rec) return;
+    rec.academicYearAr = normalizeAcademicYear(e.target.value);
+    el("academicYearAr").value = rec.academicYearAr;
+    rec.monthly.academicYear = rec.academicYearAr;
+    touchRecord(rec); saveAll(); render();
+  });
+
+  el("recordTitle").addEventListener("input", (e)=>{
+    const rec = getActiveRecord(); if(!rec) return;
+    rec.title = e.target.value;
+    touchRecord(rec); saveAll();
+    refreshRecordSelect();
+  });
+
+  // names actions
+  el("btnApplyNames").addEventListener("click", ()=>{
+    const rec = getActiveRecord(); if(!rec) return;
+    const names = el("namesPaste").value.split(/\r?\n/);
+    setStudentsFromNames(rec, names);
+  });
+
+  el("btnAddRow").addEventListener("click", ()=>{
+    const rec = getActiveRecord(); if(!rec) return;
+    rec.students = rec.students || [];
+    rec.students.push({name:"", p1_a:0, p1_b:0, p2_a:0, p2_b:0, final:0, monthlyMarks:{}});
+    ensureMonthlyForStudents(rec);
+    touchRecord(rec); saveAll(); syncUI(); render();
+  });
+
+  el("csvFile").addEventListener("change", async (e)=>{
+    const f = e.target.files?.[0];
+    if(!f) return;
+    const text = await f.text();
+    const names = parseCSV(text);
+    el("namesPaste").value = names.join("\n");
+  });
+
+  el("imgFile").addEventListener("change", async (e)=>{
+    const f = e.target.files?.[0];
+    if(!f) return;
+    await ocrNamesFromImage(f);
+  });
+
+  // print/pdf
+  el("btnPrint").addEventListener("click", doPrint);
+  el("btnPDF").addEventListener("click", exportPDF);
+
+  // cloud reload
+  el("btnCloudReload").addEventListener("click", async ()=>{
+    await cloudLoad();
+    await cloudVisit();
+  });
+
+  // json export/import
+  el("btnExportJSON").addEventListener("click", ()=>{
+    const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `سجلات_${USER_KEY}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+  el("btnImportJSON").addEventListener("click", ()=> el("jsonFile").click());
+  el("jsonFile").addEventListener("change", async (e)=>{
+    const f = e.target.files?.[0];
+    if(!f) return;
+    try{
+      const parsed = JSON.parse(await f.text());
+      if(parsed && parsed.records){
+        Object.assign(state, parsed);
+        state.userKey = USER_KEY;
+        ensureAtLeastOneRecord();
+        saveAll(); syncUI(); render();
+      }else{
+        alert("الملف لا يحتوي سجلات.");
+      }
+    }catch(err){
+      alert("الملف غير صالح.");
+    }finally{
+      e.target.value = "";
+    }
+  });
+
+  el("btnResetLocal").addEventListener("click", ()=>{
+    if(!confirm("سيتم تصفير البيانات محليًا فقط (السحابة تبقى محفوظة).")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  });
+
+  // switch user
+  el("btnSwitchUser").addEventListener("click", ()=> showLoginOverlay(true));
+}
+
+/* =========================
+   Login overlay
+   ========================= */
+function showLoginOverlay(force=false){
+  const overlay = el("loginOverlay");
+  if(force) overlay.classList.add("show");
+  else overlay.classList.toggle("show");
+}
+function redirectToUser(name){
+  const u = (name||"").trim();
+  const params = new URLSearchParams(location.search);
+  if(u) params.set("user", u);
+  else params.delete("user");
+  location.search = params.toString();
+}
+
+/* =========================
+   Init
+   ========================= */
+(function init(){
+  // if no ?user show overlay
+  if(getUserKey() === "default"){
+    // إذا ما تم تحديد user، نعرض overlay اختيار اسم معلمة
+    el("loginOverlay").classList.add("show");
+  }
+
+  el("btnLoginGo").onclick = ()=>{
+    const nm = el("loginName").value.trim();
+    if(!nm){
+      alert("اكتبي اسم المعلمة.");
+      return;
+    }
+    redirectToUser(nm);
+  };
+  el("btnLoginClose").onclick = ()=>{
+    el("loginOverlay").classList.remove("show");
+  };
+
+  showUser();
+  bumpLocalVisits();
+
+  // load local first
+  loadLocal();
+
+  // ensure structure
+  if(!state.records) state.records = [];
+  if(!state.activeId) state.activeId = state.records[0]?.id || null;
+
+  ensureAtLeastOneRecord();
+
+  // default academic year display (لو فاضي)
+  const rec = getActiveRecord();
+  if(rec && !rec.academicYearAr) rec.academicYearAr = "١٤٤٦هـ";
+
+  // save local and render
+  saveLocal();
+  attachTopEvents();
+  syncUI();
+  render();
+
+  // cloud
+  setCloudPill("جاري الاتصال…", null);
+  cloudLoad();
+  cloudVisit();
+
+  window.addEventListener("beforeunload", saveLocal);
+})();
+</script>
+</body>
+</html>
