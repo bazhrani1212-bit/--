@@ -1,0 +1,1518 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>استمارات الرصد التفاعلية</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- PDF -->
+  <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+  <!-- OCR عربي (اختياري) لاستيراد أسماء من صورة -->
+  <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --ink:#111827;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --accent:#0ea5e9;
+
+      --p1:#e9f5e9;
+      --p2:#eaf1ff;
+      --sum:#fdebdc;
+      --avg:#fff6cf;
+      --final:#ffd7dc;
+      --total:#efefef;
+      --ok:#16a34a;
+      --bad:#ef4444;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Cairo", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+      color:var(--ink);
+      background:var(--bg);
+    }
+
+    header{
+      padding:18px 16px 10px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+    .title{
+      display:flex; gap:10px; align-items:center;
+    }
+    .badge{
+      width:44px; height:44px; border-radius:12px;
+      background:linear-gradient(135deg,#22c55e,#0ea5e9);
+      display:grid; place-items:center;
+      color:white; font-weight:900;
+    }
+    h1{margin:0; font-size:18px}
+    .sub{color:var(--muted); font-size:12px; margin-top:2px}
+
+    .top-actions{
+      display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+    }
+
+    button, .btn{
+      border:1px solid var(--line);
+      background:#fff;
+      color:var(--ink);
+      padding:10px 12px;
+      border-radius:10px;
+      cursor:pointer;
+      font-family:inherit;
+      font-weight:800;
+      font-size:13px;
+    }
+    button.primary{
+      background:var(--accent);
+      border-color:var(--accent);
+      color:white;
+    }
+    button.danger{
+      background:#ef4444;
+      border-color:#ef4444;
+      color:white;
+    }
+    button:disabled{opacity:.6; cursor:not-allowed}
+
+    main{
+      padding:0 16px 18px;
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap:12px;
+    }
+    @media (max-width: 980px){
+      main{grid-template-columns:1fr}
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow:0 1px 0 rgba(17,24,39,.04);
+    }
+    .card-hd{
+      padding:12px 12px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .card-hd .hd-title{
+      font-weight:900;
+      font-size:14px;
+    }
+    .card-bd{padding:12px}
+
+    label{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:6px;
+      font-weight:800;
+    }
+    input, select, textarea{
+      width:100%;
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid var(--line);
+      font-family:inherit;
+      font-size:13px;
+      background:#fff;
+      outline:none;
+    }
+    textarea{min-height:88px; resize:vertical}
+
+    .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px}
+    @media (max-width: 980px){
+      .row,.row3{grid-template-columns:1fr}
+    }
+
+    .hint{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:8px;
+      line-height:1.6;
+    }
+
+    .pill{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:900;
+    }
+    .dot{width:10px;height:10px;border-radius:50%;}
+    .dot.ok{background:var(--ok)}
+    .dot.bad{background:var(--bad)}
+    .dot.neu{background:#f59e0b}
+
+    #printArea{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      overflow:auto;
+    }
+
+    .form-header{
+      padding:14px 14px 10px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .form-header h2{
+      margin:0;
+      font-size:16px;
+      font-weight:900;
+    }
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      align-items:center;
+      justify-content:flex-end;
+    }
+    .meta .kv{
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:6px 10px;
+      font-size:12px;
+      color:var(--muted);
+      background:#fff;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:12px;
+    }
+    th, td{
+      border:1px solid #111;
+      padding:6px 6px;
+      text-align:center;
+      vertical-align:middle;
+      white-space:nowrap;
+    }
+    th{font-weight:900}
+    .p1{background:var(--p1)}
+    .p2{background:var(--p2)}
+    .sum{background:var(--sum)}
+    .avg{background:var(--avg)}
+    .final{background:var(--final)}
+    .total{background:var(--total)}
+    .namecell{text-align:right; min-width:160px; font-weight:900}
+    .narrow{min-width:70px}
+    .tiny{min-width:56px}
+
+    .inline-input{
+      width:100%;
+      padding:6px 6px;
+      border:1px solid #000;
+      border-radius:6px;
+      font-family:inherit;
+      font-size:12px;
+      text-align:center;
+      background:#fff;
+    }
+    .inline-input.name{text-align:right;font-weight:900}
+
+    .footer-note{
+      padding:10px 14px 14px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.6;
+    }
+
+    .status{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.6;
+      margin-top:8px;
+      padding:8px 10px;
+      border:1px dashed var(--line);
+      border-radius:10px;
+      background:#fafafa;
+    }
+
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid #000;
+      background:#fff;
+      font-weight:900;
+      font-size:12px;
+    }
+    .chip.ok{border-color:#16a34a}
+    .chip.warn{border-color:#f59e0b}
+    .chip.bad{border-color:#ef4444}
+
+    @media print{
+      body{background:#fff}
+      header, .card.left, .top-actions, .no-print{display:none !important}
+      main{display:block; padding:0}
+      #printArea{
+        border:none !important;
+        border-radius:0 !important;
+        overflow:visible !important;
+      }
+      @page{ size: A4 landscape; margin: 10mm; }
+      table{font-size:11px}
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="title">
+    <div class="badge">✓</div>
+    <div>
+      <h1>استمارات الرصد التفاعلية</h1>
+      <div class="sub">حفظ سحابي (Google Sheet) + طباعة + PDF + خطط علاجية/إثرائية</div>
+    </div>
+  </div>
+
+  <div class="top-actions no-print">
+    <span class="pill" id="cloudPill"><span class="dot neu"></span> سحابي: …</span>
+    <span class="pill" id="globalPill">زيارات عالمية: …</span>
+    <span class="pill" id="visitPill">زيارات الجهاز: …</span>
+    <span class="pill" id="userPill">مستخدم: …</span>
+    <button class="btn" id="btnExportJSON">تصدير بيانات (JSON)</button>
+    <button class="btn" id="btnImportJSON">استيراد بيانات (JSON)</button>
+    <input id="jsonFile" type="file" accept="application/json" hidden />
+    <button class="danger" id="btnReset">تصفير البيانات</button>
+  </div>
+</header>
+
+<main>
+  <!-- يسار -->
+  <section class="card left">
+    <div class="card-hd">
+      <div class="hd-title">الإعدادات</div>
+      <span class="pill" id="autosavePill">حفظ تلقائي: يعمل</span>
+    </div>
+    <div class="card-bd">
+      <div class="row">
+        <div>
+          <label>نوع الاستمارة</label>
+          <select id="formType">
+            <option value="grades">سجل درجات مادة …</option>
+            <option value="plans">متابعة الخطط العلاجية والإثرائية</option>
+            <option value="followup">سجل متابعة</option>
+            <option value="counselor">تحويل للموجهة الطلابية</option>
+            <option value="principal">تحويل للمديرة</option>
+            <option value="parent">تبليغ لولي الأمر</option>
+          </select>
+        </div>
+        <div>
+          <label>المادة / العنوان</label>
+          <input id="subject" placeholder="مثال: علوم - سادس" />
+        </div>
+      </div>
+
+      <div class="row3" style="margin-top:10px">
+        <div>
+          <label>المدرسة</label>
+          <input id="school" placeholder="اسم المدرسة" />
+        </div>
+        <div>
+          <label>الصف / الشعبة</label>
+          <input id="classroom" placeholder="مثال: سادس/أ" />
+        </div>
+        <div>
+          <label>التاريخ</label>
+          <input id="date" type="date" />
+        </div>
+      </div>
+
+      <div class="status" id="cloudStatus">
+        <b>الحفظ السحابي:</b> يتم حفظ البيانات على Google Sheet تلقائيًا.
+        <br><b>تعدد المستخدمين:</b> افتحي الرابط مع ?user=اسم_المستخدمة (مثل: ?user=معلمة_نورة).
+      </div>
+
+      <hr style="border:none;border-top:1px solid var(--line); margin:14px 0">
+
+      <div class="card-hd" style="padding:0 0 10px;border:0">
+        <div class="hd-title">أسماء الطالبات (لسجل الدرجات)</div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>استيراد CSV (عمود أسماء)</label>
+          <input id="csvFile" type="file" accept=".csv,text/csv" />
+          <div class="hint">الاسم في أول عمود أو عمود واحد فقط.</div>
+        </div>
+        <div>
+          <label>استيراد من صورة (ألبوم الكاميرا)</label>
+          <input id="imgFile" type="file" accept="image/*" />
+          <div class="hint">OCR عربي (الدقة تعتمد على وضوح الصورة).</div>
+        </div>
+      </div>
+
+      <div style="margin-top:10px">
+        <label>أو الصقي الأسماء (كل اسم في سطر)</label>
+        <textarea id="namesPaste" placeholder="سارة محمد&#10;ريم عبدالله"></textarea>
+        <div class="row" style="margin-top:8px">
+          <button class="primary" id="btnApplyNames">تطبيق الأسماء</button>
+          <button id="btnAddRow">إضافة طالبة</button>
+        </div>
+      </div>
+
+      <div class="hint" id="namesCountHint">عدد الطالبات: 0</div>
+    </div>
+  </section>
+
+  <!-- يمين -->
+  <section class="card">
+    <div class="card-hd no-print">
+      <div class="hd-title">معاينة الاستمارة</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button id="btnPrint">طباعة</button>
+        <button class="primary" id="btnPDF">تصدير PDF</button>
+      </div>
+    </div>
+
+    <div id="printArea"></div>
+  </section>
+</main>
+
+<script>
+/* =========================
+   Google Sheet Web App
+   ========================= */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMZOvfhuzGY3Unz2jqyFVfSLkvN5xQKxuXyOqpUV9hkdcokD4vxjjDxjZtqkoWzvir/exec";
+const APP_TOKEN = ""; // إذا سكربتك يطلب توكن، اكتبي نفس التوكن هنا
+
+/* =========================
+   تعدد المستخدمين: ?user=
+   ========================= */
+function getUserKey(){
+  const params = new URLSearchParams(location.search);
+  const u = (params.get("user") || "default").trim();
+  return u ? u : "default";
+}
+const USER_KEY = getUserKey();
+const STORAGE_KEY = "irs_v3_" + USER_KEY;
+
+/* =========================
+   State
+   ========================= */
+const state = {
+  formType: "grades",
+  subject: "",
+  school: "",
+  classroom: "",
+  date: "",
+  students: [],
+
+  followup: { studentName:"", issue:"", actions:"", teacher:"", notes:"" },
+  referral: { studentName:"", reason:"", details:"", teacher:"", receiver:"", actions:"", notes:"" },
+  parent: { studentName:"", parentName:"", parentPhone:"", message:"", teacher:"", notes:"" },
+
+  plans: { entries: [] } // {grade, planType, subject, skill, date, pre, post, change, procedure, notes}
+};
+
+/* =========================
+   درجات (حسب نموذجك)
+   ========================= */
+const GRADES_SCHEMA = { p1A: 40, p1B: 20, p2A: 40, p2B: 20, final: 40 };
+
+/* =========================
+   تقييم وصفي (قبلي/بعدي) + ترتيب للمقارنة
+   ========================= */
+const EVAL_LEVELS = [
+  "متفوق",
+  "تحسن بتفوق",
+  "جيد",
+  "جيد ويحتاج متابعة",
+  "يحتاج متابعة",
+  "ضعيف",
+  "ضعيف جدًا"
+];
+
+// ترتيب للمقارنة (الأعلى أفضل)
+const EVAL_RANK = {
+  "متفوق": 6,
+  "تحسن بتفوق": 5,
+  "جيد": 4,
+  "جيد ويحتاج متابعة": 3,
+  "يحتاج متابعة": 2,
+  "ضعيف": 1,
+  "ضعيف جدًا": 0
+};
+
+function normalizeEval(v){
+  const s = (v || "").toString().trim();
+  return EVAL_LEVELS.includes(s) ? s : "يحتاج متابعة";
+}
+
+function getChangeLabel(pre, post){
+  const a = EVAL_RANK[normalizeEval(pre)];
+  const b = EVAL_RANK[normalizeEval(post)];
+  if(b > a) return {text:"تحسن ✅", cls:"ok"};
+  if(b < a) return {text:"تراجع ⚠️", cls:"bad"};
+  return {text:"ثابت ➖", cls:"warn"};
+}
+
+/* =========================
+   مواد + مهارات + إجراءات (قابلة للتعديل)
+   ========================= */
+const SUBJECTS = ["لغتي","رياضيات","علوم","إنجليزي","إسلامية","اجتماعيات"];
+
+const SKILLS_MAP = {
+  1: {
+    "لغتي": ["التمييز بين الحروف المتشابهة","قراءة كلمات قصيرة","كتابة كلمات من مقاطع","فهم جملة قصيرة"],
+    "رياضيات": ["العدّ حتى 100","مقارنة الأعداد","جمع ضمن 20","طرح ضمن 20"],
+    "علوم": ["الحواس الخمس","احتياجات الكائنات الحية","تصنيف (حي/غير حي)","الطقس اليومي"],
+    "إنجليزي": ["حروف وأصوات","كلمات أساسية","جملة بسيطة","استماع ومطابقة"],
+    "إسلامية": ["آداب السلوك","حفظ قصار السور","الوضوء عمليًا","أركان الصلاة"],
+    "اجتماعيات": ["الأسرة","المدرسة","المجتمع","الرموز الوطنية"]
+  },
+  2: {
+    "لغتي": ["قراءة نص قصير","استخراج الفكرة الرئيسة","تجزئة الكلمات","إملاء كلمات شائعة"],
+    "رياضيات": ["جمع وطرح حتى 100","القيمة المنزلية","القياس البسيط","الأنماط"],
+    "علوم": ["دورات الحياة","خصائص المادة","المغناطيس","البيئة القريبة"],
+    "إنجليزي": ["مفردات يومية","مضارع بسيط","أسئلة قصيرة","قراءة جمل"],
+    "إسلامية": ["التوحيد مبسط","آداب الطعام","أذكار","واجبات الصلاة"],
+    "اجتماعيات": ["الاتجاهات","خريطة بسيطة","المهن","المعالم"]
+  },
+  3: {
+    "لغتي": ["تمييز الفكرة الرئيسة","الترتيب الزمني","علامات الترقيم","كتابة فقرة قصيرة"],
+    "رياضيات": ["الضرب","القسمة","الكسور البسيطة","المحيط والمساحة"],
+    "علوم": ["الأنظمة البيئية","تغيرات المادة","القوة والحركة","التكيف"],
+    "إنجليزي": ["قراءة فقرة","كتابة جمل","محادثة بسيطة","قواعد أساسية"],
+    "إسلامية": ["أركان الإيمان","أحكام الطهارة","حفظ سور","قيم وسلوك"],
+    "اجتماعيات": ["الموارد","المناخ","السكان","الخدمات العامة"]
+  },
+  4: {
+    "لغتي": ["استنتاج المعنى من السياق","تلخيص نص","أساليب لغوية","كتابة تقرير قصير"],
+    "رياضيات": ["كسور وعشرية","عوامل ومضاعفات","الزوايا","المساحة"],
+    "علوم": ["سلاسل غذائية","أجهزة جسم الإنسان","الطاقة","كهرباء بسيطة"],
+    "إنجليزي": ["قراءة نص","كتابة فقرة","أزمنة بسيطة","استماع وفهم"],
+    "إسلامية": ["العبادات","السيرة مختصر","آداب","تجويد مبسط"],
+    "اجتماعيات": ["المناطق","التاريخ الوطني","الاقتصاد","التقنية بالمجتمع"]
+  },
+  5: {
+    "لغتي": ["تحليل أفكار النص","التلخيص وإعادة الصياغة","كتابة مقال قصير","الإملاء والقواعد"],
+    "رياضيات": ["النسبة والتناسب","عمليات على الكسور","التمثيل البياني","الحجوم"],
+    "علوم": ["تصنيف مصادر الطاقة","الدورات (الماء/الكربون)","الاحتكاك","المناخ"],
+    "إنجليزي": ["قراءة واستنتاج","كتابة منظمة","قواعد أوسع","عرض شفهي"],
+    "إسلامية": ["فقه مبسط","تفسير قصار","سيرة","قيم ومواطنة"],
+    "اجتماعيات": ["الأنظمة","الخرائط","الجغرافيا","المشروعات الوطنية"]
+  },
+  6: {
+    "لغتي": ["الفهم القرائي العميق","استخراج الأدلة","تلخيص وتحليل","كتابة تقرير/مقال"],
+    "رياضيات": ["المعادلات","الإحصاء والاحتمال","الهندسة","النسب المئوية"],
+    "علوم": ["الخلايا وأجزاؤها","الوراثة","الأنظمة البيئية","المادة والطاقة"],
+    "إنجليزي": ["قراءة طويلة","كتابة فقرتين","تحدث وعرض","قواعد متقدمة"],
+    "إسلامية": ["تجويد وتلاوة","فقه","عقيدة","سيرة"],
+    "اجتماعيات": ["التاريخ","الجغرافيا","المواطنة","الموارد والتنمية"]
+  }
+};
+
+const PROCEDURES = [
+  "ورقة عمل مركزة",
+  "تعليم فردي (1:1)",
+  "مجموعة علاجية صغيرة",
+  "مجموعة إثرائية",
+  "تعلم بالأقران",
+  "لعبة تعليمية رقمية",
+  "واجب علاجي منزلي",
+  "نشاط عملي/تجربة",
+  "بطاقات/أسئلة شفوية",
+  "اختبار قصير (Quiz)"
+];
+
+function getSkills(grade, subject){
+  const g = SKILLS_MAP[grade] || {};
+  return g[subject] || ["مهارة (أضيفيها حسب حاجتك)"];
+}
+
+/* =========================
+   Helpers
+   ========================= */
+const el = (id)=>document.getElementById(id);
+
+function escapeHtml(s){
+  return (s ?? "").toString()
+    .replaceAll("&","&amp;").replaceAll("<","&lt;")
+    .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+}
+
+function clampNum(x, max){
+  const n = Number(x);
+  if(Number.isNaN(n)) return 0;
+  return Math.max(0, Math.min(max, n));
+}
+
+/* =========================
+   Local Save/Load (احتياط)
+   ========================= */
+let saveTimer = null;
+function saveLocal(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+function loadLocal(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if(!raw) return;
+  try{
+    const obj = JSON.parse(raw);
+    Object.assign(state, obj);
+  }catch(e){}
+}
+
+/* =========================
+   Cloud Save/Load
+   ========================= */
+let cloudOk = false;
+
+function setCloudPill(status, ok=null){
+  const pill = el("cloudPill");
+  const dot = pill.querySelector(".dot");
+  if(ok === true){ dot.className = "dot ok"; }
+  else if(ok === false){ dot.className = "dot bad"; }
+  else { dot.className = "dot neu"; }
+  pill.innerHTML = `<span class="${dot.className}"></span> سحابي: ${escapeHtml(status)}`;
+}
+
+async function fetchWithTimeout(url, opts={}, timeoutMs=15000){
+  const ctrl = new AbortController();
+  const t = setTimeout(()=>ctrl.abort(), timeoutMs);
+  try{
+    const res = await fetch(url, {...opts, signal: ctrl.signal});
+    return res;
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+async function cloudLoad(){
+  try{
+    const url = new URL(SCRIPT_URL);
+    url.searchParams.set("action","load");
+    url.searchParams.set("userKey", USER_KEY);
+    url.searchParams.set("token", APP_TOKEN);
+
+    const res = await fetchWithTimeout(url.toString(), {method:"GET"}, 15000);
+    const data = await res.json();
+
+    if(data.ok && data.found && data.state){
+      Object.assign(state, data.state);
+      // تأكيد أي قيم قديمة للقبلي/البعدي
+      if(state.plans && Array.isArray(state.plans.entries)){
+        state.plans.entries.forEach(r=>{
+          r.pre = normalizeEval(r.pre);
+          r.post = normalizeEval(r.post);
+        });
+      }
+      cloudOk = true;
+      setCloudPill("متصل ✓ (تم التحميل)", true);
+      saveLocal();
+      syncInputs();
+      render();
+    }else if(data.ok){
+      cloudOk = true;
+      setCloudPill("متصل ✓ (لا يوجد بيانات بعد)", true);
+    }else{
+      cloudOk = false;
+      setCloudPill("مشكلة توكن/صلاحية", false);
+    }
+  }catch(e){
+    cloudOk = false;
+    setCloudPill("غير متصل (سيعمل محليًا)", false);
+  }
+}
+
+function cloudSaveDebounced(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(()=>cloudSave(), 900);
+}
+
+async function cloudSave(){
+  try{
+    const payload = { action:"save", token: APP_TOKEN, userKey: USER_KEY, state };
+    const res = await fetchWithTimeout(SCRIPT_URL, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify(payload)
+    }, 15000);
+
+    const data = await res.json();
+    if(data.ok){
+      cloudOk = true;
+      setCloudPill("متصل ✓ (تم الحفظ)", true);
+    }else{
+      cloudOk = false;
+      setCloudPill("رفض/توكن غير صحيح", false);
+    }
+  }catch(e){
+    cloudOk = false;
+    setCloudPill("انقطاع (تم الحفظ محليًا)", false);
+  }
+}
+
+async function cloudVisit(){
+  try{
+    const url = new URL(SCRIPT_URL);
+    url.searchParams.set("action","visit");
+    url.searchParams.set("userKey", USER_KEY);
+    url.searchParams.set("token", APP_TOKEN);
+    url.searchParams.set("formType", state.formType || "");
+    url.searchParams.set("subject", state.subject || "");
+    url.searchParams.set("school", state.school || "");
+    url.searchParams.set("classroom", state.classroom || "");
+    url.searchParams.set("ua", navigator.userAgent || "");
+
+    const res = await fetchWithTimeout(url.toString(), {method:"GET"}, 15000);
+    const data = await res.json();
+    if(data.ok && typeof data.globalVisits === "number"){
+      el("globalPill").textContent = "زيارات عالمية: " + data.globalVisits;
+    }else{
+      el("globalPill").textContent = "زيارات عالمية: —";
+    }
+  }catch(e){
+    el("globalPill").textContent = "زيارات عالمية: —";
+  }
+}
+
+/* =========================
+   Save (Local + Cloud)
+   ========================= */
+function save(){
+  saveLocal();
+  cloudSaveDebounced();
+}
+
+/* =========================
+   Local Visits (device)
+   ========================= */
+function bumpLocalVisits(){
+  const vk = "irs_visits_" + USER_KEY;
+  const v = parseInt(localStorage.getItem(vk) || "0", 10) + 1;
+  localStorage.setItem(vk, String(v));
+  el("visitPill").textContent = "زيارات الجهاز: " + v;
+}
+function showUser(){
+  el("userPill").textContent = "مستخدم: " + USER_KEY;
+}
+
+/* =========================
+   UI Sync
+   ========================= */
+function syncInputs(){
+  el("formType").value = state.formType;
+  el("subject").value = state.subject || "";
+  el("school").value = state.school || "";
+  el("classroom").value = state.classroom || "";
+  el("date").value = state.date || "";
+  el("namesCountHint").textContent = "عدد الطالبات: " + (state.students?.length || 0);
+}
+
+function getFormTitle(){
+  switch(state.formType){
+    case "grades": return "سجل درجات مادة";
+    case "plans": return "متابعة الخطط العلاجية والإثرائية";
+    case "followup": return "سجل متابعة";
+    case "counselor": return "نموذج تحويل للموجهة الطلابية";
+    case "principal": return "نموذج تحويل للمديرة";
+    case "parent": return "تبليغ لولي الأمر";
+    default: return "استمارة";
+  }
+}
+
+function makeFooter(text){
+  const f = document.createElement("div");
+  f.className = "footer-note";
+  f.innerHTML = `<div>${escapeHtml(text)}</div>`;
+  return f;
+}
+
+/* =========================
+   Render
+   ========================= */
+function render(){
+  const area = el("printArea");
+  area.innerHTML = "";
+
+  const header = document.createElement("div");
+  header.className = "form-header";
+  header.innerHTML = `
+    <div>
+      <h2>${escapeHtml(getFormTitle())}</h2>
+      <div class="sub" style="margin-top:4px;color:var(--muted)">
+        ${state.subject ? "العنوان/المادة: " + escapeHtml(state.subject) : ""}
+      </div>
+    </div>
+    <div class="meta">
+      <div class="kv">المدرسة: ${escapeHtml(state.school || "—")}</div>
+      <div class="kv">الصف/الشعبة: ${escapeHtml(state.classroom || "—")}</div>
+      <div class="kv">التاريخ: ${escapeHtml(state.date || "—")}</div>
+    </div>
+  `;
+  area.appendChild(header);
+
+  if(state.formType === "grades"){
+    area.appendChild(renderGradesForm());
+    area.appendChild(makeFooter("سجل الدرجات تفاعلي: أدخلي الدرجات وسيحسب المجموع تلقائياً. يمكن الطباعة أو تصدير PDF."));
+  }else if(state.formType === "plans"){
+    area.appendChild(renderPlansForm());
+    area.appendChild(makeFooter("متابعة الخطط: اختاري الصف والمادة والمهارة والخطة، وحددي القبلي/البعدي من القائمة، وسيظهر (نتيجة التغير) تلقائيًا."));
+  }else if(state.formType === "followup"){
+    area.appendChild(renderFollowupForm());
+    area.appendChild(makeFooter("سجل متابعة: اكتبي الملاحظة والإجراءات، ثم اطبعي أو صدّري PDF."));
+  }else if(state.formType === "counselor"){
+    area.appendChild(renderReferralForm("الموجهة الطلابية"));
+    area.appendChild(makeFooter("تحويل للموجهة الطلابية: نموذج رسمي مبسط قابل للطباعة والتصدير."));
+  }else if(state.formType === "principal"){
+    area.appendChild(renderReferralForm("المديرة"));
+    area.appendChild(makeFooter("تحويل للمديرة: نموذج رسمي مبسط قابل للطباعة والتصدير."));
+  }else if(state.formType === "parent"){
+    area.appendChild(renderParentNoticeForm());
+    area.appendChild(makeFooter("تبليغ لولي الأمر: اكتبي نص الرسالة وسيظهر بشكل جاهز للطباعة والتصدير."));
+  }
+
+  wireDynamicInputs();
+}
+
+/* =========================
+   Grades Form
+   ========================= */
+function renderGradesForm(){
+  const wrap = document.createElement("div");
+  wrap.style.padding = "12px";
+
+  const table = document.createElement("table");
+  table.id = "gradesTable";
+
+  const thead = document.createElement("thead");
+  thead.innerHTML = `
+    <tr>
+      <th rowspan="2" class="total tiny">م</th>
+      <th rowspan="2" class="total namecell">اسم الطالبة</th>
+
+      <th colspan="3" class="p1">الفترة الأولى</th>
+      <th colspan="3" class="p2">الفترة الثانية</th>
+
+      <th rowspan="2" class="sum narrow">مجموع الفترتين</th>
+      <th rowspan="2" class="avg narrow">متوسط مجموع الفترتين</th>
+      <th rowspan="2" class="final narrow">اختبار نهاية الفصل</th>
+      <th rowspan="2" class="total narrow">المجموع الكلي</th>
+    </tr>
+    <tr>
+      <th class="p1">المهام الأدائية<br><span style="font-weight:900">(${GRADES_SCHEMA.p1A})</span></th>
+      <th class="p1">تقويمات تحريرية<br><span style="font-weight:900">(${GRADES_SCHEMA.p1B})</span></th>
+      <th class="p1">المجموع<br><span style="font-weight:900">(60)</span></th>
+
+      <th class="p2">المهام الأدائية<br><span style="font-weight:900">(${GRADES_SCHEMA.p2A})</span></th>
+      <th class="p2">تقويمات تحريرية<br><span style="font-weight:900">(${GRADES_SCHEMA.p2B})</span></th>
+      <th class="p2">المجموع<br><span style="font-weight:900">(60)</span></th>
+    </tr>
+  `;
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  const students = state.students || [];
+
+  for(let i=0;i<students.length;i++){
+    const st = students[i];
+    const p1a = clampNum(st.p1_a ?? 0, GRADES_SCHEMA.p1A);
+    const p1b = clampNum(st.p1_b ?? 0, GRADES_SCHEMA.p1B);
+    const p2a = clampNum(st.p2_a ?? 0, GRADES_SCHEMA.p2A);
+    const p2b = clampNum(st.p2_b ?? 0, GRADES_SCHEMA.p2B);
+    const fin = clampNum(st.final ?? 0, GRADES_SCHEMA.final);
+
+    const p1t = p1a + p1b;
+    const p2t = p2a + p2b;
+    const sum = p1t + p2t;
+    const avg = Math.round((sum/2)*10)/10;
+    const total = Math.round((avg + fin)*10)/10;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td class="total tiny">${i+1}</td>
+      <td class="total namecell">
+        <input class="inline-input name" data-kind="name" data-i="${i}" value="${escapeHtml(st.name || "")}" placeholder="اسم الطالبة">
+      </td>
+
+      <td class="p1"><input class="inline-input" data-kind="p1_a" data-i="${i}" value="${p1a}" type="number" min="0" max="${GRADES_SCHEMA.p1A}"></td>
+      <td class="p1"><input class="inline-input" data-kind="p1_b" data-i="${i}" value="${p1b}" type="number" min="0" max="${GRADES_SCHEMA.p1B}"></td>
+      <td class="p1"><b>${p1t}</b></td>
+
+      <td class="p2"><input class="inline-input" data-kind="p2_a" data-i="${i}" value="${p2a}" type="number" min="0" max="${GRADES_SCHEMA.p2A}"></td>
+      <td class="p2"><input class="inline-input" data-kind="p2_b" data-i="${i}" value="${p2b}" type="number" min="0" max="${GRADES_SCHEMA.p2B}"></td>
+      <td class="p2"><b>${p2t}</b></td>
+
+      <td class="sum"><b>${sum}</b></td>
+      <td class="avg"><b>${avg}</b></td>
+      <td class="final"><input class="inline-input" data-kind="final" data-i="${i}" value="${fin}" type="number" min="0" max="${GRADES_SCHEMA.final}"></td>
+      <td class="total"><b>${total}</b></td>
+    `;
+    tbody.appendChild(tr);
+  }
+
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+
+  const note = document.createElement("div");
+  note.className = "status";
+  note.innerHTML = `<b>تنبيه:</b> أوزان الدرجات حالياً: (40+20) لكل فترة، المتوسط + الاختبار النهائي = 100.`;
+  wrap.appendChild(note);
+
+  return wrap;
+}
+
+/* =========================
+   Plans Form
+   ========================= */
+function renderPlansForm(){
+  const wrap = document.createElement("div");
+  wrap.style.padding = "12px";
+
+  if(!state.plans) state.plans = {entries:[]};
+  if(!Array.isArray(state.plans.entries)) state.plans.entries = [];
+
+  // سطر افتراضي
+  if(state.plans.entries.length === 0){
+    state.plans.entries.push({
+      grade: 1,
+      planType: "علاجية",
+      subject: "لغتي",
+      skill: getSkills(1,"لغتي")[0],
+      date: state.date || "",
+      pre: "يحتاج متابعة",
+      post: "يحتاج متابعة",
+      procedure: PROCEDURES[0],
+      notes: ""
+    });
+    save();
+  }
+
+  const controls = document.createElement("div");
+  controls.className = "no-print";
+  controls.style.display = "flex";
+  controls.style.gap = "8px";
+  controls.style.flexWrap = "wrap";
+  controls.style.marginBottom = "10px";
+  controls.innerHTML = `
+    <button id="btnAddPlanRow" class="primary">إضافة سجل</button>
+    <button id="btnClearPlans" class="danger">تصفير سجل الخطط</button>
+  `;
+  wrap.appendChild(controls);
+
+  const table = document.createElement("table");
+  table.id = "plansTable";
+
+  const thead = document.createElement("thead");
+  thead.innerHTML = `
+    <tr>
+      <th class="total tiny">م</th>
+      <th class="avg">الصف</th>
+      <th class="p1">نوع الخطة</th>
+      <th class="p2">المادة</th>
+      <th class="sum">المهارة</th>
+      <th class="avg">التاريخ</th>
+      <th class="p1">التقييم القبلي</th>
+      <th class="p2">التقييم البعدي</th>
+      <th class="sum">نتيجة التغير</th>
+      <th class="final">نوع الإجراء المستخدم</th>
+      <th class="total">ملاحظات</th>
+      <th class="total tiny no-print">حذف</th>
+    </tr>
+  `;
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+
+  state.plans.entries.forEach((r, i)=>{
+    const tr = document.createElement("tr");
+
+    const grade = Number(r.grade || 1);
+    const subject = r.subject || "لغتي";
+    const skills = getSkills(grade, subject);
+    const skill = (r.skill && skills.includes(r.skill)) ? r.skill : skills[0];
+
+    r.grade = grade;
+    r.subject = subject;
+    r.skill = skill;
+
+    r.pre = normalizeEval(r.pre);
+    r.post = normalizeEval(r.post);
+
+    const change = getChangeLabel(r.pre, r.post);
+
+    const gradeOptions = [1,2,3,4,5,6].map(g=>`<option value="${g}" ${g===grade?"selected":""}>${g}</option>`).join("");
+    const planOptions = ["علاجية","إثرائية"].map(t=>`<option value="${t}" ${t===r.planType?"selected":""}>${t}</option>`).join("");
+    const subjOptions = SUBJECTS.map(s=>`<option value="${s}" ${s===subject?"selected":""}>${s}</option>`).join("");
+    const skillOptions = skills.map(s=>`<option value="${escapeHtml(s)}" ${s===skill?"selected":""}>${escapeHtml(s)}</option>`).join("");
+    const procOptions = PROCEDURES.map(p=>`<option value="${escapeHtml(p)}" ${p===r.procedure?"selected":""}>${escapeHtml(p)}</option>`).join("");
+
+    const evalOptionsPre = EVAL_LEVELS.map(x=>`<option value="${escapeHtml(x)}" ${x===r.pre?"selected":""}>${escapeHtml(x)}</option>`).join("");
+    const evalOptionsPost = EVAL_LEVELS.map(x=>`<option value="${escapeHtml(x)}" ${x===r.post?"selected":""}>${escapeHtml(x)}</option>`).join("");
+
+    tr.innerHTML = `
+      <td class="total tiny">${i+1}</td>
+
+      <td class="avg">
+        <select class="inline-input" data-plans-i="${i}" data-plans-k="grade">${gradeOptions}</select>
+      </td>
+
+      <td class="p1">
+        <select class="inline-input" data-plans-i="${i}" data-plans-k="planType">${planOptions}</select>
+      </td>
+
+      <td class="p2">
+        <select class="inline-input" data-plans-i="${i}" data-plans-k="subject">${subjOptions}</select>
+      </td>
+
+      <td class="sum" style="white-space:normal;min-width:220px">
+        <select class="inline-input" data-plans-i="${i}" data-plans-k="skill">${skillOptions}</select>
+      </td>
+
+      <td class="avg">
+        <input class="inline-input" data-plans-i="${i}" data-plans-k="date" type="date" value="${escapeHtml(r.date || "")}">
+      </td>
+
+      <td class="p1">
+        <select class="inline-input" data-plans-i="${i}" data-plans-k="pre">${evalOptionsPre}</select>
+      </td>
+
+      <td class="p2">
+        <select class="inline-input" data-plans-i="${i}" data-plans-k="post">${evalOptionsPost}</select>
+      </td>
+
+      <td class="sum">
+        <span class="chip ${change.cls}">${escapeHtml(change.text)}</span>
+      </td>
+
+      <td class="final" style="min-width:200px">
+        <select class="inline-input" data-plans-i="${i}" data-plans-k="procedure">${procOptions}</select>
+      </td>
+
+      <td class="total" style="white-space:normal;min-width:200px">
+        <input class="inline-input" data-plans-i="${i}" data-plans-k="notes" placeholder="ملاحظات" value="${escapeHtml(r.notes || "")}">
+      </td>
+
+      <td class="total tiny no-print">
+        <button class="danger" data-plans-del="${i}" style="padding:6px 10px;border-radius:8px">×</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+
+  const note = document.createElement("div");
+  note.className = "status";
+  note.innerHTML = `<b>ملاحظة:</b> قائمة المهارات مقترحة وقابلة للتعديل داخل SKILLS_MAP. ويمكن تعديل ترتيب (التغير) من EVAL_RANK إذا رغبتِ.`;
+  wrap.appendChild(note);
+
+  setTimeout(()=>{
+    const addBtn = document.getElementById("btnAddPlanRow");
+    if(addBtn){
+      addBtn.onclick = ()=>{
+        state.plans.entries.push({
+          grade: 1,
+          planType: "علاجية",
+          subject: "لغتي",
+          skill: getSkills(1,"لغتي")[0],
+          date: state.date || "",
+          pre: "يحتاج متابعة",
+          post: "يحتاج متابعة",
+          procedure: PROCEDURES[0],
+          notes: ""
+        });
+        save();
+        render();
+      };
+    }
+    const clearBtn = document.getElementById("btnClearPlans");
+    if(clearBtn){
+      clearBtn.onclick = ()=>{
+        if(!confirm("تأكيد تصفير سجل الخطط؟")) return;
+        state.plans.entries = [];
+        save();
+        render();
+      };
+    }
+  }, 0);
+
+  return wrap;
+}
+
+/* =========================
+   Followup / Referral / Parent
+   ========================= */
+function renderFollowupForm(){
+  const wrap = document.createElement("div");
+  wrap.style.padding = "14px";
+
+  wrap.innerHTML = `
+    <div class="row">
+      <div>
+        <label>اسم الطالبة</label>
+        <input data-form="followup" data-key="studentName" value="${escapeHtml(state.followup.studentName || "")}" placeholder="اسم الطالبة">
+      </div>
+      <div>
+        <label>اسم المعلمة</label>
+        <input data-form="followup" data-key="teacher" value="${escapeHtml(state.followup.teacher || "")}" placeholder="اسم المعلمة">
+      </div>
+    </div>
+
+    <div style="margin-top:10px">
+      <label>الملاحظة / سبب المتابعة</label>
+      <textarea data-form="followup" data-key="issue" placeholder="اكتبي الملاحظة بشكل واضح">${escapeHtml(state.followup.issue || "")}</textarea>
+    </div>
+
+    <div style="margin-top:10px">
+      <label>الإجراءات المتخذة</label>
+      <textarea data-form="followup" data-key="actions" placeholder="مثال: تنبيه شفهي، خطة دعم، تواصل…">${escapeHtml(state.followup.actions || "")}</textarea>
+    </div>
+
+    <div style="margin-top:10px">
+      <label>ملاحظات إضافية</label>
+      <textarea data-form="followup" data-key="notes">${escapeHtml(state.followup.notes || "")}</textarea>
+    </div>
+
+    <div style="margin-top:12px" class="row">
+      <div class="kv" style="padding:10px;border:1px solid var(--line);border-radius:10px">التوقيع: ............................</div>
+      <div class="kv" style="padding:10px;border:1px solid var(--line);border-radius:10px">الختم: ............................</div>
+    </div>
+  `;
+  return wrap;
+}
+
+function renderReferralForm(receiverLabel){
+  const wrap = document.createElement("div");
+  wrap.style.padding = "14px";
+  state.referral.receiver = receiverLabel;
+
+  wrap.innerHTML = `
+    <div class="row">
+      <div>
+        <label>اسم الطالبة</label>
+        <input data-form="referral" data-key="studentName" value="${escapeHtml(state.referral.studentName || "")}" placeholder="اسم الطالبة">
+      </div>
+      <div>
+        <label>المُحوِّلة (اسم المعلمة)</label>
+        <input data-form="referral" data-key="teacher" value="${escapeHtml(state.referral.teacher || "")}" placeholder="اسم المعلمة">
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <div>
+        <label>جهة التحويل</label>
+        <input value="${escapeHtml(receiverLabel)}" disabled>
+      </div>
+      <div>
+        <label>سبب التحويل (مختصر)</label>
+        <input data-form="referral" data-key="reason" value="${escapeHtml(state.referral.reason || "")}" placeholder="مثال: سلوكي/تعليمي/غياب/تأخر…">
+      </div>
+    </div>
+
+    <div style="margin-top:10px">
+      <label>تفاصيل الحالة</label>
+      <textarea data-form="referral" data-key="details" placeholder="وصف مختصر ودقيق للحالة">${escapeHtml(state.referral.details || "")}</textarea>
+    </div>
+
+    <div style="margin-top:10px">
+      <label>الإجراءات المقترحة / المطلوبة من الجهة</label>
+      <textarea data-form="referral" data-key="actions" placeholder="مثال: مقابلة، خطة تعديل سلوك، متابعة ولي أمر…">${escapeHtml(state.referral.actions || "")}</textarea>
+    </div>
+
+    <div style="margin-top:10px">
+      <label>ملاحظات</label>
+      <textarea data-form="referral" data-key="notes">${escapeHtml(state.referral.notes || "")}</textarea>
+    </div>
+
+    <div style="margin-top:12px" class="row3">
+      <div class="kv" style="padding:10px;border:1px solid var(--line);border-radius:10px">توقيع المُحوِّلة: ............................</div>
+      <div class="kv" style="padding:10px;border:1px solid var(--line);border-radius:10px">استلام الجهة: ............................</div>
+      <div class="kv" style="padding:10px;border:1px solid var(--line);border-radius:10px">التاريخ: ............................</div>
+    </div>
+  `;
+  return wrap;
+}
+
+function renderParentNoticeForm(){
+  const wrap = document.createElement("div");
+  wrap.style.padding = "14px";
+
+  const defaultMsg = `نود إشعاركم بما يلي بخصوص الطالبة، ونؤكد أهمية التعاون لتحقيق أفضل النتائج.`;
+
+  wrap.innerHTML = `
+    <div class="row">
+      <div>
+        <label>اسم الطالبة</label>
+        <input data-form="parent" data-key="studentName" value="${escapeHtml(state.parent.studentName || "")}" placeholder="اسم الطالبة">
+      </div>
+      <div>
+        <label>اسم المعلمة</label>
+        <input data-form="parent" data-key="teacher" value="${escapeHtml(state.parent.teacher || "")}" placeholder="اسم المعلمة">
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+      <div>
+        <label>اسم ولي الأمر</label>
+        <input data-form="parent" data-key="parentName" value="${escapeHtml(state.parent.parentName || "")}" placeholder="اسم ولي الأمر">
+      </div>
+      <div>
+        <label>رقم الجوال (اختياري)</label>
+        <input data-form="parent" data-key="parentPhone" value="${escapeHtml(state.parent.parentPhone || "")}" placeholder="05xxxxxxxx">
+      </div>
+    </div>
+
+    <div style="margin-top:10px">
+      <label>نص التبليغ</label>
+      <textarea data-form="parent" data-key="message" placeholder="اكتبي نص التبليغ">${escapeHtml(state.parent.message || defaultMsg)}</textarea>
+    </div>
+
+    <div style="margin-top:10px">
+      <label>ملاحظات</label>
+      <textarea data-form="parent" data-key="notes">${escapeHtml(state.parent.notes || "")}</textarea>
+    </div>
+
+    <div style="margin-top:12px" class="row">
+      <div class="kv" style="padding:10px;border:1px solid var(--line);border-radius:10px">توقيع المعلمة: ............................</div>
+      <div class="kv" style="padding:10px;border:1px solid var(--line);border-radius:10px">توقيع ولي الأمر: ............................</div>
+    </div>
+  `;
+  return wrap;
+}
+
+/* =========================
+   Wire Inputs
+   ========================= */
+function wireDynamicInputs(){
+  // Grades
+  const gInputs = document.querySelectorAll("#printArea input.inline-input[data-kind]");
+  gInputs.forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      const i = Number(inp.dataset.i);
+      const kind = inp.dataset.kind;
+      if(!state.students[i]) return;
+
+      if(kind === "name"){
+        state.students[i].name = inp.value;
+      }else{
+        const maxMap = { p1_a: GRADES_SCHEMA.p1A, p1_b: GRADES_SCHEMA.p1B, p2_a: GRADES_SCHEMA.p2A, p2_b: GRADES_SCHEMA.p2B, final: GRADES_SCHEMA.final };
+        state.students[i][kind] = clampNum(inp.value, maxMap[kind]);
+        inp.value = state.students[i][kind];
+      }
+      save();
+      render();
+      syncInputs();
+    });
+  });
+
+  // Other forms
+  const formInputs = document.querySelectorAll("#printArea [data-form]");
+  formInputs.forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      const form = inp.dataset.form;
+      const key = inp.dataset.key;
+      state[form][key] = inp.value;
+      save();
+    });
+  });
+
+  // Plans
+  const pInputs = document.querySelectorAll("#printArea [data-plans-i]");
+  pInputs.forEach(inp=>{
+    inp.addEventListener("input", ()=>{
+      const i = Number(inp.dataset.plansI);
+      const k = inp.dataset.plansK;
+      if(!state.plans || !state.plans.entries || !state.plans.entries[i]) return;
+      const row = state.plans.entries[i];
+      row[k] = inp.value;
+
+      if(k === "pre" || k === "post"){
+        row[k] = normalizeEval(row[k]);
+      }
+
+      if(k === "grade" || k === "subject"){
+        const g = Number(row.grade || 1);
+        row.grade = g;
+        const subj = row.subject || "لغتي";
+        const skills = getSkills(g, subj);
+        if(!skills.includes(row.skill)) row.skill = skills[0];
+        save();
+        render();
+        return;
+      }
+
+      save();
+      render(); // لإعادة تحديث “نتيجة التغير”
+    });
+  });
+
+  const delBtns = document.querySelectorAll("#printArea [data-plans-del]");
+  delBtns.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const i = Number(btn.dataset.plansDel);
+      if(!state.plans || !state.plans.entries) return;
+      state.plans.entries.splice(i,1);
+      save();
+      render();
+    });
+  });
+}
+
+/* =========================
+   Import Names
+   ========================= */
+function setStudentsFromNames(names){
+  const clean = names.map(s=>(s||"").toString().trim()).filter(s=>s.length>=2);
+  const oldByName = new Map((state.students||[]).map(s=>[s.name, s]));
+  state.students = clean.map(name=>{
+    const old = oldByName.get(name);
+    return old ? {...old, name} : {name, p1_a:0, p1_b:0, p2_a:0, p2_b:0, final:0};
+  });
+  save();
+  syncInputs();
+  render();
+}
+
+function parseCSV(text){
+  const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  const names = [];
+  for(const line of lines){
+    const parts = line.split(/[;,]/).map(x=>x.trim()).filter(Boolean);
+    if(parts.length===0) continue;
+    if(names.length===0 && /اسم|name/i.test(parts[0])) continue;
+    names.push(parts[0]);
+  }
+  return names;
+}
+
+async function ocrNamesFromImage(file){
+  el("cloudStatus").innerHTML = "<b>OCR:</b> جاري استخراج النص من الصورة…";
+  try{
+    const { data } = await Tesseract.recognize(file, "ara", {
+      logger: m => {
+        if(m.status && m.progress != null){
+          el("cloudStatus").innerHTML = `<b>OCR:</b> ${escapeHtml(m.status)} — ${Math.round(m.progress*100)}%`;
+        }
+      }
+    });
+    const text = (data.text || "").trim();
+    const names = text.split(/\r?\n/).map(s=>s.trim()).filter(s=>s && s.length>=2)
+      .filter(s=> !/وزارة|Education|الفترة|المجموع|اختبار|متوسط/i.test(s));
+    el("namesPaste").value = names.join("\n");
+    el("cloudStatus").innerHTML = "<b>OCR:</b> تم. اضغطي (تطبيق الأسماء).";
+  }catch(e){
+    el("cloudStatus").innerHTML = "<b>OCR:</b> تعذر الاستخراج. استخدمي CSV أو اللصق.";
+  }
+}
+
+/* =========================
+   PDF & Print
+   ========================= */
+function doPrint(){ window.print(); }
+
+async function exportPDF(){
+  const btn = el("btnPDF");
+  btn.disabled = true;
+  btn.textContent = "جاري إنشاء PDF…";
+
+  const isWide = (state.formType === "grades" || state.formType === "plans");
+  const orientation = isWide ? "landscape" : "portrait";
+
+  const area = el("printArea");
+  const canvas = await html2canvas(area, { scale: 2, useCORS: true, backgroundColor:"#ffffff" });
+  const imgData = canvas.toDataURL("image/png");
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ orientation, unit:"mm", format:"a4" });
+
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
+
+  const imgW = pageW;
+  const imgH = (canvas.height * imgW) / canvas.width;
+
+  if(imgH <= pageH){
+    pdf.addImage(imgData, "PNG", 0, 0, imgW, imgH);
+  }else{
+    let position = 0;
+    let remaining = imgH;
+    while(remaining > 0){
+      pdf.addImage(imgData, "PNG", 0, position, imgW, imgH);
+      remaining -= pageH;
+      if(remaining > 0){
+        pdf.addPage();
+        position -= pageH;
+      }
+    }
+  }
+
+  const safeTitle = (getFormTitle() + (state.subject ? " - " + state.subject : "")).replace(/[\\/:*?"<>|]/g,"-");
+  pdf.save(safeTitle + ".pdf");
+
+  btn.disabled = false;
+  btn.textContent = "تصدير PDF";
+}
+
+/* =========================
+   Top Events
+   ========================= */
+function attachTopEvents(){
+  el("formType").addEventListener("change", (e)=>{ state.formType = e.target.value; save(); render(); });
+  el("subject").addEventListener("input", (e)=>{ state.subject = e.target.value; save(); render(); });
+  el("school").addEventListener("input", (e)=>{ state.school = e.target.value; save(); render(); });
+  el("classroom").addEventListener("input", (e)=>{ state.classroom = e.target.value; save(); render(); });
+  el("date").addEventListener("input", (e)=>{ state.date = e.target.value; save(); render(); });
+
+  el("btnApplyNames").addEventListener("click", ()=>{
+    const names = el("namesPaste").value.split(/\r?\n/);
+    setStudentsFromNames(names);
+  });
+
+  el("btnAddRow").addEventListener("click", ()=>{
+    state.students = state.students || [];
+    state.students.push({name:"", p1_a:0, p1_b:0, p2_a:0, p2_b:0, final:0});
+    save(); syncInputs(); render();
+  });
+
+  el("csvFile").addEventListener("change", async (e)=>{
+    const f = e.target.files?.[0];
+    if(!f) return;
+    const text = await f.text();
+    const names = parseCSV(text);
+    el("namesPaste").value = names.join("\n");
+  });
+
+  el("imgFile").addEventListener("change", async (e)=>{
+    const f = e.target.files?.[0];
+    if(!f) return;
+    await ocrNamesFromImage(f);
+  });
+
+  el("btnPrint").addEventListener("click", doPrint);
+  el("btnPDF").addEventListener("click", exportPDF);
+
+  el("btnReset").addEventListener("click", ()=>{
+    if(!confirm("هل تريدين تصفير بيانات هذا المستخدم؟")) return;
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  });
+
+  // JSON Export/Import
+  el("btnExportJSON").addEventListener("click", ()=>{
+    const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `بيانات_${USER_KEY}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  el("btnImportJSON").addEventListener("click", ()=> el("jsonFile").click());
+
+  el("jsonFile").addEventListener("change", async (e)=>{
+    const f = e.target.files?.[0];
+    if(!f) return;
+    try{
+      const obj = JSON.parse(await f.text());
+      Object.assign(state, obj);
+      // تطبيع قبلي/بعدي
+      if(state.plans && Array.isArray(state.plans.entries)){
+        state.plans.entries.forEach(r=>{
+          r.pre = normalizeEval(r.pre);
+          r.post = normalizeEval(r.post);
+        });
+      }
+      save();
+      syncInputs();
+      render();
+    }catch(err){
+      alert("الملف غير صالح.");
+    }finally{
+      e.target.value = "";
+    }
+  });
+}
+
+/* =========================
+   Init
+   ========================= */
+(function init(){
+  showUser();
+  bumpLocalVisits();
+
+  // افتراضي تاريخ اليوم
+  if(!state.date){
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,"0");
+    const dd = String(d.getDate()).padStart(2,"0");
+    state.date = `${yyyy}-${mm}-${dd}`;
+  }
+
+  // تحميل محلي أولاً
+  loadLocal();
+
+  // لو ما فيه طالبات: سطرين
+  if(!state.students || state.students.length === 0){
+    state.students = [
+      {name:"", p1_a:0, p1_b:0, p2_a:0, p2_b:0, final:0},
+      {name:"", p1_a:0, p1_b:0, p2_a:0, p2_b:0, final:0}
+    ];
+  }
+
+  // تطبيع قبلي/بعدي إن وجدت بيانات قديمة
+  if(state.plans && Array.isArray(state.plans.entries)){
+    state.plans.entries.forEach(r=>{
+      r.pre = normalizeEval(r.pre);
+      r.post = normalizeEval(r.post);
+    });
+  }
+
+  attachTopEvents();
+  syncInputs();
+  render();
+
+  // سحابي: تحميل + تسجيل زيارة + عداد عالمي
+  setCloudPill("جاري الاتصال…", null);
+  cloudLoad();
+  cloudVisit();
+
+  // حفظ قبل الإغلاق
+  window.addEventListener("beforeunload", saveLocal);
+})();
+</script>
+</body>
+</html>
