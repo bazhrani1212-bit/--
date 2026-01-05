@@ -76,6 +76,7 @@ function renderSignatures(rec){
     i.style.background="transparent";
     i.style.padding="8px";
     i.style.fontWeight="900";
+    i.style.fontFamily="inherit";
   });
   return wrap;
 }
@@ -175,7 +176,7 @@ function renderMonthly(rec){
   return wrap;
 }
 
-/* ===== خطط علاجية/إثرائية (المهارات من الشيت) ===== */
+/* ===== خطط علاجية/إثرائية ===== */
 function studentOptions(rec, current){
   const list = (rec.students||[]).map(s=>(s.name||"").trim()).filter(Boolean);
   const uniq = Array.from(new Set(list));
@@ -184,6 +185,7 @@ function studentOptions(rec, current){
   if(current && !uniq.includes(current)) opts.push(`<option value="${escapeHtml(current)}" selected>${escapeHtml(current)}</option>`);
   return opts.join("");
 }
+
 function renderPlans(rec){
   rec.plans ||= { entries: [] };
 
@@ -226,7 +228,7 @@ function renderPlans(rec){
           </td>
           <td>
             <select class="inline-input" data-plan="subject" data-idx="${i}">
-              ${["علوم","رياضيات","لغتي","دراسات","انجليزي","مهارات رقمية","أخرى"].map(s=>`<option value="${s}" ${r.subject===s?"selected":""}>${s}</option>`).join("")}
+              ${["علوم","رياضيات","لغتي","انجليزي","دراسات","مهارات رقمية","أخرى"].map(s=>`<option value="${s}" ${r.subject===s?"selected":""}>${s}</option>`).join("")}
             </select>
           </td>
           <td>
@@ -263,7 +265,7 @@ function renderPlans(rec){
   box.appendChild(table);
   wrap.appendChild(box);
 
-  // بعد الرسم: حمّلي المهارات لكل صف/مادة وحدثي القائمة
+  // تحميل المهارات حسب الصف/المادة
   setTimeout(async ()=>{
     const selects = wrap.querySelectorAll("select[data-plan='skill']");
     for(const sel of selects){
@@ -271,7 +273,6 @@ function renderPlans(rec){
       const row = rec.plans.entries[idx];
       const grade = row.grade || "السادس";
       const subject = row.subject || "علوم";
-
       const skills = await getSkills(grade, subject);
       const current = row.skill || "";
       const opts = [`<option value="">— اختر المهارة —</option>`]
