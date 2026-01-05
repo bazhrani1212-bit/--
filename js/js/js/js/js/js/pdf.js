@@ -1,9 +1,7 @@
 import { el, isMobileLike } from "./utils.js";
 
 export function setPrintMode(){
-  const mobile = isMobileLike();
   document.documentElement.style.setProperty("--printScale", "1");
-  // لو تبين تغيير الاتجاه داخل PDF/Print حسب الجهاز نعالجه داخل exportPDF
 }
 
 export function doPrint(){
