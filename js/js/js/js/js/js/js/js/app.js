@@ -126,7 +126,7 @@ function wirePrintAreaHandlers(rec){
     const max = YEARWORK_SCHEMA[key];
 
     inp.addEventListener("input", ()=>{
-      rec.students[idx].yearwork[key] = inp.value;
+      rec.students[idx].yearwork[key] = inp.value; // كتابة تفاعلية كاملة
       touch(rec); saveAll();
     });
     inp.addEventListener("blur", ()=>{
@@ -153,7 +153,7 @@ function wirePrintAreaHandlers(rec){
     const key = inp.dataset.plan;
     inp.addEventListener("change", ()=>{
       rec.plans.entries[idx][key] = inp.value;
-      touch(rec); saveAll(); render(); // لأن المهارات تعتمد على الصف/المادة
+      touch(rec); saveAll(); render();
     });
     inp.addEventListener("input", ()=>{
       rec.plans.entries[idx][key] = inp.value;
@@ -163,7 +163,6 @@ function wirePrintAreaHandlers(rec){
 }
 
 function attachEvents(){
-  // header pills
   el("userPill").textContent = `مستخدم: ${USER_KEY}`;
   const localV = bumpLocalVisits(`irs_visits_${USER_KEY}`);
   el("visitPill").textContent = `زيارات الجهاز: ${localV}`;
@@ -228,7 +227,6 @@ function attachEvents(){
     el("recordTitle").select();
   });
 
-  // form fields
   const bind = (id, cb)=>{
     el(id).addEventListener("input", cb);
     el(id).addEventListener("change", cb);
@@ -286,7 +284,6 @@ function attachEvents(){
     touch(rec); saveAll();
   });
 
-  // names
   el("btnApplyNames").addEventListener("click", ()=>{
     const rec = getActiveRecord();
     const names = el("namesPaste").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
@@ -333,7 +330,6 @@ async function loadFromCloud(){
 }
 
 (function init(){
-  // load local
   const local = loadState(STORAGE_KEY);
   if(local?.records) Object.assign(state, local);
 
