@@ -1,3 +1,4 @@
+<!-- ===================== index.html (انسخي الملف كامل واستبدلي به index القديم) ===================== -->
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
@@ -136,6 +137,14 @@
     }
     @media (max-width: 820px){ .noticeGrid{grid-template-columns:1fr} }
 
+    /* ✅ طباعة النصوص بدل القوائم */
+    .screenOnly { display:block; }
+    .printOnly { display:none; white-space:pre-wrap; line-height:1.6; font-weight:900; text-align:right }
+
+    /* ✅ PDF: نجبر نفس شكل الطباعة */
+    body.forcePrint .screenOnly{ display:none !important; }
+    body.forcePrint .printOnly{ display:block !important; }
+
     /* Print */
     @page { size: A4; margin: 10mm; }
     @media print{
@@ -145,13 +154,21 @@
       .panel.right{border:0}
       .wrap{max-width:none; padding:0}
       .wrapX{overflow:visible}
+
       table{width:100%; table-layout:fixed;}
       thead{display: table-header-group;}
       tfoot{display: table-footer-group;}
       tr{page-break-inside: avoid;}
-      th,td{font-size:10px; padding:3px; word-break:break-word; }
+      th,td{
+        font-size:10px; padding:3px;
+        white-space:normal !important;
+        word-break:break-word;
+      }
       .tabs{display:none !important}
       .printHead{border-bottom:1px solid #ddd}
+
+      .screenOnly{ display:none !important; }
+      .printOnly{ display:block !important; }
     }
   </style>
 </head>
@@ -163,6 +180,7 @@
       <div>
         <h1>استمارات الرصد التفاعلية</h1>
         <div class="sub">سجلات متعددة + حفظ سحابي + طباعة/PDF متوافق</div>
+        <div class="sub">لمنع تداخل السجلات بين المعلمات: افتحي الرابط بهذه الصيغة: <b>?user=اسم_مختصر</b></div>
       </div>
       <div class="row">
         <div class="pill" id="cloudPill"><span class="dot neu"></span> سحابي: …</div>
@@ -205,7 +223,7 @@
           <option value="monthly">كشف متابعة شهري/أسبوعي (صح/خطأ)</option>
           <option value="plans">متابعة الخطط العلاجية والإثرائية</option>
 
-          <!-- ✅ تم حذف “تبليغ المديرة” نهائيًا -->
+          <!-- ✅ تم حذف تبليغ المديرة نهائيًا -->
           <option value="parentNotice">تبليغ ولي الأمر (تفاعلي)</option>
           <option value="counselorNotice">تبليغ الموجهة الطلابية (تفاعلي)</option>
         </select>
@@ -266,28 +284,18 @@
 <script>
 /* ===================== CONFIG ===================== */
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_2OMmrcfqSB6TfxCoRJzxPkKipcbJ97dEK5C1T8-rfueSRO2ExTeHEyK2UAXN4Trr/exec";
+
 const LEVEL_WORDS = ["متفوق","جيد","يحتاج متابعة","تحسن بتفوق","ضعيف جدا","ضعيف","جيد وبحتاج متابعة"];
 const ACTION_TYPES = ["جلسة علاجية فردية","جلسة علاجية جماعية","واجب علاجي","خطة إثرائية","تعلّم تعاوني","تعليم مقلوب","أنشطة تطبيقية","تدريب إضافي","غير ذلك"];
 const MONTHS_AR = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+
 const YW_MAX = { p1Task:40, p1Quiz:20, p2Task:40, p2Quiz:20, final:40 };
 
-const PARENT_REASONS = [
-  "غياب متكرر","تأخر صباحي","ضعف تحصيلي","عدم أداء واجبات","سلوك داخل الصف","ملاحظة صحية","مشكلة انضباطية","حاجة لدعم أسري","أخرى"
-];
-const PARENT_ACTIONS = [
-  "التأكيد على الانضباط بالحضور","متابعة الواجبات يوميًا","تحديد وقت مذاكرة ثابت","التواصل مع المعلمة","حضور لقاء مدرسي","متابعة خطة علاجية","تقديم دعم نفسي وتشجيع","أخرى"
-];
-const PARENT_TEMPLATES = [
-  "تنبيه بخصوص الغياب/التأخر",
-  "تنبيه بضعف تحصيلي وخطة علاجية",
-  "تنبيه بخصوص السلوك",
-  "طلب تواصل/موعد",
-  "رسالة عامة"
-];
+const PARENT_REASONS = ["غياب متكرر","تأخر صباحي","ضعف تحصيلي","عدم أداء واجبات","سلوك داخل الصف","ملاحظة صحية","مشكلة انضباطية","حاجة لدعم أسري","أخرى"];
+const PARENT_ACTIONS = ["التأكيد على الانضباط بالحضور","متابعة الواجبات يوميًا","تحديد وقت مذاكرة ثابت","التواصل مع المعلمة","حضور لقاء مدرسي","متابعة خطة علاجية","تقديم دعم نفسي وتشجيع","أخرى"];
+const PARENT_TEMPLATES = ["تنبيه بخصوص الغياب/التأخر","تنبيه بضعف تحصيلي وخطة علاجية","تنبيه بخصوص السلوك","طلب تواصل/موعد","رسالة عامة"];
 
-const COUNSELOR_TYPES = [
-  "حالة غياب/تأخر","حالة سلوكية","حالة أكاديمية (ضعف)","حالة نفسية/اجتماعية","حالة صحية","مشكلات بين الطالبات","حالة أسرية","أخرى"
-];
+const COUNSELOR_TYPES = ["حالة غياب/تأخر","حالة سلوكية","حالة أكاديمية (ضعف)","حالة نفسية/اجتماعية","حالة صحية","مشكلات بين الطالبات","حالة أسرية","أخرى"];
 const COUNSELOR_URGENCY = ["عاجل","متوسط","عادي"];
 
 /* ===================== HELPERS ===================== */
@@ -338,12 +346,37 @@ function normalizeGradeClient(g){
   return map[t] || t;
 }
 
+/* ===================== JSON / JSONP (لمشكلة CORS) ===================== */
+function jsonp(url){
+  return new Promise((resolve, reject)=>{
+    const cb = "cb_" + Math.random().toString(16).slice(2);
+    const cleanup = (s)=>{
+      try{ delete window[cb]; }catch{}
+      if(s && s.parentNode) s.parentNode.removeChild(s);
+    };
+    window[cb] = (data)=>{ resolve(data); cleanup(script); };
+
+    const script = document.createElement("script");
+    script.src = url + (url.includes("?") ? "&" : "?") + "callback=" + cb;
+    script.onerror = ()=>{ reject(new Error("JSONP failed")); cleanup(script); };
+    document.head.appendChild(script);
+  });
+}
+async function getJSON(url){
+  try{
+    const r = await fetch(url, { cache: "no-store" });
+    return await r.json();
+  }catch{
+    return await jsonp(url);
+  }
+}
+
 /* ===================== STATE ===================== */
 let USER = userKey();
 let LKEY = `irs_single_${USER}`;
 
 const state = {
-  version: 4,
+  version: 5,
   userKey: USER,
   records: [],
   activeId: null
@@ -354,7 +387,8 @@ function defaultStudent(name=""){
     id:uid(),
     name,
     yearwork:{ p1Task:"", p1Quiz:"", p2Task:"", p2Quiz:"", final:"" },
-    monthlyByMonth: Array.from({length:12}, ()=> Array.from({length:6}, ()=>0))
+    monthlyByMonth: Array.from({length:12}, ()=> Array.from({length:6}, ()=>0)),
+    notesByMonth: Array.from({length:12}, ()=>"")
   };
 }
 
@@ -376,7 +410,6 @@ function defaultRecord(){
     monthlyUI: { monthIndex: d.getMonth(), weeks: 4 },
     plans:{ entries: [] },
 
-    // ✅ تبليغ ولي الأمر (تفاعلي)
     parentNotice: {
       date: `${yyyy}-${mm}-${dd}`,
       studentFullName: "",
@@ -391,7 +424,6 @@ function defaultRecord(){
       notes: ""
     },
 
-    // ✅ تبليغ الموجهة الطلابية (تفاعلي)
     counselorNotice: {
       date: `${yyyy}-${mm}-${dd}`,
       studentFullName: "",
@@ -426,8 +458,7 @@ async function cloudVisit(){
     const url = new URL(SCRIPT_URL);
     url.searchParams.set("action","visit");
     url.searchParams.set("userKey", USER);
-    const r = await fetch(url.toString());
-    const j = await r.json();
+    const j = await getJSON(url.toString());
     $("globalPill").textContent = `زيارات عالمية: ${j.globalVisits ?? "—"}`;
   }catch{
     $("globalPill").textContent = "زيارات عالمية: —";
@@ -440,8 +471,7 @@ async function cloudLoad(){
     const url = new URL(SCRIPT_URL);
     url.searchParams.set("action","load");
     url.searchParams.set("userKey", USER);
-    const r = await fetch(url.toString());
-    const j = await r.json();
+    const j = await getJSON(url.toString());
     if(j.ok && j.found && j.state){
       Object.assign(state, j.state);
       migrateState_();
@@ -457,6 +487,7 @@ async function cloudLoad(){
 
 let saveTimer=null;
 async function cloudSave(){
+  // محاولة POST (قد تُحجب بسبب CORS في بعض الأجهزة)
   try{
     const r = await fetch(SCRIPT_URL, {
       method:"POST",
@@ -465,8 +496,20 @@ async function cloudSave(){
     });
     const j = await r.json();
     setCloud(j.ok ? "تم الحفظ ✓" : "تعذر الحفظ", !!j.ok);
+    return;
   }catch{
-    setCloud("غير متصل (محليًا)", false);
+    // fallback: no-cors إرسال بدون قراءة الرد
+    try{
+      await fetch(SCRIPT_URL, {
+        method:"POST",
+        mode:"no-cors",
+        headers:{ "Content-Type":"text/plain" },
+        body: JSON.stringify({ action:"save", userKey: USER, state })
+      });
+      setCloud("تم إرسال الحفظ (قد لا يظهر تأكيد)", null);
+    }catch{
+      setCloud("غير متصل (محليًا)", false);
+    }
   }
 }
 
@@ -485,7 +528,6 @@ function migrateState_(){
     rec.plans ||= { entries: [] };
     rec.signatures ||= { teacherName:"", principalName:"" };
 
-    // ensure new notices
     rec.parentNotice ||= {
       date: rec.date || "",
       studentFullName: "",
@@ -515,8 +557,12 @@ function migrateState_(){
       if(!Array.isArray(st.monthlyByMonth) || st.monthlyByMonth.length !== 12){
         st.monthlyByMonth = Array.from({length:12}, ()=> Array.from({length:6}, ()=>0));
       }
+      if(!Array.isArray(st.notesByMonth) || st.notesByMonth.length !== 12){
+        st.notesByMonth = Array.from({length:12}, ()=>"");
+      }
     });
 
+    rec.plans.entries ||= [];
     rec.plans.entries.forEach(row=>{
       if(row.studentName && !row.studentFullName) row.studentFullName = row.studentName;
       row.studentFullName ||= "";
@@ -533,20 +579,21 @@ function migrateState_(){
   });
 }
 
-/* ===================== SKILLS (Smart) ===================== */
+/* ===================== SKILLS (Smart + JSONP) ===================== */
 const skillsCache = new Map();
 
 async function getSkillsOnce(grade, subject){
   const key = `${grade}||${subject}`;
   if(skillsCache.has(key)) return skillsCache.get(key);
+
+  const url = new URL(SCRIPT_URL);
+  url.searchParams.set("action","skills");
+  url.searchParams.set("grade", grade);
+  url.searchParams.set("subject", subject);
+
   try{
-    const url = new URL(SCRIPT_URL);
-    url.searchParams.set("action","skills");
-    url.searchParams.set("grade", grade);
-    url.searchParams.set("subject", subject);
-    const r = await fetch(url.toString());
-    const j = await r.json();
-    const list = (j.ok && Array.isArray(j.skills)) ? j.skills : [];
+    const j = await getJSON(url.toString());
+    const list = (j && j.ok && Array.isArray(j.skills)) ? j.skills : [];
     skillsCache.set(key, list);
     return list;
   }catch{
@@ -738,11 +785,13 @@ function renderMonthly(rec){
     if(!Array.isArray(st.monthlyByMonth) || st.monthlyByMonth.length!==12){
       st.monthlyByMonth = Array.from({length:12}, ()=> Array.from({length:6}, ()=>0));
     }
+    if(!Array.isArray(st.notesByMonth) || st.notesByMonth.length!==12){
+      st.notesByMonth = Array.from({length:12}, ()=>"");
+    }
     if(!Array.isArray(st.monthlyByMonth[mi])) st.monthlyByMonth[mi]=Array.from({length:6}, ()=>0);
   });
 
   const wrap=document.createElement("div");
-
   wrap.innerHTML = `
     <div class="tabs">
       ${MONTHS_AR.map((m,idx)=>`
@@ -776,7 +825,6 @@ function renderMonthly(rec){
           </thead>
           <tbody>
             ${(rec.students||[]).map((st,i)=>{
-              st.notesByMonth ||= Array.from({length:12}, ()=>"");
               const cells = st.monthlyByMonth[mi].slice(0,weeks).map((v,w)=>{
                 const cls = v===1 ? "mark ok" : (v===-1 ? "mark bad" : "mark");
                 const txt = v===1 ? "✓" : (v===-1 ? "✗" : "");
@@ -799,7 +847,7 @@ function renderMonthly(rec){
   return wrap;
 }
 
-/* ===== الخطط العلاجية/الإثرائية ===== */
+/* ===== الخطط العلاجية/الإثرائية (✅ تصحيح الطباعة + ✅ المهارات) ===== */
 function studentList(rec){
   const list=(rec.students||[]).map(s=>(s.name||"").trim()).filter(Boolean);
   return [...new Set(list)];
@@ -809,7 +857,6 @@ function renderPlans(rec){
   rec.plans ||= { entries: [] };
   const wrap=document.createElement("div");
   wrap.className="p";
-
   const students = studentList(rec);
 
   wrap.innerHTML = `
@@ -828,7 +875,7 @@ function renderPlans(rec){
             <th class="tot" style="width:90px">الصف</th>
             <th class="tot" style="width:120px">المادة</th>
             <th class="tot" style="width:90px">نوع</th>
-            <th class="tot" style="width:320px">المهارة</th>
+            <th class="tot" style="width:360px">المهارة</th>
             <th class="tot" style="width:120px">قبلي</th>
             <th class="tot" style="width:120px">بعدي</th>
             <th class="tot" style="width:160px">إجراء</th>
@@ -840,10 +887,14 @@ function renderPlans(rec){
             <tr>
               <td class="tot">${i+1}</td>
 
-              <td><input class="inline" type="date" data-plan="date" data-i="${i}" value="${esc(r.date||"")}"></td>
+              <td>
+                <span class="printOnly">${esc(r.date||"")}</span>
+                <input class="inline screenOnly" type="date" data-plan="date" data-i="${i}" value="${esc(r.date||"")}">
+              </td>
 
               <td class="namecell">
-                <div style="display:grid; gap:6px">
+                <span class="printOnly">${esc(r.studentFullName||"")}</span>
+                <div class="screenOnly" style="display:grid; gap:6px">
                   <select class="inline" data-pick="1" data-i="${i}">
                     <option value="">— اختيار سريع من الأسماء —</option>
                     ${students.map(n=>`<option ${n===(r.studentFullName||"")?"selected":""} value="${esc(n)}">${esc(n)}</option>`).join("")}
@@ -853,49 +904,59 @@ function renderPlans(rec){
               </td>
 
               <td>
-                <select class="inline" data-plan="grade" data-i="${i}">
+                <span class="printOnly">${esc(r.grade||"")}</span>
+                <select class="inline screenOnly" data-plan="grade" data-i="${i}">
                   ${["الأول","الثاني","الثالث","الرابع","الخامس","السادس"].map(g=>`<option ${r.grade===g?"selected":""} value="${g}">${g}</option>`).join("")}
                 </select>
               </td>
 
               <td>
-                <select class="inline" data-plan="subject" data-i="${i}">
+                <span class="printOnly">${esc(r.subject||"")}</span>
+                <select class="inline screenOnly" data-plan="subject" data-i="${i}">
                   ${["علوم","رياضيات","لغتي","انجليزي","دراسات","مهارات رقمية","أخرى"].map(s=>`<option ${r.subject===s?"selected":""} value="${s}">${s}</option>`).join("")}
                 </select>
               </td>
 
               <td>
-                <select class="inline" data-plan="type" data-i="${i}">
+                <span class="printOnly">${esc(r.type||"")}</span>
+                <select class="inline screenOnly" data-plan="type" data-i="${i}">
                   <option ${r.type==="علاجية"?"selected":""} value="علاجية">علاجية</option>
                   <option ${r.type==="إثرائية"?"selected":""} value="إثرائية">إثرائية</option>
                 </select>
               </td>
 
-              <td>
-                <select class="inline" data-plan="skill" data-i="${i}">
-                  <option value="${esc(r.skill||"")}">${esc(r.skill||"— جاري تحميل المهارات —")}</option>
+              <td style="text-align:right">
+                <span class="printOnly">${esc(r.skill||"")}</span>
+                <select class="inline screenOnly" data-plan="skill" data-i="${i}">
+                  <option value="${esc(r.skill||"")}">${esc(r.skill||"— اختر المهارة —")}</option>
                 </select>
               </td>
 
               <td>
-                <select class="inline" data-plan="pre" data-i="${i}">
+                <span class="printOnly">${esc(r.pre||"")}</span>
+                <select class="inline screenOnly" data-plan="pre" data-i="${i}">
                   ${LEVEL_WORDS.map(x=>`<option ${r.pre===x?"selected":""} value="${x}">${x}</option>`).join("")}
                 </select>
               </td>
 
               <td>
-                <select class="inline" data-plan="post" data-i="${i}">
+                <span class="printOnly">${esc(r.post||"")}</span>
+                <select class="inline screenOnly" data-plan="post" data-i="${i}">
                   ${LEVEL_WORDS.map(x=>`<option ${r.post===x?"selected":""} value="${x}">${x}</option>`).join("")}
                 </select>
               </td>
 
               <td>
-                <select class="inline" data-plan="action" data-i="${i}">
+                <span class="printOnly">${esc(r.action||"")}</span>
+                <select class="inline screenOnly" data-plan="action" data-i="${i}">
                   ${ACTION_TYPES.map(x=>`<option ${r.action===x?"selected":""} value="${x}">${x}</option>`).join("")}
                 </select>
               </td>
 
-              <td><input class="inline" data-plan="notes" data-i="${i}" value="${esc(r.notes||"")}"></td>
+              <td style="text-align:right">
+                <span class="printOnly">${esc(r.notes||"")}</span>
+                <input class="inline screenOnly" data-plan="notes" data-i="${i}" value="${esc(r.notes||"")}">
+              </td>
             </tr>
           `).join("")}
         </tbody>
@@ -903,10 +964,7 @@ function renderPlans(rec){
     </div>
   `;
 
-  setTimeout(async ()=>{
-    await refillAllSkills(rec, wrap);
-  },0);
-
+  setTimeout(async ()=>{ await refillAllSkills(rec, wrap); },0);
   return wrap;
 }
 
@@ -928,13 +986,13 @@ async function refillAllSkills(rec, root){
   }
 }
 
-/* ===================== ✅ تبليغ ولي الأمر (تفاعلي) ===================== */
+/* ===================== تبليغ ولي الأمر (تفاعلي) ===================== */
 function buildParentMessage(rec){
   const pn = rec.parentNotice;
   const student = pn.studentFullName || "الطالبة";
   const school = rec.school || "المدرسة";
   const classr = rec.classroom || "—";
-  const teacher = rec.signatures.teacherName || rec.signatures.teacherName || "معلمة المادة";
+  const teacher = rec.signatures.teacherName || "معلمة المادة";
   const date = pn.date || rec.date || "—";
 
   const reason = pn.reason || "—";
@@ -948,7 +1006,6 @@ function buildParentMessage(rec){
   let closing = `${meet} شاكرين تعاونكم.`;
   let sign = `معلمة المادة: ${teacher}`;
 
-  // template tweaks
   if(pn.template === "تنبيه بخصوص الغياب/التأخر"){
     detail = `سبب الإشعار: ${reason || "غياب/تأخر"}، ونأمل دعمكم في انتظام الطالبة.`;
   } else if(pn.template === "تنبيه بضعف تحصيلي وخطة علاجية"){
@@ -960,19 +1017,20 @@ function buildParentMessage(rec){
     req = `نأمل منكم التواصل/تحديد موعد لمناقشة مستوى الطالبة.`;
   }
 
-  const msg = [intro, body, detail, req, closing, sign].filter(Boolean).join("\n");
-  pn.message = msg;
+  pn.message = [intro, body, detail, req, closing, sign].filter(Boolean).join("\n");
+}
+
+function studentListForPick(rec){
+  return studentList(rec);
 }
 
 function renderParentNotice(rec){
   const pn = rec.parentNotice;
-  const students = studentList(rec);
-
+  const students = studentListForPick(rec);
   if(!pn.message) buildParentMessage(rec);
 
   const wrap = document.createElement("div");
   wrap.className="notice";
-
   wrap.innerHTML = `
     <div class="noticeCard">
       <div class="head">
@@ -1058,14 +1116,13 @@ ${esc(pn.message||"")}
   return wrap;
 }
 
-/* ===================== ✅ تبليغ الموجهة الطلابية (تفاعلي) ===================== */
+/* ===================== تبليغ الموجهة الطلابية (تفاعلي) ===================== */
 function renderCounselorNotice(rec){
   const cn = rec.counselorNotice;
-  const students = studentList(rec);
+  const students = studentListForPick(rec);
 
   const wrap = document.createElement("div");
   wrap.className="notice";
-
   wrap.innerHTML = `
     <div class="noticeCard">
       <div class="head">
@@ -1103,13 +1160,13 @@ function renderCounselorNotice(rec){
         </div>
 
         <div style="grid-column:1/-1">
-          <label>ملخص الحالة (وصف مختصر وواضح)</label>
-          <textarea data-coun="summary" placeholder="مثال: غياب متكرر خلال أسبوعين / سلوك متكرر داخل الصف…">${esc(cn.summary||"")}</textarea>
+          <label>ملخص الحالة</label>
+          <textarea data-coun="summary" placeholder="مثال: غياب متكرر / سلوك داخل الصف…">${esc(cn.summary||"")}</textarea>
         </div>
 
         <div style="grid-column:1/-1">
           <label>إجراءات تمت داخل الصف (إن وجدت)</label>
-          <textarea data-coun="actionsTaken" placeholder="مثال: تنبيه شفهي، تواصل مع الطالبة، واجب علاجي…">${esc(cn.actionsTaken||"")}</textarea>
+          <textarea data-coun="actionsTaken" placeholder="مثال: تنبيه شفهي…">${esc(cn.actionsTaken||"")}</textarea>
         </div>
 
         <div style="grid-column:1/-1">
@@ -1144,12 +1201,10 @@ function renderCounselorNotice(rec){
 
 /* ===================== WIRE ===================== */
 function wire(rec){
-  // signatures
   const st=$("sigTeacher"), sp=$("sigPrincipal");
   if(st) st.oninput=()=>{rec.signatures.teacherName=st.value; saveAll();};
   if(sp) sp.oninput=()=>{rec.signatures.principalName=sp.value; saveAll();};
 
-  // student names
   document.querySelectorAll("[data-st='name']").forEach(inp=>{
     inp.oninput=()=>{
       rec.students[+inp.dataset.i].name = inp.value;
@@ -1157,7 +1212,6 @@ function wire(rec){
     };
   });
 
-  // yearwork inputs
   document.querySelectorAll("[data-yw]").forEach(inp=>{
     inp.oninput=()=>{
       const i=+inp.dataset.i;
@@ -1176,7 +1230,6 @@ function wire(rec){
     };
   });
 
-  // column fill
   const btnFill=$("btnFillCols");
   if(btnFill){
     btnFill.onclick=()=>{
@@ -1186,16 +1239,12 @@ function wire(rec){
         if(!box) return;
         const cleaned = clamp(box.value, YW_MAX[k]);
         if(cleaned==="") return;
-        rec.students.forEach(s=>{
-          s.yearwork ||= {};
-          s.yearwork[k]=cleaned;
-        });
+        rec.students.forEach(s=>{ s.yearwork ||= {}; s.yearwork[k]=cleaned; });
       });
       saveAll(); render();
     };
   }
 
-  // Monthly tabs + weeks
   document.querySelectorAll("[data-month]").forEach(btn=>{
     btn.onclick=()=>{
       rec.monthlyUI.monthIndex = parseInt(btn.dataset.month,10);
@@ -1210,7 +1259,6 @@ function wire(rec){
     };
   }
 
-  // monthly toggle cells
   document.querySelectorAll("[data-mo-week]").forEach(btn=>{
     btn.onclick=()=>{
       const i=+btn.dataset.i;
@@ -1225,13 +1273,11 @@ function wire(rec){
     inp.oninput=()=>{
       const i=+inp.dataset.i;
       const mi = Math.max(0, Math.min(11, rec.monthlyUI.monthIndex ?? 0));
-      rec.students[i].notesByMonth ||= Array.from({length:12}, ()=>"");
       rec.students[i].notesByMonth[mi] = inp.value;
       saveAll();
     };
   });
 
-  // plans
   const addPlanBtn = $("btnAddPlan");
   if(addPlanBtn){
     addPlanBtn.onclick=()=>{
@@ -1261,15 +1307,14 @@ function wire(rec){
   document.querySelectorAll("[data-pick]").forEach(sel=>{
     sel.onchange=()=>{
       const i=+sel.dataset.i;
-      const v = sel.value || "";
-      rec.plans.entries[i].studentFullName = v;
-      saveAll();
-      render();
+      rec.plans.entries[i].studentFullName = sel.value || "";
+      saveAll(); render();
     };
   });
   document.querySelectorAll("[data-plan]").forEach(elm=>{
     const key=elm.dataset.plan, i=+elm.dataset.i;
-    const apply = ()=>{
+    elm.oninput=()=>{ rec.plans.entries[i][key]=elm.value; saveAll(); };
+    elm.onchange=()=>{
       rec.plans.entries[i][key]=elm.value;
       if(key==="grade") rec.plans.entries[i][key] = normalizeGradeClient(elm.value);
       if(key==="subject") rec.plans.entries[i][key] = normSubjectClient(elm.value);
@@ -1280,18 +1325,15 @@ function wire(rec){
         render();
       }
     };
-    elm.onchange=apply;
-    elm.oninput=()=>{ rec.plans.entries[i][key]=elm.value; saveAll(); };
   });
 
-  // ✅ parent notice wiring
   document.querySelectorAll("[data-parent]").forEach(el=>{
     const k = el.dataset.parent;
     el.oninput=()=>{
       if(k==="studentPick") return;
       rec.parentNotice[k]=el.value;
       saveAll();
-      if(k!=="message") render(); // refresh preview lightly
+      if(k!=="message") render();
     };
     el.onchange=()=>{
       if(k==="studentPick"){
@@ -1311,7 +1353,6 @@ function wire(rec){
     };
   }
 
-  // ✅ counselor notice wiring
   document.querySelectorAll("[data-coun]").forEach(el=>{
     const k = el.dataset.coun;
     el.oninput=()=>{
@@ -1410,10 +1451,7 @@ function attach(){
     syncSelect(); syncForm(active()); render();
   };
 
-  $("btnRename").onclick=()=>{
-    $("title").focus();
-    $("title").select();
-  };
+  $("btnRename").onclick=()=>{ $("title").focus(); $("title").select(); };
 
   $("formType").onchange=()=>{ const r=active(); r.formType=$("formType").value; saveAll(); syncForm(r); render(); };
   $("subject").oninput=()=>{ const r=active(); r.subject=$("subject").value; saveAll(); };
@@ -1454,6 +1492,9 @@ function attach(){
     const btn=$("btnPDF");
     btn.disabled=true; btn.textContent="جاري تجهيز PDF…";
     try{
+      // نجبر نفس شكل الطباعة داخل PDF
+      document.body.classList.add("forcePrint");
+
       const area=$("printArea");
       const canvas = await html2canvas(area, {scale:2, useCORS:true, backgroundColor:"#ffffff"});
       const img = canvas.toDataURL("image/png");
@@ -1479,6 +1520,7 @@ function attach(){
       const name=(rec?.title||"سجل").replace(/[\\/:*?"<>|]/g,"-") + ".pdf";
       pdf.save(name);
     } finally {
+      document.body.classList.remove("forcePrint");
       btn.disabled=false; btn.textContent="حفظ/تصدير PDF";
     }
   };
