@@ -1,4 +1,4 @@
-<!-- ===================== index.html (انسخي الملف كامل واستبدلي به index القديم) ===================== -->
+<!-- ===================== index.html (انسخي الملف كاملًا واستبدلي به index القديم) ===================== -->
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
@@ -145,6 +145,11 @@
     body.forcePrint .screenOnly{ display:none !important; }
     body.forcePrint .printOnly{ display:block !important; }
 
+    /* ✅ الخطط: جدول شاشة + جدول طباعة مبسّط */
+    .plansPrint { display:none; }
+    body.forcePrint .plansScreen { display:none !important; }
+    body.forcePrint .plansPrint  { display:block !important; }
+
     /* Print */
     @page { size: A4; margin: 10mm; }
     @media print{
@@ -169,6 +174,14 @@
 
       .screenOnly{ display:none !important; }
       .printOnly{ display:block !important; }
+
+      .plansScreen { display:none !important; }
+      .plansPrint  { display:block !important; }
+      .plansPrint table{ table-layout:auto !important; width:100% !important; }
+      .plansPrint td, .plansPrint th{
+        white-space: normal !important;
+        word-break: break-word !important;
+      }
     }
   </style>
 </head>
@@ -223,7 +236,7 @@
           <option value="monthly">كشف متابعة شهري/أسبوعي (صح/خطأ)</option>
           <option value="plans">متابعة الخطط العلاجية والإثرائية</option>
 
-          <!-- ✅ تم حذف تبليغ المديرة نهائيًا -->
+          <!-- ✅ لا يوجد تبليغ للمديرة -->
           <option value="parentNotice">تبليغ ولي الأمر (تفاعلي)</option>
           <option value="counselorNotice">تبليغ الموجهة الطلابية (تفاعلي)</option>
         </select>
@@ -346,7 +359,7 @@ function normalizeGradeClient(g){
   return map[t] || t;
 }
 
-/* ===================== JSON / JSONP (لمشكلة CORS) ===================== */
+/* ===================== JSON / JSONP ===================== */
 function jsonp(url){
   return new Promise((resolve, reject)=>{
     const cb = "cb_" + Math.random().toString(16).slice(2);
@@ -376,7 +389,7 @@ let USER = userKey();
 let LKEY = `irs_single_${USER}`;
 
 const state = {
-  version: 5,
+  version: 6,
   userKey: USER,
   records: [],
   activeId: null
@@ -487,7 +500,6 @@ async function cloudLoad(){
 
 let saveTimer=null;
 async function cloudSave(){
-  // محاولة POST (قد تُحجب بسبب CORS في بعض الأجهزة)
   try{
     const r = await fetch(SCRIPT_URL, {
       method:"POST",
@@ -498,7 +510,6 @@ async function cloudSave(){
     setCloud(j.ok ? "تم الحفظ ✓" : "تعذر الحفظ", !!j.ok);
     return;
   }catch{
-    // fallback: no-cors إرسال بدون قراءة الرد
     try{
       await fetch(SCRIPT_URL, {
         method:"POST",
@@ -707,6 +718,10 @@ function renderYearwork(rec){
   wrap.className="p";
 
   wrap.innerHTML = `
+    <div class="sub" style="margin-bottom:8px">
+      ✅ التعميم أصبح لكل خانة: اكتبي الدرجة في خانة التعميم أعلى العمود ثم اضغطي (تعميم) لنفس العمود فقط.
+    </div>
+
     <div class="wrapX">
       <table>
         <thead>
@@ -728,18 +743,42 @@ function renderYearwork(rec){
             <th class="tot">المجموع الكلي (100)</th>
           </tr>
 
+          <!-- ✅ صف التعميم لكل خانة -->
           <tr>
-            <th colspan="2" class="tot">تعميم درجة للعمود (اختياري)</th>
-            <th><input class="inline" id="fill_p1Task" placeholder="40"></th>
-            <th><input class="inline" id="fill_p1Quiz" placeholder="20"></th>
+            <th colspan="2" class="tot">تعميم درجة للصف (لكل خانة)</th>
+
+            <th>
+              <input class="inline" id="fill_p1Task" placeholder="40">
+              <button class="mark" data-fillcol="p1Task" style="margin-top:6px">تعميم</button>
+            </th>
+
+            <th>
+              <input class="inline" id="fill_p1Quiz" placeholder="20">
+              <button class="mark" data-fillcol="p1Quiz" style="margin-top:6px">تعميم</button>
+            </th>
+
             <th class="tot"></th>
-            <th><input class="inline" id="fill_p2Task" placeholder="40"></th>
-            <th><input class="inline" id="fill_p2Quiz" placeholder="20"></th>
+
+            <th>
+              <input class="inline" id="fill_p2Task" placeholder="40">
+              <button class="mark" data-fillcol="p2Task" style="margin-top:6px">تعميم</button>
+            </th>
+
+            <th>
+              <input class="inline" id="fill_p2Quiz" placeholder="20">
+              <button class="mark" data-fillcol="p2Quiz" style="margin-top:6px">تعميم</button>
+            </th>
+
             <th class="tot"></th>
             <th class="tot"></th>
             <th class="tot"></th>
-            <th><input class="inline" id="fill_final" placeholder="40"></th>
-            <th class="tot"><button class="mark" id="btnFillCols" style="padding:10px 6px">تعميم</button></th>
+
+            <th>
+              <input class="inline" id="fill_final" placeholder="40">
+              <button class="mark" data-fillcol="final" style="margin-top:6px">تعميم</button>
+            </th>
+
+            <th class="tot"></th>
           </tr>
         </thead>
 
@@ -847,7 +886,7 @@ function renderMonthly(rec){
   return wrap;
 }
 
-/* ===== الخطط العلاجية/الإثرائية (✅ تصحيح الطباعة + ✅ المهارات) ===== */
+/* ===== الخطط العلاجية/الإثرائية ===== */
 function studentList(rec){
   const list=(rec.students||[]).map(s=>(s.name||"").trim()).filter(Boolean);
   return [...new Set(list)];
@@ -857,110 +896,134 @@ function renderPlans(rec){
   rec.plans ||= { entries: [] };
   const wrap=document.createElement("div");
   wrap.className="p";
+
   const students = studentList(rec);
 
   wrap.innerHTML = `
-    <div class="btns" style="margin-bottom:10px">
-      <button class="secondary" id="btnAddPlan">إضافة صف خطة</button>
-      <button class="secondary" id="btnReloadSkills">تحديث المهارات</button>
+    <!-- ===================== SCREEN (Interactive) ===================== -->
+    <div class="plansScreen">
+      <div class="btns" style="margin-bottom:10px">
+        <button class="secondary" id="btnAddPlan">إضافة صف خطة</button>
+        <button class="secondary" id="btnReloadSkills">تحديث المهارات</button>
+      </div>
+
+      <div class="wrapX">
+        <table>
+          <thead>
+            <tr>
+              <th class="tot" style="width:40px">م</th>
+              <th class="tot" style="width:110px">التاريخ</th>
+              <th class="tot" style="width:320px">اسم الطالبة الثلاثي</th>
+              <th class="tot" style="width:90px">الصف</th>
+              <th class="tot" style="width:120px">المادة</th>
+              <th class="tot" style="width:90px">نوع</th>
+              <th class="tot" style="width:360px">المهارة</th>
+              <th class="tot" style="width:120px">قبلي</th>
+              <th class="tot" style="width:120px">بعدي</th>
+              <th class="tot" style="width:160px">إجراء</th>
+              <th class="tot" style="width:240px">ملاحظات</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${(rec.plans.entries||[]).map((r,i)=>`
+              <tr>
+                <td class="tot">${i+1}</td>
+
+                <td><input class="inline" type="date" data-plan="date" data-i="${i}" value="${esc(r.date||"")}"></td>
+
+                <td class="namecell">
+                  <div style="display:grid; gap:6px">
+                    <select class="inline" data-pick="1" data-i="${i}">
+                      <option value="">— اختيار سريع من الأسماء —</option>
+                      ${students.map(n=>`<option ${n===(r.studentFullName||"")?"selected":""} value="${esc(n)}">${esc(n)}</option>`).join("")}
+                    </select>
+                    <input class="inline name" data-plan="studentFullName" data-i="${i}" value="${esc(r.studentFullName||"")}" placeholder="اكتبي الاسم الثلاثي هنا">
+                  </div>
+                </td>
+
+                <td>
+                  <select class="inline" data-plan="grade" data-i="${i}">
+                    ${["الأول","الثاني","الثالث","الرابع","الخامس","السادس"].map(g=>`<option ${r.grade===g?"selected":""} value="${g}">${g}</option>`).join("")}
+                  </select>
+                </td>
+
+                <td>
+                  <select class="inline" data-plan="subject" data-i="${i}">
+                    ${["علوم","رياضيات","لغتي","انجليزي","دراسات","مهارات رقمية","أخرى"].map(s=>`<option ${r.subject===s?"selected":""} value="${s}">${s}</option>`).join("")}
+                  </select>
+                </td>
+
+                <td>
+                  <select class="inline" data-plan="type" data-i="${i}">
+                    <option ${r.type==="علاجية"?"selected":""} value="علاجية">علاجية</option>
+                    <option ${r.type==="إثرائية"?"selected":""} value="إثرائية">إثرائية</option>
+                  </select>
+                </td>
+
+                <td style="text-align:right">
+                  <select class="inline" data-plan="skill" data-i="${i}">
+                    <option value="${esc(r.skill||"")}">${esc(r.skill||"— اختر المهارة —")}</option>
+                  </select>
+                </td>
+
+                <td>
+                  <select class="inline" data-plan="pre" data-i="${i}">
+                    ${LEVEL_WORDS.map(x=>`<option ${r.pre===x?"selected":""} value="${x}">${x}</option>`).join("")}
+                  </select>
+                </td>
+
+                <td>
+                  <select class="inline" data-plan="post" data-i="${i}">
+                    ${LEVEL_WORDS.map(x=>`<option ${r.post===x?"selected":""} value="${x}">${x}</option>`).join("")}
+                  </select>
+                </td>
+
+                <td>
+                  <select class="inline" data-plan="action" data-i="${i}">
+                    ${ACTION_TYPES.map(x=>`<option ${r.action===x?"selected":""} value="${x}">${x}</option>`).join("")}
+                  </select>
+                </td>
+
+                <td style="text-align:right">
+                  <input class="inline" data-plan="notes" data-i="${i}" value="${esc(r.notes||"")}">
+                </td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <div class="wrapX">
-      <table>
-        <thead>
-          <tr>
-            <th class="tot" style="width:40px">م</th>
-            <th class="tot" style="width:110px">التاريخ</th>
-            <th class="tot" style="width:320px">اسم الطالبة الثلاثي</th>
-            <th class="tot" style="width:90px">الصف</th>
-            <th class="tot" style="width:120px">المادة</th>
-            <th class="tot" style="width:90px">نوع</th>
-            <th class="tot" style="width:360px">المهارة</th>
-            <th class="tot" style="width:120px">قبلي</th>
-            <th class="tot" style="width:120px">بعدي</th>
-            <th class="tot" style="width:160px">إجراء</th>
-            <th class="tot" style="width:240px">ملاحظات</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${(rec.plans.entries||[]).map((r,i)=>`
+    <!-- ===================== PRINT (Simple) ===================== -->
+    <div class="plansPrint">
+      <div class="wrapX" style="overflow:visible">
+        <table>
+          <thead>
             <tr>
-              <td class="tot">${i+1}</td>
-
-              <td>
-                <span class="printOnly">${esc(r.date||"")}</span>
-                <input class="inline screenOnly" type="date" data-plan="date" data-i="${i}" value="${esc(r.date||"")}">
-              </td>
-
-              <td class="namecell">
-                <span class="printOnly">${esc(r.studentFullName||"")}</span>
-                <div class="screenOnly" style="display:grid; gap:6px">
-                  <select class="inline" data-pick="1" data-i="${i}">
-                    <option value="">— اختيار سريع من الأسماء —</option>
-                    ${students.map(n=>`<option ${n===(r.studentFullName||"")?"selected":""} value="${esc(n)}">${esc(n)}</option>`).join("")}
-                  </select>
-                  <input class="inline name" data-plan="studentFullName" data-i="${i}" value="${esc(r.studentFullName||"")}" placeholder="اكتبي الاسم الثلاثي هنا">
-                </div>
-              </td>
-
-              <td>
-                <span class="printOnly">${esc(r.grade||"")}</span>
-                <select class="inline screenOnly" data-plan="grade" data-i="${i}">
-                  ${["الأول","الثاني","الثالث","الرابع","الخامس","السادس"].map(g=>`<option ${r.grade===g?"selected":""} value="${g}">${g}</option>`).join("")}
-                </select>
-              </td>
-
-              <td>
-                <span class="printOnly">${esc(r.subject||"")}</span>
-                <select class="inline screenOnly" data-plan="subject" data-i="${i}">
-                  ${["علوم","رياضيات","لغتي","انجليزي","دراسات","مهارات رقمية","أخرى"].map(s=>`<option ${r.subject===s?"selected":""} value="${s}">${s}</option>`).join("")}
-                </select>
-              </td>
-
-              <td>
-                <span class="printOnly">${esc(r.type||"")}</span>
-                <select class="inline screenOnly" data-plan="type" data-i="${i}">
-                  <option ${r.type==="علاجية"?"selected":""} value="علاجية">علاجية</option>
-                  <option ${r.type==="إثرائية"?"selected":""} value="إثرائية">إثرائية</option>
-                </select>
-              </td>
-
-              <td style="text-align:right">
-                <span class="printOnly">${esc(r.skill||"")}</span>
-                <select class="inline screenOnly" data-plan="skill" data-i="${i}">
-                  <option value="${esc(r.skill||"")}">${esc(r.skill||"— اختر المهارة —")}</option>
-                </select>
-              </td>
-
-              <td>
-                <span class="printOnly">${esc(r.pre||"")}</span>
-                <select class="inline screenOnly" data-plan="pre" data-i="${i}">
-                  ${LEVEL_WORDS.map(x=>`<option ${r.pre===x?"selected":""} value="${x}">${x}</option>`).join("")}
-                </select>
-              </td>
-
-              <td>
-                <span class="printOnly">${esc(r.post||"")}</span>
-                <select class="inline screenOnly" data-plan="post" data-i="${i}">
-                  ${LEVEL_WORDS.map(x=>`<option ${r.post===x?"selected":""} value="${x}">${x}</option>`).join("")}
-                </select>
-              </td>
-
-              <td>
-                <span class="printOnly">${esc(r.action||"")}</span>
-                <select class="inline screenOnly" data-plan="action" data-i="${i}">
-                  ${ACTION_TYPES.map(x=>`<option ${r.action===x?"selected":""} value="${x}">${x}</option>`).join("")}
-                </select>
-              </td>
-
-              <td style="text-align:right">
-                <span class="printOnly">${esc(r.notes||"")}</span>
-                <input class="inline screenOnly" data-plan="notes" data-i="${i}" value="${esc(r.notes||"")}">
-              </td>
+              <th class="tot" style="width:40px">م</th>
+              <th class="tot">اسم الطالبة الثلاثي</th>
+              <th class="tot">المادة</th>
+              <th class="tot">الصف</th>
+              <th class="tot">المهارة</th>
+              <th class="tot">قبلي</th>
+              <th class="tot">بعدي</th>
             </tr>
-          `).join("")}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            ${(rec.plans.entries||[]).map((r,i)=>`
+              <tr>
+                <td class="tot">${i+1}</td>
+                <td style="text-align:right">${esc(r.studentFullName||"")}</td>
+                <td>${esc(r.subject||"")}</td>
+                <td>${esc(r.grade||"")}</td>
+                <td style="text-align:right">${esc(r.skill||"")}</td>
+                <td>${esc(r.pre||"")}</td>
+                <td>${esc(r.post||"")}</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
     </div>
   `;
 
@@ -986,7 +1049,7 @@ async function refillAllSkills(rec, root){
   }
 }
 
-/* ===================== تبليغ ولي الأمر (تفاعلي) ===================== */
+/* ===================== تبليغ ولي الأمر ===================== */
 function buildParentMessage(rec){
   const pn = rec.parentNotice;
   const student = pn.studentFullName || "الطالبة";
@@ -1020,9 +1083,7 @@ function buildParentMessage(rec){
   pn.message = [intro, body, detail, req, closing, sign].filter(Boolean).join("\n");
 }
 
-function studentListForPick(rec){
-  return studentList(rec);
-}
+function studentListForPick(rec){ return studentList(rec); }
 
 function renderParentNotice(rec){
   const pn = rec.parentNotice;
@@ -1116,7 +1177,7 @@ ${esc(pn.message||"")}
   return wrap;
 }
 
-/* ===================== تبليغ الموجهة الطلابية (تفاعلي) ===================== */
+/* ===================== تبليغ الموجهة الطلابية ===================== */
 function renderCounselorNotice(rec){
   const cn = rec.counselorNotice;
   const students = studentListForPick(rec);
@@ -1230,20 +1291,18 @@ function wire(rec){
     };
   });
 
-  const btnFill=$("btnFillCols");
-  if(btnFill){
-    btnFill.onclick=()=>{
-      const cols=["p1Task","p1Quiz","p2Task","p2Quiz","final"];
-      cols.forEach(k=>{
-        const box = $("fill_"+k);
-        if(!box) return;
-        const cleaned = clamp(box.value, YW_MAX[k]);
-        if(cleaned==="") return;
-        rec.students.forEach(s=>{ s.yearwork ||= {}; s.yearwork[k]=cleaned; });
-      });
+  // ✅ تعميم لكل خانة في أعمال السنة
+  document.querySelectorAll("[data-fillcol]").forEach(btn=>{
+    btn.onclick=()=>{
+      const key = btn.dataset.fillcol;
+      const box = $("fill_" + key);
+      if(!box) return;
+      const cleaned = clamp(box.value, YW_MAX[key]);
+      if(cleaned==="") return;
+      rec.students.forEach(s=>{ s.yearwork ||= {}; s.yearwork[key]=cleaned; });
       saveAll(); render();
     };
-  }
+  });
 
   document.querySelectorAll("[data-month]").forEach(btn=>{
     btn.onclick=()=>{
@@ -1492,7 +1551,6 @@ function attach(){
     const btn=$("btnPDF");
     btn.disabled=true; btn.textContent="جاري تجهيز PDF…";
     try{
-      // نجبر نفس شكل الطباعة داخل PDF
       document.body.classList.add("forcePrint");
 
       const area=$("printArea");
@@ -1501,9 +1559,7 @@ function attach(){
       const { jsPDF } = window.jspdf;
 
       const isMobile = matchMedia("(max-width:820px)").matches;
-      const isWide = area.scrollWidth > 980 && !isMobile;
-
-      const pdf = new jsPDF({orientation: (isMobile ? "portrait" : (isWide ? "landscape" : "portrait")), unit:"mm", format:"a4"});
+      const pdf = new jsPDF({orientation: (isMobile ? "portrait" : "landscape"), unit:"mm", format:"a4"});
       const w = pdf.internal.pageSize.getWidth();
       const h = pdf.internal.pageSize.getHeight();
       const imgW = w;
