@@ -41,10 +41,8 @@
     .dot{width:8px; height:8px; border-radius:50%}
     .dot.ok{background:var(--ok)} .dot.bad{background:var(--bad)} .dot.neu{background:var(--neu)}
 
-    /* ✅ صفحة كاملة بدون شريط أفقي عام */
     .grid{
       display:grid; grid-template-columns: 360px 1fr; gap:12px;
-      align-items:start;
     }
     @media (max-width: 980px){
       .grid{grid-template-columns:1fr}
@@ -83,14 +81,13 @@
     .printHead .m{color:var(--muted); font-size:12px; font-weight:800}
     .printPills{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
 
-    /* ✅ شاشة: يسمح بالسكرول داخل الجدول فقط */
+    /* شاشة: يسمح بشريط أفقي للمعاينة عند الحاجة */
     .wrapX{overflow:auto; -webkit-overflow-scrolling:touch}
 
     table{border-collapse:collapse; width:100%;}
     th, td{border:1px solid var(--b); padding:6px; text-align:center; font-weight:900; font-size:12px}
     th{background:#f3f4f6}
     td.namecell{text-align:right}
-
     .inline{
       width:100%; border:0; outline:0; padding:6px; font-weight:900; background:transparent;
       text-align:center; font-size:12px;
@@ -102,33 +99,31 @@
       background:#fff; color:#111; font-weight:900;
     }
 
-    /* ✅ أدوات التعميم أعلى الجدول بدل داخل THEAD */
-    .ywTools{
-      position: sticky;
-      top: 0;
-      z-index: 5;
-      background: #fff;
-      border: 1px solid var(--b);
-      border-radius: 14px;
-      padding: 10px;
-      margin: 12px 0;
+    /* توقيعات */
+    .siggrid{display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:10px 12px 12px}
+    @media (max-width: 820px){ .siggrid{grid-template-columns:1fr} }
+    .sig{
+      border:1px solid var(--b); border-radius:14px; padding:8px; background:var(--card);
     }
-    .ywTools .rowT{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      align-items:flex-end;
+    .sig input{
+      border:0; border-bottom:2px dotted #111; border-radius:0; padding:8px 0;
+      background:transparent;
     }
-    .ywTools .grp{
-      min-width: 180px;
-      border:1px solid var(--b);
-      border-radius:12px;
-      padding:8px;
-      background:var(--card);
+    .sigSmall .sig{padding:6px 8px; border-radius:12px}
+    .sigSmall .sig input{padding:6px 0}
+    .sigSmall .lbl{font-size:11px; margin:0 0 2px; font-weight:900}
+
+    /* Tabs */
+    .tabs{
+      display:flex; gap:8px; flex-wrap:wrap;
+      padding:12px; border-bottom:1px solid var(--b); background:#fff;
     }
-    .ywTools label{margin:0 0 6px;font-size:11px}
-    .ywTools .mini{display:flex; gap:6px; align-items:center}
-    .ywTools input{width:110px; padding:8px}
+    .tab{
+      border:1px solid var(--b); background:#fff; color:#111;
+      padding:8px 10px; border-radius:999px; font-weight:900; font-size:12px;
+      cursor:pointer;
+    }
+    .tab.active{background:#111; color:#fff}
 
     /* Notices */
     .notice{padding:14px}
@@ -146,7 +141,7 @@
     }
     @media (max-width: 820px){ .noticeGrid{grid-template-columns:1fr} }
 
-    /* ✅ Helpers to control print */
+    /* Helpers to control print */
     .noPrint{display:block;}
     .screenOnly{display:block;}
     .printOnly{display:none; white-space:pre-wrap; line-height:1.9; font-weight:900; text-align:right; font-size:14px}
@@ -154,26 +149,22 @@
     body.forcePrint .screenOnly{display:none !important;}
     body.forcePrint .printOnly{display:block !important;}
 
-    /* ✅ رأس عمودي (مثل Word) */
+    /* رأس عمودي (مثل Word) */
     @media print{
-      th.vhead{
-        padding:0 !important;
-        width:24px !important;
-        min-width:24px !important;
-      }
+      th.vhead{ padding:0 !important; width:10mm !important; min-width:10mm !important; }
       th.vhead > span{
         display:inline-block;
         writing-mode:vertical-rl;
         transform:rotate(180deg);
         white-space:nowrap;
         line-height:1;
-        padding:8px 0;
+        padding:6px 0;
         font-weight:900;
       }
     }
 
-    /* ✅ طباعة عامة: واضحة + بدون أوامر */
     @page { size: A4 landscape; margin: 10mm; }
+
     @media print{
       header, .panel.left {display:none !important}
       body{background:#fff}
@@ -181,29 +172,32 @@
       .panel.right{border:0}
       .wrap{max-width:none; padding:0}
       .wrapX{overflow:visible}
-      .noPrint, .screenOnly, .ywTools{display:none !important;}
+
+      .noPrint{display:none !important;}
+      .screenOnly{display:none !important;}
+      .printOnly{display:block !important;}
+
       input.inline, select.inline, textarea{ display:none !important; }
       .pv{ display:inline !important; }
+
       table{width:100%; table-layout:fixed;}
       thead{display: table-header-group;}
       tfoot{display: table-footer-group;}
       tr{page-break-inside: avoid;}
+
       th,td{
-        font-size:10px; padding:4px;
+        font-size:9px; padding:3px;
         white-space:normal !important;
         word-break:break-word;
       }
-      .printOnly{
-        display:block !important;
-        font-size:15px !important;
-        line-height:2 !important;
-      }
-    }
 
-    /* ===== تحسين طباعة سجل أعمال السنة: الاسم كامل + الدرجات أصغر ===== */
-    @media print{
+      .plansPrint th, .plansPrint td{ font-size:10px !important; padding:4px !important; }
+
+      /* ===== تحسين طباعة سجل أعمال السنة ===== */
       .yearworkTable{ width:100% !important; table-layout:fixed !important; }
-      .yearworkTable th, .yearworkTable td{ padding:2px !important; font-size:9px !important; line-height:1.15 !important; }
+      .yearworkTable th, .yearworkTable td{
+        padding:2px !important; font-size:9px !important; line-height:1.15 !important;
+      }
       .yearworkTable td.namecell{
         width:60mm !important;
         white-space:normal !important;
@@ -216,72 +210,67 @@
         white-space:normal !important;
         word-break:keep-all !important;
       }
-      .yearworkTable td:not(.namecell), .yearworkTable th:not(.vhead){
+      .yearworkTable td:not(.namecell),
+      .yearworkTable th:not(.vhead){
         width:12mm !important;
       }
-      .yearworkTable th.vhead{
-        width:10mm !important;
-        min-width:10mm !important;
-      }
     }
 
-    /* ✅ تواقيع صغيرة أسفل الجدول */
-    .sigbar{
-      border-top:1px solid var(--b);
-      padding:8px 12px 12px;
-      display:grid;
-      gap:8px;
-      background:#fff;
+    /* ===== Teacher Picker Modal ===== */
+    .overlay{
+      position:fixed; inset:0; background:rgba(0,0,0,.55);
+      display:none; align-items:center; justify-content:center;
+      z-index:99998; padding:18px;
     }
-    .sigbar.two{ grid-template-columns: 1fr 1fr; }
-    .sigbar.three{ grid-template-columns: 1fr 1fr 1fr; }
-    .sigbox{
-      border:1px solid var(--b);
-      border-radius:12px;
-      padding:8px;
-      background:var(--card);
+    .box{
+      width:min(520px, 100%);
+      background:#fff; border-radius:18px; border:1px solid var(--b);
+      padding:14px;
+      max-height:80vh; overflow:auto;
     }
-    .sigbox .ttl{font-weight:900; font-size:11px; margin-bottom:6px}
-    .sigbox input{
-      padding:6px 8px; border-radius:10px;
+    .box h3{margin:0 0 6px; font-weight:900; font-size:16px}
+    .box p{margin:0 0 10px; color:var(--muted); font-weight:800; font-size:12px}
+    .teacherGrid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    @media (max-width:520px){ .teacherGrid{grid-template-columns:1fr} }
+    .tbtn{
+      background:#fff; color:#111; border:1px solid var(--b);
+      padding:12px; border-radius:14px; font-weight:900; text-align:right;
+      cursor:pointer;
     }
-    @media print{
-      .sigbar{ padding:6px 10px !important; }
-      .sigbox{ background:#fff !important; padding:6px 8px !important; }
-      .sigbox .ttl{ font-size:10px !important; margin:0 0 2px !important; }
-      .sigbox input{ display:none !important; }
-      .sigbox .pvSig{ display:block !important; font-weight:900 !important; font-size:12px !important; }
-    }
-    .pvSig{display:none;}
+    .tbtn small{display:block; color:var(--muted); margin-top:4px; font-weight:800}
 
-    /* ✅ خطط: واجهة بطاقات لقراءة المهارات */
-    .planCards{ padding:12px; display:grid; gap:10px; }
+    /* ===== PIN Modal ===== */
+    .pinOverlay{
+      position:fixed; inset:0; background:rgba(0,0,0,.55);
+      display:none; align-items:center; justify-content:center;
+      z-index:99999; padding:18px;
+    }
+    .pinBox{
+      width:min(420px, 100%);
+      background:#fff; border-radius:18px; border:1px solid var(--b);
+      padding:14px;
+    }
+    .pinBox h3{ margin:0 0 6px; font-weight:900; font-size:16px; }
+    .pinBox p{ margin:0 0 10px; color:var(--muted); font-weight:800; font-size:12px; }
+    .pinRow{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .pinRow input{
+      flex:1; padding:12px; border-radius:12px; border:1px solid var(--b);
+      font-weight:900; font-size:14px; text-align:center;
+      letter-spacing:2px;
+    }
+    .pinErr{ margin-top:8px; color:#dc2626; font-weight:900; font-size:12px; display:none; }
+
+    /* ===== Plans screen cards (مقروءة) ===== */
     .planCard{
-      border:1px solid var(--b);
-      border-radius:16px;
-      padding:12px;
-      background:#fff;
+      border:1px solid var(--b); border-radius:16px; padding:12px; background:#fff;
+      margin-bottom:10px;
     }
-    .planCard .top{
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between;
-      margin-bottom:8px;
-    }
-    .planCard .idx{font-weight:900; background:var(--card); border:1px solid var(--b); padding:6px 10px; border-radius:999px}
     .planGrid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
+      display:grid; grid-template-columns: 1fr 1fr; gap:10px;
     }
-    @media (max-width:820px){ .planGrid{grid-template-columns:1fr} }
-    .planGrid .full{ grid-column: 1 / -1; }
-    .multiSel{
-      min-height:160px;
-      padding:8px;
-      border-radius:12px;
-      border:1px solid var(--b);
-      font-weight:900;
-      background:#fff;
-    }
+    @media (max-width: 820px){ .planGrid{grid-template-columns:1fr} }
+    .planGrid .full{grid-column:1/-1}
+    .hint{color:var(--muted); font-weight:800; font-size:12px}
   </style>
 </head>
 
@@ -291,13 +280,14 @@
     <div class="row" style="justify-content:space-between">
       <div>
         <h1>استمارات الرصد التفاعلية</h1>
-        <div class="sub noPrint">الأوامر لا تظهر في الطباعة (التعميم/الترحيل/الأزرار…)</div>
+        <div class="sub noPrint">لن تظهر أوامر التعميم/المعاينة/التحديث في الطباعة</div>
       </div>
       <div class="row">
         <div class="pill" id="cloudPill"><span class="dot neu"></span> سحابي: …</div>
         <div class="pill" id="globalPill">زيارات عالمية: …</div>
         <div class="pill" id="localPill">زيارات الجهاز: …</div>
         <div class="pill" id="userPill">مستخدم: …</div>
+        <button class="secondary noPrint" id="btnSwitchTeacher">تبديل المعلمة</button>
         <button class="secondary noPrint" id="btnCloudReload">استرجاع من السحابة</button>
         <button class="secondary" id="btnPrint">طباعة</button>
         <button id="btnPDF">حفظ/تصدير PDF</button>
@@ -331,7 +321,7 @@
         <label>نوع الاستمارة</label>
         <select id="formType">
           <option value="yearwork">سجل أعمال السنة لعام …</option>
-          <option value="monthly">كشف متابعة أسبوعي شهري + متوسط شهر</option>
+          <option value="monthly">كشف متابعة أسبوعي/شهري + متوسط شهر</option>
           <option value="plans">متابعة الخطط العلاجية والإثرائية</option>
           <option value="parentNotice">تبليغ ولي الأمر</option>
           <option value="counselorNotice">تبليغ الموجهة الطلابية</option>
@@ -359,6 +349,15 @@
 
         <label>عنوان السجل</label>
         <input id="title" placeholder="مثال: أعمال سنة علوم سادس/أ" />
+
+        <label>اسم المعلمة (يظهر بالطباعة)</label>
+        <input id="teacherName" placeholder="اسم المعلمة" />
+
+        <label id="reviewerLabel" style="display:none">اسم المراجعة (يظهر فقط في أعمال السنة)</label>
+        <input id="reviewerName" placeholder="اسم المراجعة" style="display:none"/>
+
+        <label>اسم المديرة (يظهر بالطباعة)</label>
+        <input id="principalName" placeholder="اسم المديرة" />
 
         <hr style="border:0;border-top:1px solid var(--b); margin:14px 0">
 
@@ -393,7 +392,7 @@
     <div class="panel right">
       <h2>الاستمارة</h2>
       <div class="sub noPrint" style="padding:0 12px 10px">
-        المعاينة قد تظهر عناصر إدخال، لكن الطباعة مختصرة على المطلوب فقط.
+        المعاينة قد تظهر أوامر (تعميم/ترحيل...) لكنها لا تظهر في الطباعة.
       </div>
       <div id="printArea"></div>
     </div>
@@ -401,9 +400,47 @@
   </div>
 </div>
 
+<!-- اختيار المعلمة -->
+<div class="overlay" id="teacherOverlay">
+  <div class="box">
+    <h3>اختاري اسم المعلمة</h3>
+    <p>كل اسم يفتح نسخة مستقلة محفوظة. بعدها ستعين المعلمة رقمًا سريًا (PIN) خاصًا بها.</p>
+    <div class="teacherGrid" id="teacherGrid"></div>
+    <div class="hint" style="margin-top:10px">* إذا ظهر 404 مع ? استخدمي # (النظام يدعم الاثنين).</div>
+  </div>
+</div>
+
+<!-- قفل PIN -->
+<div class="pinOverlay" id="pinOverlay">
+  <div class="pinBox">
+    <h3 id="pinTitle">قفل الصفحة</h3>
+    <p id="pinHint">أدخلي الرقم السري لفتح صفحة المعلمة.</p>
+    <div class="pinRow">
+      <input id="pinInput" inputmode="numeric" maxlength="8" placeholder="••••" />
+      <button id="pinBtn">دخول</button>
+      <button class="secondary" id="pinSetBtn" style="display:none">تعيين PIN</button>
+      <button class="secondary" id="pinChangeBtn" style="display:none">تغيير PIN</button>
+    </div>
+    <div class="pinErr" id="pinErr">الرقم غير صحيح</div>
+  </div>
+</div>
+
 <script>
 /* ===================== CONFIG ===================== */
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_2OMmrcfqSB6TfxCoRJzxPkKipcbJ97dEK5C1T8-rfueSRO2ExTeHEyK2UAXN4Trr/exec";
+
+/* أسماء المعلمات داخل الصفحة + userKey لكل واحدة (بدون تداخل) */
+const TEACHERS = [
+  ["بدرية الزهراني", "t_badriyah_alzahrani"],
+  ["عزة الشهري", "t_azza_alshahri"],
+  ["نورة القحطاني", "t_noura_alqahtani"],
+  ["مستورة الشهراني", "t_mastoorah_alshahrani"],
+  ["فوزية الشهري", "t_fawziah_alshahri"],
+  ["فوزية العمري", "t_fawziah_alomari"],
+  ["هيا المعاوي", "t_haya_almaawi"],
+  ["هيا الأحمري", "t_haya_alahmari"],
+  ["فاطمة الأسمري", "t_fatima_alasmari"],
+];
 
 const LEVEL_WORDS = ["متفوق","جيد","يحتاج متابعة","تحسن بتفوق","ضعيف جدا","ضعيف","جيد وبحتاج متابعة"];
 const ACTION_TYPES = ["جلسة علاجية فردية","جلسة علاجية جماعية","واجب علاجي","خطة إثرائية","تعلّم تعاوني","تعليم مقلوب","أنشطة تطبيقية","تدريب إضافي","غير ذلك"];
@@ -438,10 +475,19 @@ function clamp(v,max){
   if(n===null) return "";
   return String(Math.max(0, Math.min(max, n)));
 }
+
+/* دعم ?user= و #user= لتفادي 404 */
 function userKey(){
-  const p=new URLSearchParams(location.search);
-  return (p.get("user") || "default").trim() || "default";
+  const p = new URLSearchParams(location.search);
+  let u = (p.get("user") || "").trim();
+  if(!u){
+    const h = (location.hash || "").replace(/^#/, "");
+    const hp = new URLSearchParams(h.startsWith("?") ? h.slice(1) : h);
+    u = (hp.get("user") || hp.get("u") || "").trim();
+  }
+  return u || "";
 }
+
 function setCloud(text, ok=null){
   const pill=$("cloudPill");
   const dot = ok===true ? "ok" : ok===false ? "bad" : "neu";
@@ -464,9 +510,6 @@ function normalizeGradeClient(g){
     "6":"السادس","سادس":"السادس","السادس":"السادس",
   };
   return map[t] || t;
-}
-function normNameKey(name){
-  return (name||"").toString().trim().replace(/\s+/g," ");
 }
 
 /* ===================== JSON / JSONP ===================== */
@@ -494,14 +537,15 @@ async function getJSON(url){
 }
 
 /* ===================== STATE ===================== */
-let USER = userKey();
-let LKEY = `irs_single_${USER}`;
+let USER = userKey();           // سيتم تحديده من اختيار المعلمة
+let LKEY = USER ? `irs_single_${USER}` : "";
 
 const state = {
-  version: 20,
+  version: 11,
   userKey: USER,
   records: [],
-  activeId: null
+  activeId: null,
+  meta: {} // pinHash
 };
 
 function defaultStudent(name=""){
@@ -528,38 +572,19 @@ function defaultRecord(){
     date: `${yyyy}-${mm}-${dd}`,
     termAr: "الأول",
     academicYearAr: "١٤٤٧هـ",
-
-    // ✅ التواقيع: المراجعة مطلوبة فقط لأعمال السنة
     signatures:{ teacherName:"", reviewerName:"", principalName:"" },
-
     students: [],
-
     followupUI: { monthIndex: d.getMonth(), weeks: 4, autoTransfer: true, target: "p1Task" },
-
     plans:{ entries: [] },
-
     parentNotice: {
-      date: `${yyyy}-${mm}-${dd}`,
-      studentFullName: "",
-      parentName: "",
-      parentPhone: "",
-      template: PARENT_TEMPLATES[0],
-      reason: PARENT_REASONS[0],
-      action: PARENT_ACTIONS[0],
-      message: "",
-      meetingDate: "",
-      meetingTime: ""
+      date: `${yyyy}-${mm}-${dd}`, studentFullName:"", parentName:"", parentPhone:"",
+      template: PARENT_TEMPLATES[0], reason: PARENT_REASONS[0], action: PARENT_ACTIONS[0],
+      message:"", meetingDate:"", meetingTime:"", notes:""
     },
-
     counselorNotice: {
-      date: `${yyyy}-${mm}-${dd}`,
-      studentFullName: "",
-      type: COUNSELOR_TYPES[0],
-      urgency: COUNSELOR_URGENCY[2],
-      summary: "",
-      actionsTaken: "",
-      requestedSupport: "متابعة الحالة وإرشاد الطالبة",
-      notes: ""
+      date: `${yyyy}-${mm}-${dd}`, studentFullName:"",
+      type: COUNSELOR_TYPES[0], urgency: COUNSELOR_URGENCY[2],
+      summary:"", actionsTaken:"", requestedSupport:"متابعة الحالة وإرشاد الطالبة", notes:""
     }
   };
 }
@@ -570,8 +595,9 @@ function active(){
 }
 
 /* ===================== LOCAL + CLOUD ===================== */
-function saveLocal(){ localStorage.setItem(LKEY, JSON.stringify(state)); }
+function saveLocal(){ if(LKEY) localStorage.setItem(LKEY, JSON.stringify(state)); }
 function loadLocal(){
+  if(!LKEY) return;
   const raw = localStorage.getItem(LKEY);
   if(!raw) return;
   try{
@@ -584,7 +610,7 @@ async function cloudVisit(){
   try{
     const url = new URL(SCRIPT_URL);
     url.searchParams.set("action","visit");
-    url.searchParams.set("userKey", USER);
+    url.searchParams.set("userKey", USER || "default");
     const j = await getJSON(url.toString());
     $("globalPill").textContent = `زيارات عالمية: ${j.globalVisits ?? "—"}`;
   }catch{
@@ -593,6 +619,7 @@ async function cloudVisit(){
 }
 
 async function cloudLoad(){
+  if(!USER) return;
   setCloud("جاري الاتصال…");
   try{
     const url = new URL(SCRIPT_URL);
@@ -614,6 +641,7 @@ async function cloudLoad(){
 
 let saveTimer=null;
 async function cloudSave(){
+  if(!USER) return;
   try{
     const r = await fetch(SCRIPT_URL, {
       method:"POST",
@@ -622,19 +650,30 @@ async function cloudSave(){
     });
     const j = await r.json();
     setCloud(j.ok ? "تم الحفظ ✓" : "تعذر الحفظ", !!j.ok);
+    return;
   }catch{
-    setCloud("غير متصل (محليًا)", false);
+    try{
+      await fetch(SCRIPT_URL, {
+        method:"POST",
+        mode:"no-cors",
+        headers:{ "Content-Type":"text/plain" },
+        body: JSON.stringify({ action:"save", userKey: USER, state })
+      });
+      setCloud("تم إرسال الحفظ", null);
+    }catch{
+      setCloud("غير متصل (محليًا)", false);
+    }
   }
 }
 function saveAll(){
-  // ✅ حفظ فوري محلي + حفظ سحابي مؤجل بسيط
   saveLocal();
   clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>cloudSave(), 650);
+  saveTimer=setTimeout(()=>cloudSave(), 700);
 }
 
 /* ===================== MIGRATION ===================== */
 function migrateState_(){
+  state.meta ||= {};
   state.records ||= [];
   state.records.forEach(rec=>{
     rec.students ||= [];
@@ -648,7 +687,7 @@ function migrateState_(){
     rec.followupUI.autoTransfer ??= true;
     rec.followupUI.target ||= "p1Task";
 
-    rec.parentNotice ||= { date: rec.date||"", studentFullName:"", parentName:"", parentPhone:"", template:PARENT_TEMPLATES[0], reason:PARENT_REASONS[0], action:PARENT_ACTIONS[0], message:"", meetingDate:"", meetingTime:"" };
+    rec.parentNotice ||= { date: rec.date||"", studentFullName:"", parentName:"", parentPhone:"", template:PARENT_TEMPLATES[0], reason:PARENT_REASONS[0], action:PARENT_ACTIONS[0], message:"", meetingDate:"", meetingTime:"", notes:"" };
     rec.counselorNotice ||= { date: rec.date||"", studentFullName:"", type:COUNSELOR_TYPES[0], urgency:COUNSELOR_URGENCY[2], summary:"", actionsTaken:"", requestedSupport:"متابعة الحالة وإرشاد الطالبة", notes:"" };
 
     rec.students.forEach(st=>{
@@ -670,7 +709,7 @@ function migrateState_(){
       row.subject = normSubjectClient(row.subject || "علوم");
       row.type ||= "علاجية";
 
-      // ✅ دعم متعدد المهارات
+      // ✅ متعدد المهارات (توافق مع القديم)
       if(!Array.isArray(row.skills)){
         const old = (row.skill || "").toString().trim();
         row.skills = old ? [old] : [];
@@ -680,12 +719,13 @@ function migrateState_(){
       row.pre ||= LEVEL_WORDS[0];
       row.post ||= LEVEL_WORDS[1];
       row.action ||= ACTION_TYPES[0];
+      row.notes ||= "";
       row.date ||= rec.date || "";
     });
   });
 }
 
-/* ===================== FOLLOWUP AVG + AUTO TRANSFER (BY NAME) ===================== */
+/* ===================== FOLLOWUP AVG + AUTO TRANSFER (بالترتيب) ===================== */
 function followupWeekTotal_(w){
   const num = v => (parseNumLoose(v) ?? 0);
   return num(w.hw) + num(w.perf) + num(w.part);
@@ -703,7 +743,7 @@ function followupMonthAvg_(st, monthIndex, weeks){
   return { avg: sum / counted, counted };
 }
 
-// ✅ ترحيل حسب اسم الطالبة (حتى لو تغير الترتيب)
+/* الترحيل حسب نفس صف الطالبة (نفس السجل) */
 function applyFollowupTransfer_(rec, force=false){
   rec.followupUI ||= { monthIndex:0, weeks:4, autoTransfer:true, target:"p1Task" };
   if(!rec.followupUI.autoTransfer && !force) return;
@@ -712,21 +752,9 @@ function applyFollowupTransfer_(rec, force=false){
   const mi = Math.max(0, Math.min(11, parseInt(rec.followupUI.monthIndex ?? 0, 10)));
   const weeks = Math.max(4, Math.min(6, parseInt(rec.followupUI.weeks ?? 4, 10)));
 
-  // حساب المتوسط لكل اسم
-  const map = new Map();
   (rec.students||[]).forEach(st=>{
-    const key = normNameKey(st.name);
-    if(!key) return;
     const { avg, counted } = followupMonthAvg_(st, mi, weeks);
     const val = counted ? String(Math.round(avg)) : "";
-    map.set(key, { val, counted });
-  });
-
-  // ترحيل إلى أعمال السنة بنفس الاسم
-  (rec.students||[]).forEach(st=>{
-    const key = normNameKey(st.name);
-    if(!key || !map.has(key)) return;
-    const val = map.get(key).val;
 
     if(rec.followupUI.target === "p1Task"){
       if(force || ((st.yearwork.p1Task||"") === "" || (st.yearwork.p1Task||"") === (st.yearwork._auto_p1Task||""))){
@@ -785,7 +813,7 @@ async function getSkillsSmart(grade, subject){
 /* ===================== TITLES ===================== */
 function titleFor(rec){
   if(rec.formType==="yearwork") return `سجل أعمال السنة لعام ${rec.academicYearAr||"…"}`;
-  if(rec.formType==="monthly") return "كشف متابعة أسبوعي شهري + متوسط شهر";
+  if(rec.formType==="monthly") return "كشف متابعة أسبوعي/شهري + متوسط شهر";
   if(rec.formType==="plans") return "متابعة الخطط العلاجية والإثرائية";
   if(rec.formType==="parentNotice") return "تبليغ ولي الأمر";
   if(rec.formType==="counselorNotice") return "تبليغ الموجهة الطلابية";
@@ -809,8 +837,8 @@ function ywCalc(st){
 function refreshYearworkRowUI(rec, i){
   const st = rec.students[i];
   if(!st) return;
-  const t = ywCalc(st);
 
+  const t = ywCalc(st);
   const setOut = (key, val) => {
     const el = document.querySelector(`[data-out="${key}"][data-i="${i}"]`);
     if(el) el.textContent = val;
@@ -865,6 +893,60 @@ function refreshFollowupRowUI(rec, i){
   if(outCnt) outCnt.textContent = String(ma.counted);
 }
 
+/* ===================== PLANS ===================== */
+function studentList(rec){
+  const list=(rec.students||[]).map(s=>(s.name||"").trim()).filter(Boolean);
+  return [...new Set(list)];
+}
+
+/* ===================== PRINT SIGN (مختلف حسب الاستمارة) ===================== */
+function renderSign(rec){
+  const wrap=document.createElement("div");
+
+  const isYW = rec.formType === "yearwork";
+  const teacher = esc(rec.signatures.teacherName||"");
+  const reviewer = esc(rec.signatures.reviewerName||"");
+  const principal = esc(rec.signatures.principalName||"");
+
+  if(isYW){
+    wrap.innerHTML = `
+      <div class="siggrid sigSmall" style="padding-top:6px">
+        <div class="sig">
+          <div class="lbl">المعلمة</div>
+          <input id="sigTeacher" value="${teacher}" placeholder="اسم المعلمة">
+          <span class="pv">${teacher}</span>
+        </div>
+        <div class="sig">
+          <div class="lbl">المراجعة</div>
+          <input id="sigReviewer" value="${reviewer}" placeholder="اسم المراجعة">
+          <span class="pv">${reviewer}</span>
+        </div>
+        <div class="sig">
+          <div class="lbl">قائدة المدرسة</div>
+          <input id="sigPrincipal" value="${principal}" placeholder="اسم المديرة">
+          <span class="pv">${principal}</span>
+        </div>
+      </div>
+    `;
+  }else{
+    wrap.innerHTML = `
+      <div class="siggrid sigSmall" style="padding-top:6px">
+        <div class="sig">
+          <div class="lbl">المعلمة</div>
+          <input id="sigTeacher" value="${teacher}" placeholder="اسم المعلمة">
+          <span class="pv">${teacher}</span>
+        </div>
+        <div class="sig">
+          <div class="lbl">قائدة المدرسة</div>
+          <input id="sigPrincipal" value="${principal}" placeholder="اسم المديرة">
+          <span class="pv">${principal}</span>
+        </div>
+      </div>
+    `;
+  }
+  return wrap;
+}
+
 /* ===================== RENDER ===================== */
 function render(){
   const rec=active();
@@ -874,7 +956,11 @@ function render(){
     return;
   }
 
-  // ✅ ترحيل تلقائي عند العرض (لا يطبع)
+  // إظهار/إخفاء خانة المراجعة في الشريط الأيسر
+  const showReviewer = rec.formType === "yearwork";
+  $("reviewerLabel").style.display = showReviewer ? "block" : "none";
+  $("reviewerName").style.display = showReviewer ? "block" : "none";
+
   applyFollowupTransfer_(rec, false);
 
   area.innerHTML = `
@@ -897,121 +983,64 @@ function render(){
   else if(rec.formType==="parentNotice") area.appendChild(renderParentNotice(rec));
   else if(rec.formType==="counselorNotice") area.appendChild(renderCounselorNotice(rec));
 
-  // ✅ شريط التواقيع حسب الاستمارة
-  area.appendChild(renderSignBar(rec));
-
+  area.appendChild(renderSign(rec));
   wire(rec);
-}
-
-function renderSignBar(rec){
-  const wrap = document.createElement("div");
-  const isYW = rec.formType==="yearwork";
-
-  if(isYW){
-    wrap.innerHTML = `
-      <div class="sigbar three">
-        <div class="sigbox">
-          <div class="ttl">المعلمة</div>
-          <input id="sigTeacher" value="${esc(rec.signatures.teacherName||"")}" placeholder="اسم المعلمة">
-          <div class="pvSig" id="pvSigTeacher">${esc(rec.signatures.teacherName||"")}</div>
-        </div>
-        <div class="sigbox">
-          <div class="ttl">المراجعة</div>
-          <input id="sigReviewer" value="${esc(rec.signatures.reviewerName||"")}" placeholder="اسم المراجعة">
-          <div class="pvSig" id="pvSigReviewer">${esc(rec.signatures.reviewerName||"")}</div>
-        </div>
-        <div class="sigbox">
-          <div class="ttl">قائدة المدرسة</div>
-          <input id="sigPrincipal" value="${esc(rec.signatures.principalName||"")}" placeholder="اسم المديرة">
-          <div class="pvSig" id="pvSigPrincipal">${esc(rec.signatures.principalName||"")}</div>
-        </div>
-      </div>
-    `;
-  }else{
-    wrap.innerHTML = `
-      <div class="sigbar two">
-        <div class="sigbox">
-          <div class="ttl">المعلمة</div>
-          <input id="sigTeacher" value="${esc(rec.signatures.teacherName||"")}" placeholder="اسم المعلمة">
-          <div class="pvSig" id="pvSigTeacher">${esc(rec.signatures.teacherName||"")}</div>
-        </div>
-        <div class="sigbox">
-          <div class="ttl">قائدة المدرسة</div>
-          <input id="sigPrincipal" value="${esc(rec.signatures.principalName||"")}" placeholder="اسم المديرة">
-          <div class="pvSig" id="pvSigPrincipal">${esc(rec.signatures.principalName||"")}</div>
-        </div>
-      </div>
-    `;
-  }
-  return wrap;
 }
 
 /* ===== أعمال السنة ===== */
 function renderYearwork(rec){
   const wrap=document.createElement("div");
   wrap.className="p";
-
   wrap.innerHTML = `
-    <div class="ywTools noPrint">
-      <div style="font-weight:900; margin-bottom:8px">تعميم درجات للصف (لا تظهر بالطباعة)</div>
-      <div class="rowT">
-        <div class="grp">
-          <label>مهام 1 (40)</label>
-          <div class="mini">
-            <input class="inline" id="fill_p1Task" placeholder="40">
-            <button class="secondary" data-fillcol="p1Task">تعميم</button>
-          </div>
-        </div>
-        <div class="grp">
-          <label>تقويم 1 (20)</label>
-          <div class="mini">
-            <input class="inline" id="fill_p1Quiz" placeholder="20">
-            <button class="secondary" data-fillcol="p1Quiz">تعميم</button>
-          </div>
-        </div>
-        <div class="grp">
-          <label>مهام 2 (40)</label>
-          <div class="mini">
-            <input class="inline" id="fill_p2Task" placeholder="40">
-            <button class="secondary" data-fillcol="p2Task">تعميم</button>
-          </div>
-        </div>
-        <div class="grp">
-          <label>تقويم 2 (20)</label>
-          <div class="mini">
-            <input class="inline" id="fill_p2Quiz" placeholder="20">
-            <button class="secondary" data-fillcol="p2Quiz">تعميم</button>
-          </div>
-        </div>
-        <div class="grp">
-          <label>نهائي (40)</label>
-          <div class="mini">
-            <input class="inline" id="fill_final" placeholder="40">
-            <button class="secondary" data-fillcol="final">تعميم</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <div class="wrapX">
       <table class="yearworkTable">
         <thead>
           <tr>
             <th class="tot" style="width:34px">م</th>
-            <th class="tot vhead" style="width:24px"><span>اسم الطالبة</span></th>
+            <th class="tot vhead" style="width:10mm"><span>اسم الطالبة</span></th>
 
-            <th style="width:62px">مهام 1<br>(40)</th>
-            <th style="width:62px">تقويم 1<br>(20)</th>
-            <th class="tot" style="width:62px">مجموع 1<br>(60)</th>
+            <th style="width:12mm">مهام 1<br>(40)</th>
+            <th style="width:12mm">تقويم 1<br>(20)</th>
+            <th class="tot" style="width:12mm">مجموع 1<br>(60)</th>
 
-            <th style="width:62px">مهام 2<br>(40)</th>
-            <th style="width:62px">تقويم 2<br>(20)</th>
-            <th class="tot" style="width:62px">مجموع 2<br>(60)</th>
+            <th style="width:12mm">مهام 2<br>(40)</th>
+            <th style="width:12mm">تقويم 2<br>(20)</th>
+            <th class="tot" style="width:12mm">مجموع 2<br>(60)</th>
 
-            <th class="tot" style="width:64px">مجموع<br>(120)</th>
-            <th class="tot" style="width:64px">متوسط<br>(60)</th>
-            <th style="width:64px">نهائي<br>(40)</th>
-            <th class="tot" style="width:64px">الكلي<br>(100)</th>
+            <th class="tot" style="width:12mm">مجموع<br>(120)</th>
+            <th class="tot" style="width:12mm">متوسط<br>(60)</th>
+            <th style="width:12mm">نهائي<br>(40)</th>
+            <th class="tot" style="width:12mm">الكلي<br>(100)</th>
+          </tr>
+
+          <tr class="noPrint">
+            <th colspan="2" class="tot">تعميم درجة للصف</th>
+
+            <th>
+              <input class="inline" id="fill_p1Task" placeholder="40">
+              <button class="mark" data-fillcol="p1Task" style="margin-top:6px">تعميم</button>
+            </th>
+            <th>
+              <input class="inline" id="fill_p1Quiz" placeholder="20">
+              <button class="mark" data-fillcol="p1Quiz" style="margin-top:6px">تعميم</button>
+            </th>
+            <th class="tot"></th>
+            <th>
+              <input class="inline" id="fill_p2Task" placeholder="40">
+              <button class="mark" data-fillcol="p2Task" style="margin-top:6px">تعميم</button>
+            </th>
+            <th>
+              <input class="inline" id="fill_p2Quiz" placeholder="20">
+              <button class="mark" data-fillcol="p2Quiz" style="margin-top:6px">تعميم</button>
+            </th>
+            <th class="tot"></th>
+            <th class="tot"></th>
+            <th class="tot"></th>
+            <th>
+              <input class="inline" id="fill_final" placeholder="40">
+              <button class="mark" data-fillcol="final" style="margin-top:6px">تعميم</button>
+            </th>
+            <th class="tot"></th>
           </tr>
         </thead>
 
@@ -1023,9 +1052,7 @@ function renderYearwork(rec){
             return `
               <tr data-ywrow="${i}">
                 <td class="tot">${i+1}</td>
-
-                <!-- ✅ شاشة: input  |  طباعة: pv (اسم كامل) -->
-                <td class="namecell" style="width:320px">
+                <td class="namecell" style="width:60mm">
                   <input class="inline name" data-st="name" data-i="${i}" value="${esc(st.name||"")}" placeholder="اسم الطالبة">
                   <span class="pv" data-pv="name" data-i="${i}">${esc(st.name||"")}</span>
                 </td>
@@ -1034,24 +1061,20 @@ function renderYearwork(rec){
                   <input class="inline" data-yw="p1Task" data-max="40" data-i="${i}" value="${esc(st.yearwork.p1Task||"")}">
                   <span class="pv" data-pv="p1Task" data-i="${i}">${esc(st.yearwork.p1Task||"")}</span>
                 </td>
-
                 <td>
                   <input class="inline" data-yw="p1Quiz" data-max="20" data-i="${i}" value="${esc(st.yearwork.p1Quiz||"")}">
                   <span class="pv" data-pv="p1Quiz" data-i="${i}">${esc(st.yearwork.p1Quiz||"")}</span>
                 </td>
-
                 <td class="tot"><b data-out="p1" data-i="${i}">${t.p1.toFixed(0)}</b></td>
 
                 <td>
                   <input class="inline" data-yw="p2Task" data-max="40" data-i="${i}" value="${esc(st.yearwork.p2Task||"")}">
                   <span class="pv" data-pv="p2Task" data-i="${i}">${esc(st.yearwork.p2Task||"")}</span>
                 </td>
-
                 <td>
                   <input class="inline" data-yw="p2Quiz" data-max="20" data-i="${i}" value="${esc(st.yearwork.p2Quiz||"")}">
                   <span class="pv" data-pv="p2Quiz" data-i="${i}">${esc(st.yearwork.p2Quiz||"")}</span>
                 </td>
-
                 <td class="tot"><b data-out="p2" data-i="${i}">${t.p2.toFixed(0)}</b></td>
 
                 <td class="tot"><b data-out="sum" data-i="${i}">${t.sum.toFixed(0)}</b></td>
@@ -1073,7 +1096,7 @@ function renderYearwork(rec){
   return wrap;
 }
 
-/* ===== كشف متابعة أسبوعي شهري ===== */
+/* ===== كشف متابعة ===== */
 function renderMonthly(rec){
   rec.followupUI ||= { monthIndex: new Date().getMonth(), weeks: 4, autoTransfer: true, target:"p1Task" };
   const mi = Math.max(0, Math.min(11, parseInt(rec.followupUI.monthIndex ?? 0, 10)));
@@ -1090,22 +1113,17 @@ function renderMonthly(rec){
 
   const wrap=document.createElement("div");
   wrap.innerHTML = `
-    <div class="tabs noPrint" style="display:flex;gap:8px;flex-wrap:wrap;padding:12px;border-bottom:1px solid var(--b);background:#fff">
+    <div class="tabs noPrint">
       ${MONTHS_AR.map((m,idx)=>`
-        <button class="tab ${idx===mi?"active":""}" data-fu-month="${idx}"
-          style="border:1px solid var(--b);padding:8px 10px;border-radius:999px;font-weight:900;font-size:12px;cursor:pointer;${idx===mi?"background:#111;color:#fff":"background:#fff;color:#111"}">
-          ${m}
-        </button>
+        <button class="tab ${idx===mi?"active":""}" data-fu-month="${idx}">${m}</button>
       `).join("")}
       <span style="flex:1"></span>
-
       <div class="pill" style="background:#fff">
         أسابيع الشهر:
         <select id="fuWeeksSel" style="width:92px;padding:6px 8px;border-radius:10px;border:1px solid var(--b);font-weight:900">
           ${[4,5,6].map(w=>`<option ${w===weeks?"selected":""} value="${w}">${w}</option>`).join("")}
         </select>
       </div>
-
       <div class="pill" style="background:#fff">
         ترحيل المتوسط:
         <select id="fuTargetSel" style="width:240px;padding:6px 8px;border-radius:10px;border:1px solid var(--b);font-weight:900">
@@ -1114,12 +1132,10 @@ function renderMonthly(rec){
           <option value="none"   ${rec.followupUI.target==="none"?"selected":""}>لا ترحيل</option>
         </select>
       </div>
-
       <label class="pill" style="background:#fff; cursor:pointer">
         <input id="fuAutoChk" type="checkbox" ${rec.followupUI.autoTransfer ? "checked":""} style="width:18px;height:18px;margin-left:8px">
         ترحيل تلقائي
       </label>
-
       <button class="secondary" id="fuPushNow">ترحيل الآن</button>
     </div>
 
@@ -1209,109 +1225,100 @@ function renderMonthly(rec){
   return wrap;
 }
 
-/* ===== الخطط (واجهة بطاقات + مهارات متعددة) ===== */
-function studentList(rec){
-  const list=(rec.students||[]).map(s=>(s.name||"").trim()).filter(Boolean);
-  return [...new Set(list)];
-}
-
+/* ===== الخطط (واجهة مقروءة + مهارات متعددة) ===== */
 function renderPlans(rec){
   rec.plans ||= { entries: [] };
-  const students = studentList(rec);
-
   const wrap=document.createElement("div");
   wrap.className="p";
+
+  const students = studentList(rec);
 
   wrap.innerHTML = `
     <div class="noPrint">
       <div class="btns" style="margin-bottom:10px">
-        <button class="secondary" id="btnAddPlan">إضافة خطة</button>
+        <button class="secondary" id="btnAddPlan">إضافة صف خطة</button>
         <button class="secondary" id="btnReloadSkills">تحديث المهارات</button>
       </div>
 
-      <div class="planCards">
-        ${(rec.plans.entries||[]).map((r,i)=>`
-          <div class="planCard">
-            <div class="top">
-              <div class="idx">الخطة رقم ${i+1}</div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap">
-                <label style="margin:0;display:flex;gap:8px;align-items:center">
-                  <span style="font-weight:900;font-size:12px">التاريخ</span>
-                  <input type="date" data-plan="date" data-i="${i}" value="${esc(r.date||"")}" style="width:170px;padding:8px;border-radius:12px;border:1px solid var(--b);font-weight:900">
-                </label>
-              </div>
+      ${(rec.plans.entries||[]).map((r,i)=>`
+        <div class="planCard">
+          <div class="planGrid">
+            <div>
+              <label>التاريخ</label>
+              <input class="inline" type="date" data-plan="date" data-i="${i}" value="${esc(r.date||"")}">
             </div>
 
-            <div class="planGrid">
-              <div class="full">
-                <label>اسم الطالبة الثلاثي</label>
-                <select class="inline" data-pick="1" data-i="${i}">
-                  <option value="">— اختيار سريع من الأسماء —</option>
-                  ${students.map(n=>`<option ${n===(r.studentFullName||"")?"selected":""} value="${esc(n)}">${esc(n)}</option>`).join("")}
-                </select>
-                <input class="inline name" data-plan="studentFullName" data-i="${i}" value="${esc(r.studentFullName||"")}" placeholder="اكتبي الاسم الثلاثي هنا">
-              </div>
+            <div>
+              <label>اسم الطالبة (اختيار سريع)</label>
+              <select class="inline" data-pick="1" data-i="${i}">
+                <option value="">— اختيار من الأسماء —</option>
+                ${students.map(n=>`<option ${n===(r.studentFullName||"")?"selected":""} value="${esc(n)}">${esc(n)}</option>`).join("")}
+              </select>
+              <input class="inline name" data-plan="studentFullName" data-i="${i}" value="${esc(r.studentFullName||"")}" placeholder="أو اكتبي الاسم الثلاثي هنا" style="margin-top:8px">
+            </div>
 
-              <div>
-                <label>الصف</label>
-                <select class="inline" data-plan="grade" data-i="${i}">
-                  ${["الأول","الثاني","الثالث","الرابع","الخامس","السادس"].map(g=>`<option ${r.grade===g?"selected":""} value="${g}">${g}</option>`).join("")}
-                </select>
-              </div>
+            <div>
+              <label>الصف</label>
+              <select class="inline" data-plan="grade" data-i="${i}">
+                ${["الأول","الثاني","الثالث","الرابع","الخامس","السادس"].map(g=>`<option ${r.grade===g?"selected":""} value="${g}">${g}</option>`).join("")}
+              </select>
+            </div>
 
-              <div>
-                <label>المادة</label>
-                <select class="inline" data-plan="subject" data-i="${i}">
-                  ${["علوم","رياضيات","لغتي","انجليزي","دراسات","مهارات رقمية","أخرى"].map(s=>`<option ${r.subject===s?"selected":""} value="${s}">${s}</option>`).join("")}
-                </select>
-              </div>
+            <div>
+              <label>المادة</label>
+              <select class="inline" data-plan="subject" data-i="${i}">
+                ${["علوم","رياضيات","لغتي","انجليزي","دراسات","مهارات رقمية","أخرى"].map(s=>`<option ${r.subject===s?"selected":""} value="${s}">${s}</option>`).join("")}
+              </select>
+            </div>
 
-              <div>
-                <label>نوع الخطة</label>
-                <select class="inline" data-plan="type" data-i="${i}">
-                  <option ${r.type==="علاجية"?"selected":""} value="علاجية">علاجية</option>
-                  <option ${r.type==="إثرائية"?"selected":""} value="إثرائية">إثرائية</option>
-                </select>
-              </div>
+            <div>
+              <label>نوع الخطة</label>
+              <select class="inline" data-plan="type" data-i="${i}">
+                <option ${r.type==="علاجية"?"selected":""} value="علاجية">علاجية</option>
+                <option ${r.type==="إثرائية"?"selected":""} value="إثرائية">إثرائية</option>
+              </select>
+            </div>
 
-              <div>
-                <label>قبلي</label>
-                <select class="inline" data-plan="pre" data-i="${i}">
-                  ${LEVEL_WORDS.map(x=>`<option ${r.pre===x?"selected":""} value="${x}">${x}</option>`).join("")}
-                </select>
-              </div>
+            <div>
+              <label>قبلي</label>
+              <select class="inline" data-plan="pre" data-i="${i}">
+                ${LEVEL_WORDS.map(x=>`<option ${r.pre===x?"selected":""} value="${x}">${x}</option>`).join("")}
+              </select>
+            </div>
 
-              <div>
-                <label>بعدي</label>
-                <select class="inline" data-plan="post" data-i="${i}">
-                  ${LEVEL_WORDS.map(x=>`<option ${r.post===x?"selected":""} value="${x}">${x}</option>`).join("")}
-                </select>
-              </div>
+            <div>
+              <label>بعدي</label>
+              <select class="inline" data-plan="post" data-i="${i}">
+                ${LEVEL_WORDS.map(x=>`<option ${r.post===x?"selected":""} value="${x}">${x}</option>`).join("")}
+              </select>
+            </div>
 
-              <div>
-                <label>نوع الإجراء</label>
-                <select class="inline" data-plan="action" data-i="${i}">
-                  ${ACTION_TYPES.map(x=>`<option ${r.action===x?"selected":""} value="${x}">${x}</option>`).join("")}
-                </select>
-              </div>
+            <div>
+              <label>نوع الإجراء</label>
+              <select class="inline" data-plan="action" data-i="${i}">
+                ${ACTION_TYPES.map(x=>`<option ${r.action===x?"selected":""} value="${x}">${x}</option>`).join("")}
+              </select>
+            </div>
 
-              <div class="full">
-                <label>المهارات (اختيار متعدد)</label>
-                <select class="multiSel" multiple data-plan="skills" data-i="${i}">
-                  <option value="">— اختر/ي أكثر من مهارة —</option>
-                  ${Array.isArray(r.skills) ? r.skills.filter(Boolean).map(s=>`<option selected value="${esc(s)}">${esc(s)}</option>`).join("") : ""}
-                </select>
-                <div class="sub noPrint" style="margin-top:6px">
-                  كمبيوتر: Ctrl/Shift لاختيار عدة مهارات — الجوال: اختيار متعدد حسب الجهاز.
-                </div>
-              </div>
+            <div class="full">
+              <label>المهارات (اختيار متعدد)</label>
+              <select class="inline" multiple size="6" data-plan="skills" data-i="${i}" style="height:auto; padding:10px; text-align:right">
+                <option value="">— اختر/ي أكثر من مهارة —</option>
+                ${(Array.isArray(r.skills)?r.skills:[]).filter(Boolean).map(s=>`<option selected value="${esc(s)}">${esc(s)}</option>`).join("")}
+              </select>
+              <div class="hint">كمبيوتر: Ctrl/Shift لاختيار عدة مهارات</div>
+            </div>
+
+            <div class="full">
+              <label>ملاحظات (لن تظهر في الطباعة)</label>
+              <input class="inline" data-plan="notes" data-i="${i}" value="${esc(r.notes||"")}" placeholder="اختياري">
             </div>
           </div>
-        `).join("")}
-      </div>
+        </div>
+      `).join("")}
     </div>
 
-    <!-- ✅ طباعة الخطط: فقط المطلوب -->
+    <!-- طباعة الخطط: فقط المطلوب -->
     <div class="printOnly">
       <div style="border:1px solid var(--b); border-radius:14px; padding:12px; background:#fff">
         <div style="margin-bottom:10px">
@@ -1323,7 +1330,7 @@ function renderPlans(rec){
           <thead>
             <tr>
               <th class="tot" style="width:34px">م</th>
-              <th class="tot" style="width:230px">اسم الطالبة الثلاثي</th>
+              <th class="tot" style="width:220px">اسم الطالبة الثلاثي</th>
               <th class="tot" style="width:110px">نوع الخطة</th>
               <th class="tot">المهارات</th>
               <th class="tot" style="width:170px">نوع الإجراء</th>
@@ -1332,17 +1339,20 @@ function renderPlans(rec){
             </tr>
           </thead>
           <tbody>
-            ${(rec.plans.entries||[]).map((r,i)=>`
-              <tr>
-                <td class="tot">${i+1}</td>
-                <td style="text-align:right">${esc(r.studentFullName||"")}</td>
-                <td>${esc(r.type||"")}</td>
-                <td style="text-align:right">${esc((Array.isArray(r.skills)?r.skills:[r.skill]).filter(Boolean).join("، "))}</td>
-                <td style="text-align:right">${esc(r.action||"")}</td>
-                <td>${esc(r.pre||"")}</td>
-                <td>${esc(r.post||"")}</td>
-              </tr>
-            `).join("")}
+            ${(rec.plans.entries||[]).map((r,i)=>{
+              const skillsTxt = (Array.isArray(r.skills)?r.skills:[r.skill]).filter(Boolean).join("، ");
+              return `
+                <tr>
+                  <td class="tot">${i+1}</td>
+                  <td style="text-align:right">${esc(r.studentFullName||"")}</td>
+                  <td>${esc(r.type||"")}</td>
+                  <td style="text-align:right">${esc(skillsTxt)}</td>
+                  <td style="text-align:right">${esc(r.action||"")}</td>
+                  <td>${esc(r.pre||"")}</td>
+                  <td>${esc(r.post||"")}</td>
+                </tr>
+              `;
+            }).join("")}
           </tbody>
         </table>
       </div>
@@ -1356,9 +1366,8 @@ function renderPlans(rec){
 async function refillAllSkills(rec, root){
   const sels = root.querySelectorAll("select[data-plan='skills']");
   for(const sel of sels){
-    const i = +sel.dataset.i;
+    const i=+sel.dataset.i;
     const row = rec.plans.entries[i];
-
     const grade = normalizeGradeClient(row.grade || "السادس");
     const subj  = normSubjectClient(row.subject || "علوم");
 
@@ -1372,10 +1381,9 @@ async function refillAllSkills(rec, root){
         const selAttr = chosen.has(s) ? "selected" : "";
         return `<option ${selAttr} value="${esc(s)}">${esc(s)}</option>`;
       }).join("");
-    }else{
+    } else {
       opts += `<option value="">— (لا توجد مهارات مسجلة لهذه المادة/الصف) —</option>`;
     }
-
     for(const s of [...chosen]){
       if(!list.includes(s)){
         opts += `<option selected value="${esc(s)}">${esc(s)}</option>`;
@@ -1398,14 +1406,14 @@ function buildParentMessage(rec){
   const action = pn.action || "—";
   const meet = pn.meetingDate ? `نأمل الحضور يوم ${pn.meetingDate}${pn.meetingTime ? ` الساعة ${pn.meetingTime}` : ""}.` : "";
 
-  pn.message = [
-    `ولي أمر ${student} المحترم/ـة، السلام عليكم ورحمة الله وبركاته.`,
-    `نفيدكم بأنه تم رصد ملاحظة تخص الطالبة (${student}) في ${school} - الصف/الشعبة (${classr}) بتاريخ (${date}).`,
-    `سبب الإشعار: ${reason}.`,
-    `المطلوب منكم: ${action}.`,
-    meet ? meet : `شاكرين تعاونكم.`,
-    `معلمة المادة: ${teacher}`
-  ].filter(Boolean).join("\n");
+  const intro = `ولي أمر ${student} المحترم/ـة، السلام عليكم ورحمة الله وبركاته.`;
+  const body = `نفيدكم بأنه تم رصد ملاحظة تخص الطالبة (${student}) في ${school} - الصف/الشعبة (${classr}) بتاريخ (${date}).`;
+  const detail = `سبب الإشعار: ${reason}.`;
+  const req = `المطلوب منكم: ${action}.`;
+  const closing = `${meet} شاكرين تعاونكم.`;
+  const sign = `معلمة المادة: ${teacher}`;
+
+  pn.message = [intro, body, detail, req, closing, sign].filter(Boolean).join("\n");
 }
 function renderParentNotice(rec){
   const pn = rec.parentNotice;
@@ -1466,6 +1474,10 @@ function renderParentNotice(rec){
     <div class="printOnly">
       <div style="border:1px solid var(--b); border-radius:14px; padding:12px; background:#fff">
         <div style="white-space:pre-wrap; font-weight:900">${esc(pn.message||"")}</div>
+        <div style="margin-top:14px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap">
+          <div><b>المعلمة:</b> ${esc(rec.signatures.teacherName||"")}</div>
+          <div><b>قائدة المدرسة:</b> ${esc(rec.signatures.principalName||"")}</div>
+        </div>
       </div>
     </div>
   `;
@@ -1479,6 +1491,7 @@ function renderCounselorNotice(rec){
 
   const wrap = document.createElement("div");
   wrap.className="notice";
+
   wrap.innerHTML = `
     <div class="noticeCard screenOnly">
       <div class="head"><div>تبليغ الموجهة الطلابية</div></div>
@@ -1530,13 +1543,16 @@ function renderCounselorNotice(rec){
       <div style="border:1px solid var(--b); border-radius:14px; padding:12px; background:#fff">
         <div><b>التاريخ:</b> ${esc(cn.date||rec.date||"—")}</div>
         <div><b>اسم الطالبة:</b> ${esc(cn.studentFullName||"—")}</div>
-        <div><b>الصف/الشعبة:</b> ${esc(rec.classroom||"—")}</div>
         <div><b>نوع الحالة:</b> ${esc(cn.type||"—")} — <b>الأهمية:</b> ${esc(cn.urgency||"—")}</div>
         <hr style="border:0;border-top:1px solid var(--b);margin:10px 0">
         <div><b>ملخص الحالة:</b><br>${esc(cn.summary||"—")}</div>
         <div style="margin-top:10px"><b>إجراءات تمت:</b><br>${esc(cn.actionsTaken||"—")}</div>
         <div style="margin-top:10px"><b>الدعم المطلوب:</b><br>${esc(cn.requestedSupport||"—")}</div>
         ${cn.notes ? `<div style="margin-top:10px"><b>ملاحظات:</b><br>${esc(cn.notes)}</div>` : ``}
+        <div style="margin-top:14px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap">
+          <div><b>المعلمة:</b> ${esc(rec.signatures.teacherName||"")}</div>
+          <div><b>قائدة المدرسة:</b> ${esc(rec.signatures.principalName||"")}</div>
+        </div>
       </div>
     </div>
   `;
@@ -1554,6 +1570,7 @@ function cleanLinesToNames(text){
 }
 function applyImportedNamesToRecord(rec, names){
   if(!names.length) return;
+
   const replace = rec.students?.length
     ? confirm("هل تريدين استبدال الأسماء الحالية بالأسماء المستوردة؟ (نعم = استبدال / إلغاء = إضافة)")
     : true;
@@ -1631,20 +1648,128 @@ function syncForm(rec){
   $("termAr").value = rec.termAr||"الأول";
   $("yearAr").value = rec.academicYearAr||"";
   $("title").value = rec.title||"";
+  $("teacherName").value = rec.signatures.teacherName||"";
+  $("reviewerName").value = rec.signatures.reviewerName||"";
+  $("principalName").value = rec.signatures.principalName||"";
   syncCount(rec);
 }
 function syncCount(rec){
   $("countHint").textContent = `عدد الطالبات: ${(rec.students||[]).length}`;
 }
 
+/* ===================== TEACHER PICKER ===================== */
+function openTeacherPicker(){
+  const ov = $("teacherOverlay");
+  const grid = $("teacherGrid");
+  grid.innerHTML = TEACHERS.map(([name, key])=>{
+    return `<button class="tbtn" data-uk="${esc(key)}">${esc(name)}<small>${esc(key)}</small></button>`;
+  }).join("");
+  ov.style.display="flex";
+
+  grid.querySelectorAll("button[data-uk]").forEach(btn=>{
+    btn.onclick=()=>{
+      const uk = btn.dataset.uk;
+      // استخدم hash لتجنب 404
+      location.href = location.pathname + "#user=" + encodeURIComponent(uk);
+      location.reload();
+    };
+  });
+}
+
+/* ===================== PIN (قفل لكل معلمة) ===================== */
+async function sha256Hex(text){
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest("SHA-256", enc);
+  return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+function showPin_(mode){
+  const ov = $("pinOverlay");
+  const title = $("pinTitle");
+  const hint = $("pinHint");
+  const btn = $("pinBtn");
+  const setBtn = $("pinSetBtn");
+  const chBtn = $("pinChangeBtn");
+  const err = $("pinErr");
+  const inp = $("pinInput");
+
+  err.style.display="none";
+  inp.value="";
+  ov.style.display="flex";
+
+  if(mode==="set"){
+    title.textContent="تعيين رقم سري (PIN)";
+    hint.textContent="اكتبي رقمًا من 4 إلى 8 أرقام. ستحتاجينه لفتح صفحتك لاحقًا.";
+    btn.textContent="حفظ";
+    setBtn.style.display="none";
+    chBtn.style.display="none";
+    btn.dataset.mode="set";
+  } else if(mode==="change"){
+    title.textContent="تغيير PIN";
+    hint.textContent="اكتبي الرقم السري الجديد (4 إلى 8 أرقام).";
+    btn.textContent="حفظ";
+    setBtn.style.display="none";
+    chBtn.style.display="none";
+    btn.dataset.mode="set";
+  } else {
+    title.textContent="قفل الصفحة";
+    hint.textContent="أدخلي الرقم السري لفتح صفحتك.";
+    btn.textContent="دخول";
+    btn.dataset.mode="unlock";
+    setBtn.style.display="inline-flex";
+    chBtn.style.display="inline-flex";
+  }
+}
+function hidePin_(){ $("pinOverlay").style.display="none"; }
+function hasPin_(){ return !!(state.meta && state.meta.pinHash); }
+
+async function ensurePinGate_(){
+  if(!hasPin_()){
+    showPin_("set");
+    return;
+  }
+  showPin_("unlock");
+}
+
+async function handlePinSubmit_(){
+  const mode = $("pinBtn").dataset.mode;
+  const pin = ($("pinInput").value || "").trim();
+
+  if(!/^\d{4,8}$/.test(pin)){
+    $("pinErr").textContent="الرقم يجب أن يكون من 4 إلى 8 أرقام.";
+    $("pinErr").style.display="block";
+    return;
+  }
+
+  if(mode==="set"){
+    state.meta.pinHash = await sha256Hex(`PIN:${USER}:${pin}`);
+    saveAll();
+    hidePin_();
+    return;
+  }
+
+  const h = await sha256Hex(`PIN:${USER}:${pin}`);
+  if(h === state.meta.pinHash){
+    hidePin_();
+  } else {
+    $("pinErr").textContent="الرقم غير صحيح";
+    $("pinErr").style.display="block";
+  }
+}
+
 /* ===================== EVENTS ===================== */
 function attach(){
-  $("userPill").textContent = `مستخدم: ${USER}`;
+  $("userPill").textContent = `مستخدم: ${USER || "—"}`;
 
-  const vKey=`irs_local_visits_${USER}`;
+  const vKey=`irs_local_visits_${USER||"default"}`;
   const v = (parseInt(localStorage.getItem(vKey)||"0",10)||0)+1;
   localStorage.setItem(vKey, String(v));
   $("localPill").textContent = `زيارات الجهاز: ${v}`;
+
+  $("btnSwitchTeacher").onclick=()=>{
+    // حذف اختيار المعلمة من الرابط ثم فتح القائمة
+    history.replaceState({}, "", location.pathname);
+    openTeacherPicker();
+  };
 
   $("recordSelect").onchange=(e)=>{
     state.activeId=e.target.value;
@@ -1690,7 +1815,9 @@ function attach(){
 
   $("btnRename").onclick=()=>{ $("title").focus(); $("title").select(); };
 
-  $("formType").onchange=()=>{ const r=active(); r.formType=$("formType").value; saveAll(); render(); };
+  $("formType").onchange=()=>{
+    const r=active(); r.formType=$("formType").value; saveAll(); render();
+  };
   $("subject").oninput=()=>{ const r=active(); r.subject=$("subject").value; saveAll(); };
   $("school").oninput=()=>{ const r=active(); r.school=$("school").value; saveAll(); render(); };
   $("classroom").oninput=()=>{ const r=active(); r.classroom=$("classroom").value; saveAll(); render(); };
@@ -1698,6 +1825,9 @@ function attach(){
   $("termAr").onchange=()=>{ const r=active(); r.termAr=$("termAr").value; saveAll(); render(); };
   $("yearAr").onblur=()=>{ const r=active(); r.academicYearAr=$("yearAr").value.trim(); saveAll(); render(); };
   $("title").oninput=()=>{ const r=active(); r.title=$("title").value; saveAll(); syncSelect(); };
+  $("teacherName").oninput=()=>{ const r=active(); r.signatures.teacherName=$("teacherName").value; saveAll(); };
+  $("reviewerName").oninput=()=>{ const r=active(); r.signatures.reviewerName=$("reviewerName").value; saveAll(); };
+  $("principalName").oninput=()=>{ const r=active(); r.signatures.principalName=$("principalName").value; saveAll(); };
 
   $("btnApplyNames").onclick=()=>{
     const r=active();
@@ -1728,14 +1858,13 @@ function attach(){
     btn.disabled=true; btn.textContent="جاري تجهيز PDF…";
     try{
       document.body.classList.add("forcePrint");
-
       const area=$("printArea");
       const canvas = await html2canvas(area, {scale:2, useCORS:true, backgroundColor:"#ffffff"});
       const img = canvas.toDataURL("image/png");
       const { jsPDF } = window.jspdf;
 
       const rec=active();
-      const preferLandscape = true;
+      const preferLandscape = (rec?.formType !== "parentNotice" && rec?.formType !== "counselorNotice");
       const pdf = new jsPDF({orientation: (preferLandscape ? "landscape" : "portrait"), unit:"mm", format:"a4"});
 
       const w = pdf.internal.pageSize.getWidth();
@@ -1749,7 +1878,6 @@ function attach(){
         remaining -= h;
         if(remaining>0){ pdf.addPage(); y -= h; }
       }
-
       const name=(rec?.title||"سجل").replace(/[\\/:*?"<>|]/g,"-") + ".pdf";
       pdf.save(name);
     } finally {
@@ -1794,16 +1922,23 @@ function attach(){
       $("importStatus").textContent="تعذر استخراج الأسماء من الصورة.";
     }
   };
+
+  /* PIN events */
+  $("pinBtn").onclick = ()=>handlePinSubmit_();
+  $("pinInput").addEventListener("keydown", (e)=>{ if(e.key==="Enter") handlePinSubmit_(); });
+  $("pinSetBtn").onclick = ()=>showPin_("set");
+  $("pinChangeBtn").onclick = ()=>showPin_("change");
 }
 
 /* ===================== WIRE ===================== */
 function wire(rec){
+  // توقيعات (داخل الاستمارة)
   const st=$("sigTeacher"), sr=$("sigReviewer"), sp=$("sigPrincipal");
+  if(st) st.oninput=()=>{rec.signatures.teacherName=st.value; saveAll();};
+  if(sr) sr.oninput=()=>{rec.signatures.reviewerName=sr.value; saveAll();};
+  if(sp) sp.oninput=()=>{rec.signatures.principalName=sp.value; saveAll();};
 
-  if(st) st.oninput=()=>{ rec.signatures.teacherName=st.value; $("pvSigTeacher").textContent=st.value; saveAll(); };
-  if(sr) sr.oninput=()=>{ rec.signatures.reviewerName=sr.value; $("pvSigReviewer").textContent=sr.value; saveAll(); };
-  if(sp) sp.oninput=()=>{ rec.signatures.principalName=sp.value; $("pvSigPrincipal").textContent=sp.value; saveAll(); };
-
+  // أسماء الطالبات
   document.querySelectorAll("[data-st='name']").forEach(inp=>{
     inp.oninput=()=>{
       const i = +inp.dataset.i;
@@ -1814,6 +1949,7 @@ function wire(rec){
     };
   });
 
+  // أعمال السنة
   document.querySelectorAll("[data-yw]").forEach(inp=>{
     inp.oninput=()=>{
       const i=+inp.dataset.i;
@@ -1834,6 +1970,7 @@ function wire(rec){
     };
   });
 
+  // تعميم أعمال السنة
   document.querySelectorAll("[data-fillcol]").forEach(btn=>{
     btn.onclick=()=>{
       const key = btn.dataset.fillcol;
@@ -1850,6 +1987,7 @@ function wire(rec){
     };
   });
 
+  // متابعة
   document.querySelectorAll("[data-fu]").forEach(inp=>{
     inp.oninput=()=>{
       const i=+inp.dataset.i, w=+inp.dataset.w, key=inp.dataset.fu;
@@ -1857,32 +1995,26 @@ function wire(rec){
       rec.students[i].followupByMonth[mi][w][key]=inp.value;
       saveAll();
       refreshFollowupRowUI(rec, i);
-      // ✅ ترحيل حي حسب الاسم (لا يطبع)
-      applyFollowupTransfer_(rec, false);
-      refreshYearworkRowUI(rec, i);
     };
     inp.onblur=()=>{
       const i=+inp.dataset.i, w=+inp.dataset.w, key=inp.dataset.fu;
       const max = parseInt(inp.dataset.max || "9999", 10);
       const cleaned = clamp(inp.value, max);
       inp.value = cleaned;
-
       const mi = Math.max(0, Math.min(11, parseInt(rec.followupUI?.monthIndex ?? 0, 10)));
       rec.students[i].followupByMonth[mi][w][key]=cleaned;
       saveAll();
       refreshFollowupRowUI(rec, i);
-      applyFollowupTransfer_(rec, false);
-      refreshYearworkRowUI(rec, i);
     };
   });
 
+  // تعميم متابعة
   document.querySelectorAll("[data-fufill]").forEach(btn=>{
     btn.onclick=()=>{
       const key = btn.dataset.fufill;
       const w = +btn.dataset.w;
       const box = document.getElementById(`fuFill_${key}_${w}`);
       if(!box) return;
-
       const max = key==="hw" ? 10 : key==="perf" ? 20 : 10;
       const cleaned = clamp(box.value, max);
       if(cleaned==="") return;
@@ -1892,13 +2024,11 @@ function wire(rec){
         s.followupByMonth[mi][w][key]=cleaned;
         refreshFollowupRowUI(rec, idx);
       });
-      // ✅ إعادة ترحيل بعد التعميم
-      applyFollowupTransfer_(rec, true);
-      rec.students.forEach((_,idx)=>refreshYearworkRowUI(rec, idx));
       saveAll();
     };
   });
 
+  // تبويب الأشهر
   document.querySelectorAll("[data-fu-month]").forEach(t=>{
     t.onclick=()=>{
       rec.followupUI.monthIndex = +t.dataset.fuMonth;
@@ -1906,7 +2036,6 @@ function wire(rec){
       render();
     };
   });
-
   const fuWeeksSel = document.getElementById("fuWeeksSel");
   if(fuWeeksSel){
     fuWeeksSel.onchange=()=>{
@@ -1949,10 +2078,11 @@ function wire(rec){
         subject:"علوم",
         type:"علاجية",
         skills: [],
-        skill: "",
+        skill:"",
         pre:LEVEL_WORDS[0],
         post:LEVEL_WORDS[1],
-        action:ACTION_TYPES[0]
+        action:ACTION_TYPES[0],
+        notes:""
       });
       saveAll(); render();
     };
@@ -1965,7 +2095,6 @@ function wire(rec){
       render();
     };
   }
-
   document.querySelectorAll("[data-pick]").forEach(sel=>{
     sel.onchange=()=>{
       const i=+sel.dataset.i;
@@ -1974,8 +2103,9 @@ function wire(rec){
     };
   });
 
+  // خطط: حفظ الحقول + مهارات متعددة
   document.querySelectorAll("[data-plan]").forEach(elm=>{
-    const key = elm.dataset.plan, i=+elm.dataset.i;
+    const key = elm.dataset.plan, i = +elm.dataset.i;
 
     const readMulti = () => [...elm.selectedOptions].map(o=>o.value).filter(v=>v && v.trim());
 
@@ -2028,16 +2158,26 @@ function wire(rec){
     };
   });
 
-  if(rec.formType==="yearwork"){
-    rec.students.forEach((_,i)=>refreshYearworkRowUI(rec,i));
-  }
-  if(rec.formType==="monthly"){
-    rec.students.forEach((_,i)=>refreshFollowupRowUI(rec,i));
-  }
+  // تحديث pv بعد render
+  if(rec.formType==="yearwork") rec.students.forEach((_,i)=>refreshYearworkRowUI(rec,i));
+  if(rec.formType==="monthly") rec.students.forEach((_,i)=>refreshFollowupRowUI(rec,i));
 }
 
 /* ===================== INIT ===================== */
-(function init(){
+(async function init(){
+  // إن لم يحدد user: افتح قائمة المعلمات
+  USER = userKey();
+  if(!USER){
+    $("userPill").textContent = "مستخدم: —";
+    openTeacherPicker();
+    return;
+  }
+
+  // تحديث مفاتيح التخزين حسب المعلمة
+  LKEY = `irs_single_${USER}`;
+  state.userKey = USER;
+
+  // تحميل محلي
   loadLocal();
 
   if(!state.records.length){
@@ -2049,20 +2189,24 @@ function wire(rec){
   if(!state.activeId) state.activeId=state.records[0].id;
 
   migrateState_();
-
   attach();
   syncSelect();
   syncForm(active());
   render();
 
+  // زيارات
   cloudVisit();
-  cloudLoad().then(()=>{
-    if(!state.records?.length){
-      const r=defaultRecord(); state.records=[r]; state.activeId=r.id;
-    }
-    migrateState_();
-    syncSelect(); syncForm(active()); render();
-  });
+
+  // تحميل سحابي ثم قفل PIN
+  await cloudLoad();
+  migrateState_();
+  syncSelect(); syncForm(active()); render();
+  await ensurePinGate_();
+
+  // لو أعيد التحميل بدون نت: طبّق القفل على المحلي كذلك
+  if(!hasPin_()){
+    await ensurePinGate_();
+  }
 })();
 </script>
 </body>
