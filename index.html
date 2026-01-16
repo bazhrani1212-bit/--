@@ -99,7 +99,42 @@
       background:#fff; color:#111; font-weight:900;
     }
 
-    .siggrid{display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:12px 14px 16px}
+    /* ✅ أدوات التعميم أعلى الجدول (لا تطبع) */
+    .ywTools{
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: #fff;
+      border: 1px solid var(--b);
+      border-radius: 14px;
+      padding: 10px;
+      margin: 12px 0;
+    }
+    .ywTools .rowT{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:flex-end;
+    }
+    .ywTools .grp{
+      min-width: 170px;
+      border:1px solid var(--b);
+      border-radius:12px;
+      padding:8px;
+      background:var(--card);
+    }
+    .ywTools label{
+      margin:0 0 6px;
+      font-size:11px;
+    }
+    .ywTools .mini{ display:flex; gap:6px; align-items:center; }
+    .ywTools input{ width:110px; padding:8px; }
+    .ywTools button{ padding:8px 10px; }
+
+    /* توقيعات عامة (لجميع الاستمارات عدا أعمال السنة) */
+    .siggrid{
+      display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:12px 14px 16px;
+    }
     @media (max-width: 820px){ .siggrid{grid-template-columns:1fr} }
     .sig{
       border:1px solid var(--b); border-radius:14px; padding:10px; background:var(--card);
@@ -109,11 +144,33 @@
       background:transparent;
     }
 
-    /* توقيعات أصغر + خانة مراجعة */
-    .sigSmall{ padding:8px 10px 10px; }
-    .sigSmall .sig{ padding:8px; border-radius:12px; }
-    .sigSmall .sig input{ padding:6px 0; }
-    .pvSig{ display:none; }
+    /* توقيعات أعمال السنة (صغيرة تحت الجدول + 3 أعمدة) */
+    .ywSigs{
+      margin-top:10px;
+      padding:8px 10px;
+      border-top:1px solid var(--b);
+      background:#fff;
+    }
+    .ywSigsGrid{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:8px;
+      align-items:end;
+    }
+    .ywSigBox{
+      border:1px solid var(--b);
+      border-radius:12px;
+      padding:6px 8px;
+      background:var(--card);
+    }
+    .ywSigBox .lbl{font-weight:900; font-size:11px; margin-bottom:2px}
+    .ywSigBox input{
+      border:0; border-bottom:2px dotted #111; border-radius:0;
+      padding:6px 0; background:transparent;
+    }
+    @media (max-width:820px){
+      .ywSigsGrid{grid-template-columns:1fr}
+    }
 
     /* Month tabs */
     .tabs{
@@ -172,45 +229,6 @@
       }
     }
 
-    /* أدوات التعميم أعلى الجدول (لا تظهر بالطباعة) */
-    .ywTools{
-      position: sticky;
-      top: 0;
-      z-index: 5;
-      background: #fff;
-      border: 1px solid var(--b);
-      border-radius: 14px;
-      padding: 10px;
-      margin: 12px 0;
-    }
-    .ywTools .rowT{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      align-items:flex-end;
-    }
-    .ywTools .grp{
-      min-width: 180px;
-      border:1px solid var(--b);
-      border-radius:12px;
-      padding:8px;
-      background:var(--card);
-    }
-    .ywTools label{
-      margin:0 0 6px;
-      font-size:11px;
-    }
-    .ywTools .mini{
-      display:flex; gap:6px; align-items:center;
-    }
-    .ywTools input{
-      width:110px;
-      padding:8px;
-    }
-    .ywTools button{
-      padding:8px 10px;
-    }
-
     /* طباعة عامة */
     @page { size: A4 landscape; margin: 10mm; }
 
@@ -227,7 +245,7 @@
       .screenOnly{display:none !important;}
       .printOnly{display:block !important;}
 
-      /* لا نعتمد على input في الطباعة */
+      /* لا نعتمد على input/select/textarea في الطباعة */
       input.inline, select.inline, textarea{ display:none !important; }
       .pv{ display:inline !important; }
 
@@ -243,26 +261,27 @@
         word-break:break-word;
       }
 
-      /* الخطط: خلي القراءة واضحة */
+      /* إخفاء أدوات التعميم */
+      .ywTools{display:none !important;}
+
+      /* توقيعات أعمال السنة أصغر */
+      .ywSigs{padding:6px 8px !important;}
+      .ywSigBox{padding:5px 7px !important;}
+      .ywSigBox .lbl{font-size:10px !important;}
+
+      /* خطط: وضوح أعلى */
       .plansPrint th, .plansPrint td{
         font-size:11px !important;
         padding:5px !important;
       }
 
-      /* تبليغات */
+      /* تبليغات: وضوح أعلى */
       .printOnly{
         font-size:15px !important;
         line-height:2 !important;
       }
 
-      /* التواقيع: 3 أعمدة + أصغر */
-      .siggrid{ grid-template-columns: 1fr 1fr 1fr !important; }
-      .pvSig{ display:block !important; font-weight:900; }
-      .sigSmall{ padding:6px 10px !important; gap:8px !important; }
-      .sigSmall .sig{ padding:6px 8px !important; background:#fff !important; }
-      .sigSmall .lbl{ font-size:10px !important; margin:0 0 2px !important; }
-
-      /* ===== تحسين طباعة سجل أعمال السنة ===== */
+      /* ===== تحسين طباعة سجل أعمال السنة: اسم كامل + درجات أصغر ===== */
       .yearworkTable{
         width:100% !important;
         table-layout:fixed !important;
@@ -294,6 +313,26 @@
         min-width:10mm !important;
       }
     }
+
+    /* ✅ تخطيط الخطط: اجعلها تقرأ بسهولة (بدون مبالغة) */
+    .plansTop{
+      padding:12px;
+      border-bottom:1px solid var(--b);
+      background:#fff;
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+    }
+    .plansTop .leftBtns{display:flex; gap:8px; flex-wrap:wrap}
+    .plansTop .hint{color:var(--muted); font-size:12px; font-weight:900}
+    .skillsSelect{
+      min-width:420px;
+    }
+    @media (max-width:980px){
+      .skillsSelect{min-width:280px;}
+    }
   </style>
 </head>
 
@@ -303,7 +342,7 @@
     <div class="row" style="justify-content:space-between">
       <div>
         <h1>استمارات الرصد التفاعلية</h1>
-        <div class="sub noPrint">الأوامر لا تظهر في الطباعة (مثل: التعميم/المعاينة)</div>
+        <div class="sub noPrint">الأوامر لا تظهر في الطباعة (مثل: التعميم/الترحيل/المعاينة)</div>
       </div>
       <div class="row">
         <div class="pill" id="cloudPill"><span class="dot neu"></span> سحابي: …</div>
@@ -375,11 +414,14 @@
         <label>اسم المعلمة (يظهر بالطباعة)</label>
         <input id="teacherName" placeholder="اسم المعلمة" />
 
-        <label>اسم المراجعة (يظهر بالطباعة)</label>
-        <input id="reviewerName" placeholder="اسم المراجعة" />
-
         <label>اسم المديرة (يظهر بالطباعة)</label>
         <input id="principalName" placeholder="اسم المديرة" />
+
+        <!-- ✅ المراجعة تظهر فقط في أعمال السنة (داخل الاستمارة) -->
+        <div id="reviewerBox" style="display:none">
+          <label>اسم المراجعة (يظهر بالطباعة في أعمال السنة فقط)</label>
+          <input id="reviewerName" placeholder="اسم المراجعة" />
+        </div>
 
         <hr style="border:0;border-top:1px solid var(--b); margin:14px 0">
 
@@ -415,7 +457,7 @@
     <div class="panel right">
       <h2>الاستمارة</h2>
       <div class="sub noPrint" style="padding:0 12px 10px">
-        المعاينة قد تظهر أدوات، لكنها لا تظهر في الطباعة.
+        المعاينة قد تظهر أدوات (تعميم/ترحيل...) لكنها لا تظهر في الطباعة.
       </div>
       <div id="printArea"></div>
     </div>
@@ -518,7 +560,7 @@ let USER = userKey();
 let LKEY = `irs_single_${USER}`;
 
 const state = {
-  version: 12,
+  version: 11,
   userKey: USER,
   records: [],
   activeId: null
@@ -528,7 +570,10 @@ function defaultStudent(name=""){
   return {
     id:uid(),
     name,
-    yearwork:{ p1Task:"", p1Quiz:"", p2Task:"", p2Quiz:"", final:"", _auto_p1Task:"", _auto_p2Task:"" },
+    yearwork:{
+      p1Task:"", p1Quiz:"", p2Task:"", p2Quiz:"", final:"",
+      _auto_p1Task:"", _auto_p2Task:""
+    },
     followupByMonth: Array.from({length:12}, () =>
       Array.from({length:6}, () => ({ hw:"", perf:"", part:"" }))
     )
@@ -666,7 +711,7 @@ function migrateState_(){
     rec.signatures ||= { teacherName:"", reviewerName:"", principalName:"" };
     rec.signatures.reviewerName ??= "";
 
-    rec.followupUI ||= { monthIndex: 0, weeks: 4, autoTransfer: true, target: "p1Task" };
+    rec.followupUI ||= { monthIndex: 0, weeks: 4, autoTransfer: true, target:"p1Task" };
     rec.followupUI.monthIndex ??= 0;
     rec.followupUI.weeks ??= 4;
     rec.followupUI.autoTransfer ??= true;
@@ -694,7 +739,7 @@ function migrateState_(){
       row.subject = normSubjectClient(row.subject || "علوم");
       row.type ||= "علاجية";
 
-      // ✅ دعم متعدد المهارات
+      // ✅ متعدد المهارات
       if(!Array.isArray(row.skills)){
         const old = (row.skill || "").toString().trim();
         row.skills = old ? [old] : [];
@@ -710,7 +755,7 @@ function migrateState_(){
   });
 }
 
-/* ===================== FOLLOWUP AVG + AUTO TRANSFER ===================== */
+/* ===================== FOLLOWUP AVG + TRANSFER BY NAME ===================== */
 function followupWeekTotal_(w){
   const num = v => (parseNumLoose(v) ?? 0);
   return num(w.hw) + num(w.perf) + num(w.part);
@@ -735,19 +780,32 @@ function applyFollowupTransfer_(rec, force=false){
   const mi = Math.max(0, Math.min(11, parseInt(rec.followupUI.monthIndex ?? 0, 10)));
   const weeks = Math.max(4, Math.min(6, parseInt(rec.followupUI.weeks ?? 4, 10)));
 
+  // ✅ بناء خريطة بالاسم لضمان الترحيل حسب اسم الطالبة (حتى لو تغيّر ترتيب القائمة)
+  const mapByName = new Map();
   (rec.students||[]).forEach(st=>{
+    const key=(st.name||"").trim();
+    if(key) mapByName.set(key, st);
+  });
+
+  // احسب المتوسطات من نفس القائمة (لكن طبّقها بالاسم)
+  (rec.students||[]).forEach(st=>{
+    const nameKey=(st.name||"").trim();
+    if(!nameKey) return;
+    const targetStudent = mapByName.get(nameKey);
+    if(!targetStudent) return;
+
     const { avg, counted } = followupMonthAvg_(st, mi, weeks);
     const val = counted ? String(Math.round(avg)) : "";
 
     if(rec.followupUI.target === "p1Task"){
-      if(force || ( (st.yearwork.p1Task||"") === "" || (st.yearwork.p1Task||"") === (st.yearwork._auto_p1Task||"") )){
-        st.yearwork.p1Task = val;
-        st.yearwork._auto_p1Task = val;
+      if(force || ( (targetStudent.yearwork.p1Task||"") === "" || (targetStudent.yearwork.p1Task||"") === (targetStudent.yearwork._auto_p1Task||"") )){
+        targetStudent.yearwork.p1Task = val;
+        targetStudent.yearwork._auto_p1Task = val;
       }
     } else if(rec.followupUI.target === "p2Task"){
-      if(force || ( (st.yearwork.p2Task||"") === "" || (st.yearwork.p2Task||"") === (st.yearwork._auto_p2Task||"") )){
-        st.yearwork.p2Task = val;
-        st.yearwork._auto_p2Task = val;
+      if(force || ( (targetStudent.yearwork.p2Task||"") === "" || (targetStudent.yearwork.p2Task||"") === (targetStudent.yearwork._auto_p2Task||"") )){
+        targetStudent.yearwork.p2Task = val;
+        targetStudent.yearwork._auto_p2Task = val;
       }
     }
   });
@@ -803,7 +861,7 @@ function titleFor(rec){
   return "استمارة";
 }
 
-/* ===================== YEARWORK CALC + LIVE UI ===================== */
+/* ===================== YEARWORK CALC ===================== */
 function ywCalc(st){
   const a=parseNumLoose(st.yearwork.p1Task)||0;
   const b=parseNumLoose(st.yearwork.p1Quiz)||0;
@@ -885,6 +943,9 @@ function render(){
     return;
   }
 
+  // إظهار خانة "المراجعة" فقط لأعمال السنة
+  $("reviewerBox").style.display = (rec.formType==="yearwork") ? "block" : "none";
+
   applyFollowupTransfer_(rec, false);
 
   area.innerHTML = `
@@ -907,37 +968,36 @@ function render(){
   else if(rec.formType==="parentNotice") area.appendChild(renderParentNotice(rec));
   else if(rec.formType==="counselorNotice") area.appendChild(renderCounselorNotice(rec));
 
-  area.appendChild(renderSign(rec));
+  // ✅ التوقيعات: لجميع الاستمارات (معلمة + مديرة) فقط
+  // ✅ أعمال السنة: توقيعات خاصة داخل الاستمارة (معلمة + مراجعة + مديرة)
+  if(rec.formType!=="yearwork"){
+    area.appendChild(renderSignCommon(rec));
+  }
+
   wire(rec);
 }
 
-function renderSign(rec){
+/* ===== توقيع عام (معلمة + مديرة) ===== */
+function renderSignCommon(rec){
   const wrap=document.createElement("div");
   wrap.innerHTML = `
-    <div class="siggrid sigSmall">
+    <div class="siggrid">
       <div class="sig">
-        <div class="lbl" style="font-weight:900;margin-bottom:4px">المعلمة:</div>
+        <div style="font-weight:900;margin-bottom:6px">المعلمة:</div>
         <input id="sigTeacher" value="${esc(rec.signatures.teacherName||"")}" placeholder="اسم المعلمة">
-        <span class="pv pvSig">${esc(rec.signatures.teacherName||"")}</span>
+        <span class="pv">${esc(rec.signatures.teacherName||"")}</span>
       </div>
-
       <div class="sig">
-        <div class="lbl" style="font-weight:900;margin-bottom:4px">المراجعة:</div>
-        <input id="sigReviewer" value="${esc(rec.signatures.reviewerName||"")}" placeholder="اسم المراجعة">
-        <span class="pv pvSig">${esc(rec.signatures.reviewerName||"")}</span>
-      </div>
-
-      <div class="sig">
-        <div class="lbl" style="font-weight:900;margin-bottom:4px">قائدة المدرسة:</div>
+        <div style="font-weight:900;margin-bottom:6px">قائدة المدرسة:</div>
         <input id="sigPrincipal" value="${esc(rec.signatures.principalName||"")}" placeholder="اسم المديرة">
-        <span class="pv pvSig">${esc(rec.signatures.principalName||"")}</span>
+        <span class="pv">${esc(rec.signatures.principalName||"")}</span>
       </div>
     </div>
   `;
   return wrap;
 }
 
-/* ===== أعمال السنة ===== */
+/* ===== أعمال السنة (شاشة + طباعة + توقيعات صغيرة أسفل الجدول) ===== */
 function renderYearwork(rec){
   const wrap=document.createElement("div");
   wrap.className="p";
@@ -1059,11 +1119,32 @@ function renderYearwork(rec){
         </tbody>
       </table>
     </div>
+
+    <!-- ✅ توقيعات أعمال السنة فقط: معلمة + مراجعة + مديرة (صغيرة أسفل الجدول) -->
+    <div class="ywSigs">
+      <div class="ywSigsGrid">
+        <div class="ywSigBox">
+          <div class="lbl">المعلمة</div>
+          <input id="sigTeacherYW" value="${esc(rec.signatures.teacherName||"")}" placeholder="اسم المعلمة">
+          <span class="pv">${esc(rec.signatures.teacherName||"")}</span>
+        </div>
+        <div class="ywSigBox">
+          <div class="lbl">المراجعة</div>
+          <input id="sigReviewerYW" value="${esc(rec.signatures.reviewerName||"")}" placeholder="اسم المراجعة">
+          <span class="pv">${esc(rec.signatures.reviewerName||"")}</span>
+        </div>
+        <div class="ywSigBox">
+          <div class="lbl">قائدة المدرسة</div>
+          <input id="sigPrincipalYW" value="${esc(rec.signatures.principalName||"")}" placeholder="اسم المديرة">
+          <span class="pv">${esc(rec.signatures.principalName||"")}</span>
+        </div>
+      </div>
+    </div>
   `;
   return wrap;
 }
 
-/* ===== كشف متابعة ===== */
+/* ===== كشف متابعة + طباعة واضحة ===== */
 function renderMonthly(rec){
   rec.followupUI ||= { monthIndex: new Date().getMonth(), weeks: 4, autoTransfer: true, target:"p1Task" };
 
@@ -1193,7 +1274,7 @@ function renderMonthly(rec){
   return wrap;
 }
 
-/* ===== الخطط: متعدد المهارات ===== */
+/* ===== الخطط: مهارات متعددة + مساحة قراءة أفضل ===== */
 function studentList(rec){
   const list=(rec.students||[]).map(s=>(s.name||"").trim()).filter(Boolean);
   return [...new Set(list)];
@@ -1201,17 +1282,18 @@ function studentList(rec){
 function renderPlans(rec){
   rec.plans ||= { entries: [] };
   const wrap=document.createElement("div");
-  wrap.className="p";
-
   const students = studentList(rec);
 
   wrap.innerHTML = `
-    <div class="noPrint">
-      <div class="btns" style="margin-bottom:10px">
+    <div class="plansTop noPrint">
+      <div class="leftBtns">
         <button class="secondary" id="btnAddPlan">إضافة صف خطة</button>
         <button class="secondary" id="btnReloadSkills">تحديث المهارات</button>
       </div>
+      <div class="hint">اختاري أكثر من مهارة (Ctrl/Shift على الكمبيوتر)</div>
+    </div>
 
+    <div class="p noPrint">
       <div class="wrapX">
         <table>
           <thead>
@@ -1222,11 +1304,11 @@ function renderPlans(rec){
               <th class="tot" style="width:90px">الصف</th>
               <th class="tot" style="width:120px">المادة</th>
               <th class="tot" style="width:90px">نوع</th>
-              <th class="tot" style="width:360px">المهارات (متعددة)</th>
+              <th class="tot" style="width:520px">المهارات (متعدد)</th>
               <th class="tot" style="width:120px">قبلي</th>
               <th class="tot" style="width:120px">بعدي</th>
               <th class="tot" style="width:160px">إجراء</th>
-              <th class="tot" style="width:240px">ملاحظات</th>
+              <th class="tot" style="width:220px">ملاحظات</th>
             </tr>
           </thead>
           <tbody>
@@ -1265,11 +1347,13 @@ function renderPlans(rec){
                 </td>
 
                 <td style="text-align:right">
-                  <select class="inline" multiple size="3" data-plan="skills" data-i="${i}" style="height:auto; padding:8px">
+                  <select class="inline skillsSelect" multiple size="6" data-plan="skills" data-i="${i}" style="height:auto; padding:8px">
                     <option value="">— اختر/ي أكثر من مهارة —</option>
-                    ${Array.isArray(r.skills) ? r.skills.filter(Boolean).map(s=>`<option selected value="${esc(s)}">${esc(s)}</option>`).join("") : ""}
+                    ${(Array.isArray(r.skills)?r.skills:[]).filter(Boolean).map(s=>`<option selected value="${esc(s)}">${esc(s)}</option>`).join("")}
                   </select>
-                  <div class="sub noPrint" style="margin-top:6px">* كمبيوتر: Ctrl/Shift لاختيار عدة مهارات</div>
+                  <div class="sub" style="margin-top:6px">
+                    المختار: <b>${esc((Array.isArray(r.skills)?r.skills:[]).filter(Boolean).join("، ")) || "—"}</b>
+                  </div>
                 </td>
 
                 <td>
@@ -1300,7 +1384,7 @@ function renderPlans(rec){
       </div>
     </div>
 
-    <!-- طباعة الخطط: مختصر وواضح -->
+    <!-- ✅ طباعة الخطط: المطلوب فقط (اسم + نوع + مهارات + إجراء + قبلي/بعدي) -->
     <div class="printOnly">
       <div style="border:1px solid var(--b); border-radius:14px; padding:12px; background:#fff">
         <div style="margin-bottom:10px">
@@ -1365,7 +1449,6 @@ async function refillAllSkills(rec, root){
       opts += `<option value="">— (لا توجد مهارات مسجلة لهذه المادة/الصف) —</option>`;
     }
 
-    // مهارات مختارة غير موجودة في القائمة
     for(const s of [...chosen]){
       if(!list.includes(s)){
         opts += `<option selected value="${esc(s)}">${esc(s)}</option>`;
@@ -1459,7 +1542,6 @@ function renderParentNotice(rec){
         <div style="white-space:pre-wrap; font-weight:900">${esc(pn.message||"")}</div>
         <div style="margin-top:18px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap">
           <div><b>المعلمة:</b> ${esc(rec.signatures.teacherName||"")}</div>
-          <div><b>المراجعة:</b> ${esc(rec.signatures.reviewerName||"")}</div>
           <div><b>قائدة المدرسة:</b> ${esc(rec.signatures.principalName||"")}</div>
         </div>
       </div>
@@ -1536,7 +1618,6 @@ function renderCounselorNotice(rec){
         ${cn.notes ? `<div style="margin-top:10px"><b>ملاحظات:</b><br>${esc(cn.notes)}</div>` : ``}
         <div style="margin-top:18px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap">
           <div><b>المعلمة:</b> ${esc(rec.signatures.teacherName||"")}</div>
-          <div><b>المراجعة:</b> ${esc(rec.signatures.reviewerName||"")}</div>
           <div><b>قائدة المدرسة:</b> ${esc(rec.signatures.principalName||"")}</div>
         </div>
       </div>
@@ -1634,8 +1715,8 @@ function syncForm(rec){
   $("yearAr").value = rec.academicYearAr||"";
   $("title").value = rec.title||"";
   $("teacherName").value = rec.signatures.teacherName||"";
-  $("reviewerName").value = rec.signatures.reviewerName||"";
   $("principalName").value = rec.signatures.principalName||"";
+  $("reviewerName").value = rec.signatures.reviewerName||"";
   syncCount(rec);
 }
 function syncCount(rec){
@@ -1695,7 +1776,12 @@ function attach(){
 
   $("btnRename").onclick=()=>{ $("title").focus(); $("title").select(); };
 
-  $("formType").onchange=()=>{ const r=active(); r.formType=$("formType").value; saveAll(); render(); };
+  $("formType").onchange=()=>{
+    const r=active();
+    r.formType=$("formType").value;
+    saveAll();
+    render();
+  };
   $("subject").oninput=()=>{ const r=active(); r.subject=$("subject").value; saveAll(); };
   $("school").oninput=()=>{ const r=active(); r.school=$("school").value; saveAll(); render(); };
   $("classroom").oninput=()=>{ const r=active(); r.classroom=$("classroom").value; saveAll(); render(); };
@@ -1705,8 +1791,8 @@ function attach(){
   $("title").oninput=()=>{ const r=active(); r.title=$("title").value; saveAll(); syncSelect(); };
 
   $("teacherName").oninput=()=>{ const r=active(); r.signatures.teacherName=$("teacherName").value; saveAll(); };
-  $("reviewerName").oninput=()=>{ const r=active(); r.signatures.reviewerName=$("reviewerName").value; saveAll(); };
   $("principalName").oninput=()=>{ const r=active(); r.signatures.principalName=$("principalName").value; saveAll(); };
+  $("reviewerName").oninput=()=>{ const r=active(); r.signatures.reviewerName=$("reviewerName").value; saveAll(); };
 
   $("btnApplyNames").onclick=()=>{
     const r=active();
@@ -1807,17 +1893,23 @@ function attach(){
 
 /* ===================== WIRE ===================== */
 function wire(rec){
-  const st=$("sigTeacher"), sr=$("sigReviewer"), sp=$("sigPrincipal");
+  // توقيعات عامة
+  const st=$("sigTeacher"), sp=$("sigPrincipal");
   if(st) st.oninput=()=>{rec.signatures.teacherName=st.value; saveAll();};
-  if(sr) sr.oninput=()=>{rec.signatures.reviewerName=sr.value; saveAll();};
   if(sp) sp.oninput=()=>{rec.signatures.principalName=sp.value; saveAll();};
+
+  // توقيعات أعمال السنة
+  const stYW=$("sigTeacherYW"), srYW=$("sigReviewerYW"), spYW=$("sigPrincipalYW");
+  if(stYW) stYW.oninput=()=>{rec.signatures.teacherName=stYW.value; $("teacherName").value=stYW.value; saveAll();};
+  if(srYW) srYW.oninput=()=>{rec.signatures.reviewerName=srYW.value; $("reviewerName").value=srYW.value; saveAll();};
+  if(spYW) spYW.oninput=()=>{rec.signatures.principalName=spYW.value; $("principalName").value=spYW.value; saveAll();};
 
   // أسماء الطالبات
   document.querySelectorAll("[data-st='name']").forEach(inp=>{
     inp.oninput=()=>{
       const i = +inp.dataset.i;
       rec.students[i].name = inp.value;
-      saveAll();
+      saveAll(); syncCount(rec);
       refreshYearworkRowUI(rec, i);
       refreshFollowupRowUI(rec, i);
     };
@@ -1830,251 +1922,4 @@ function wire(rec){
       const key=inp.dataset.yw;
       rec.students[i].yearwork[key]=inp.value;
       saveAll();
-      refreshYearworkRowUI(rec, i);
-    };
-    inp.onblur=()=>{
-      const i=+inp.dataset.i;
-      const key=inp.dataset.yw;
-      const max = parseInt(inp.dataset.max || "9999", 10);
-
-      const cleaned = clamp(inp.value, max);
-      rec.students[i].yearwork[key]=cleaned;
-      inp.value=cleaned;
-
-      saveAll();
-      refreshYearworkRowUI(rec, i);
-    };
-  });
-
-  // تعميم أعمال السنة (الأدوات أعلى الجدول)
-  document.querySelectorAll("[data-fillcol]").forEach(btn=>{
-    btn.onclick=()=>{
-      const key = btn.dataset.fillcol;
-      const box = document.getElementById("fill_" + key);
-      if(!box) return;
-      const cleaned = clamp(box.value, YW_MAX[key]);
-      if(cleaned==="") return;
-      rec.students.forEach((s, idx)=>{
-        s.yearwork ||= {};
-        s.yearwork[key]=cleaned;
-        refreshYearworkRowUI(rec, idx);
-      });
-      saveAll();
-    };
-  });
-
-  // متابعة
-  document.querySelectorAll("[data-fu]").forEach(inp=>{
-    inp.oninput=()=>{
-      const i=+inp.dataset.i, w=+inp.dataset.w, key=inp.dataset.fu;
-      const mi = Math.max(0, Math.min(11, parseInt(rec.followupUI?.monthIndex ?? 0, 10)));
-      rec.students[i].followupByMonth[mi][w][key]=inp.value;
-      saveAll();
-      refreshFollowupRowUI(rec, i);
-    };
-    inp.onblur=()=>{
-      const i=+inp.dataset.i, w=+inp.dataset.w, key=inp.dataset.fu;
-      const max = parseInt(inp.dataset.max || "9999", 10);
-      const cleaned = clamp(inp.value, max);
-      inp.value = cleaned;
-
-      const mi = Math.max(0, Math.min(11, parseInt(rec.followupUI?.monthIndex ?? 0, 10)));
-      rec.students[i].followupByMonth[mi][w][key]=cleaned;
-      saveAll();
-      refreshFollowupRowUI(rec, i);
-    };
-  });
-
-  // تعميم متابعة
-  document.querySelectorAll("[data-fufill]").forEach(btn=>{
-    btn.onclick=()=>{
-      const key = btn.dataset.fufill;
-      const w = +btn.dataset.w;
-      const box = document.getElementById(`fuFill_${key}_${w}`);
-      if(!box) return;
-
-      const max = key==="hw" ? 10 : key==="perf" ? 20 : 10;
-      const cleaned = clamp(box.value, max);
-      if(cleaned==="") return;
-
-      const mi = Math.max(0, Math.min(11, parseInt(rec.followupUI?.monthIndex ?? 0, 10)));
-      rec.students.forEach((s, idx)=>{
-        s.followupByMonth[mi][w][key]=cleaned;
-        refreshFollowupRowUI(rec, idx);
-      });
-      saveAll();
-    };
-  });
-
-  // تبويب الأشهر + إعدادات الترحيل
-  document.querySelectorAll("[data-fu-month]").forEach(t=>{
-    t.onclick=()=>{
-      rec.followupUI.monthIndex = +t.dataset.fuMonth;
-      saveAll();
-      render();
-    };
-  });
-  const fuWeeksSel = document.getElementById("fuWeeksSel");
-  if(fuWeeksSel){
-    fuWeeksSel.onchange=()=>{
-      rec.followupUI.weeks = parseInt(fuWeeksSel.value,10);
-      saveAll();
-      render();
-    };
-  }
-  const fuTargetSel = document.getElementById("fuTargetSel");
-  if(fuTargetSel){
-    fuTargetSel.onchange=()=>{
-      rec.followupUI.target = fuTargetSel.value;
-      saveAll();
-    };
-  }
-  const fuAutoChk = document.getElementById("fuAutoChk");
-  if(fuAutoChk){
-    fuAutoChk.onchange=()=>{
-      rec.followupUI.autoTransfer = !!fuAutoChk.checked;
-      saveAll();
-    };
-  }
-  const fuPushNow = document.getElementById("fuPushNow");
-  if(fuPushNow){
-    fuPushNow.onclick=()=>{
-      applyFollowupTransfer_(rec, true);
-      saveAll();
-      render();
-    };
-  }
-
-  // الخطط
-  const addPlanBtn = document.getElementById("btnAddPlan");
-  if(addPlanBtn){
-    addPlanBtn.onclick=()=>{
-      rec.plans.entries.push({
-        date: rec.date || "",
-        studentFullName:"",
-        grade:"السادس",
-        subject:"علوم",
-        type:"علاجية",
-        skills: [],
-        skill: "",
-        pre:LEVEL_WORDS[0],
-        post:LEVEL_WORDS[1],
-        action:ACTION_TYPES[0],
-        notes:""
-      });
-      saveAll(); render();
-    };
-  }
-  const reloadSkillsBtn = document.getElementById("btnReloadSkills");
-  if(reloadSkillsBtn){
-    reloadSkillsBtn.onclick=()=>{
-      skillsCache.clear();
-      saveAll();
-      render();
-    };
-  }
-  document.querySelectorAll("[data-pick]").forEach(sel=>{
-    sel.onchange=()=>{
-      const i=+sel.dataset.i;
-      rec.plans.entries[i].studentFullName = sel.value || "";
-      saveAll(); render();
-    };
-  });
-
-  // ✅ حفظ حقول الخطط + متعدد المهارات
-  document.querySelectorAll("[data-plan]").forEach(elm=>{
-    const key = elm.dataset.plan, i = +elm.dataset.i;
-
-    const readMulti = () => [...elm.selectedOptions].map(o=>o.value).filter(v=>v && v.trim());
-
-    if(key === "skills"){
-      elm.onchange = ()=>{
-        rec.plans.entries[i].skills = readMulti();
-        rec.plans.entries[i].skill = rec.plans.entries[i].skills[0] || ""; // توافق قديم
-        saveAll();
-        render();
-      };
-      return;
-    }
-
-    elm.oninput = ()=>{ rec.plans.entries[i][key]=elm.value; saveAll(); };
-    elm.onchange = ()=>{
-      rec.plans.entries[i][key]=elm.value;
-
-      if(key==="grade") rec.plans.entries[i][key] = normalizeGradeClient(elm.value);
-      if(key==="subject") rec.plans.entries[i][key] = normSubjectClient(elm.value);
-
-      saveAll();
-
-      if(key==="grade" || key==="subject"){
-        rec.plans.entries[i].skills = [];
-        rec.plans.entries[i].skill = "";
-        saveAll();
-        render();
-      }
-    };
-  });
-
-  // ولي الأمر
-  document.querySelectorAll("[data-parent]").forEach(el=>{
-    const k = el.dataset.parent;
-    el.oninput=()=>{ if(k!=="studentPick"){ rec.parentNotice[k]=el.value; saveAll(); } };
-    el.onchange=()=>{
-      if(k==="studentPick"){ rec.parentNotice.studentFullName = el.value || ""; saveAll(); render(); return; }
-      rec.parentNotice[k]=el.value; saveAll(); render();
-    };
-  });
-  const btnBuildParent = document.getElementById("btnBuildParent");
-  if(btnBuildParent){
-    btnBuildParent.onclick=()=>{ buildParentMessage(rec); saveAll(); render(); };
-  }
-
-  // الموجهة
-  document.querySelectorAll("[data-coun]").forEach(el=>{
-    const k = el.dataset.coun;
-    el.oninput=()=>{ if(k!=="studentPick"){ rec.counselorNotice[k]=el.value; saveAll(); } };
-    el.onchange=()=>{
-      if(k==="studentPick"){ rec.counselorNotice.studentFullName = el.value || ""; saveAll(); render(); return; }
-      rec.counselorNotice[k]=el.value; saveAll(); render();
-    };
-  });
-
-  if(rec.formType==="yearwork"){
-    rec.students.forEach((_,i)=>refreshYearworkRowUI(rec,i));
-  }
-  if(rec.formType==="monthly"){
-    rec.students.forEach((_,i)=>refreshFollowupRowUI(rec,i));
-  }
-}
-
-/* ===================== INIT ===================== */
-(function init(){
-  loadLocal();
-
-  if(!state.records.length){
-    const r=defaultRecord();
-    state.records=[r];
-    state.activeId=r.id;
-    saveLocal();
-  }
-  if(!state.activeId) state.activeId=state.records[0].id;
-
-  migrateState_();
-
-  attach();
-  syncSelect();
-  syncForm(active());
-  render();
-
-  cloudVisit();
-  cloudLoad().then(()=>{
-    if(!state.records?.length){
-      const r=defaultRecord(); state.records=[r]; state.activeId=r.id;
-    }
-    migrateState_();
-    syncSelect(); syncForm(active()); render();
-  });
-})();
-</script>
-</body>
-</html>
+      refreshYearworkRowUI(rec
