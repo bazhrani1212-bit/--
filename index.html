@@ -81,7 +81,7 @@
     .printHead .m{color:var(--muted); font-size:12px; font-weight:800}
     .printPills{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
 
-    /* ✅ شاشة: ممكن يظهر شريط أفقي للمعاينة */
+    /* شاشة: ممكن يظهر شريط أفقي للمعاينة */
     .wrapX{overflow:auto; -webkit-overflow-scrolling:touch}
 
     table{border-collapse:collapse; width:100%;}
@@ -99,7 +99,49 @@
       background:#fff; color:#111; font-weight:900;
     }
 
-    .siggrid{display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:12px 14px 16px}
+    /* ✅ شريط أدوات التعميم أعلى جدول أعمال السنة (لأجل ظهور الأسماء في الشاشة) */
+    .ywTools{
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: #fff;
+      border: 1px solid var(--b);
+      border-radius: 14px;
+      padding: 10px;
+      margin: 12px 0;
+    }
+    .ywTools .rowT{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:flex-end;
+    }
+    .ywTools .grp{
+      min-width: 180px;
+      border:1px solid var(--b);
+      border-radius:12px;
+      padding:8px;
+      background:var(--card);
+    }
+    .ywTools .grp label{
+      margin:0 0 6px;
+      font-size:11px;
+    }
+    .ywTools .mini{
+      display:flex; gap:6px; align-items:center;
+    }
+    .ywTools .mini input{
+      width:110px;
+      padding:8px;
+      border:1px solid var(--b);
+      border-radius:12px;
+      font-weight:900;
+    }
+    .ywTools .mini button{
+      padding:8px 10px;
+    }
+
+    .siggrid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; padding:12px 14px 16px}
     @media (max-width: 820px){ .siggrid{grid-template-columns:1fr} }
     .sig{
       border:1px solid var(--b); border-radius:14px; padding:10px; background:var(--card);
@@ -137,12 +179,12 @@
     }
     @media (max-width: 820px){ .noticeGrid{grid-template-columns:1fr} }
 
-    /* ✅ Helpers to control print */
+    /* Helpers to control print */
     .noPrint{display:block;}
     .screenOnly{display:block;}
     .printOnly{display:none; white-space:pre-wrap; line-height:1.9; font-weight:900; text-align:right; font-size:14px}
 
-    /* ✅ نصوص الطباعة داخل الجداول */
+    /* نصوص الطباعة داخل الجداول */
     .pv{display:none; font-weight:900; font-size:12px}
 
     body.forcePrint .screenOnly{display:none !important;}
@@ -152,8 +194,8 @@
     @media print{
       th.vhead{
         padding:0 !important;
-        width:24px !important;
-        min-width:24px !important;
+        width:10mm !important;
+        min-width:10mm !important;
       }
       th.vhead > span{
         display:inline-block;
@@ -161,51 +203,12 @@
         transform:rotate(180deg);
         white-space:nowrap;
         line-height:1;
-        padding:8px 0;
+        padding:6px 0;
         font-weight:900;
       }
     }
 
-    /* ✅ شريط التعميم أعلى جدول أعمال السنة (لرؤية الأسماء أثناء التعبئة) */
-    .ywTools{
-      position: sticky;
-      top: 0;
-      z-index: 5;
-      background: #fff;
-      border: 1px solid var(--b);
-      border-radius: 14px;
-      padding: 10px;
-      margin: 12px 0;
-    }
-    .ywTools .rowT{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      align-items:flex-end;
-    }
-    .ywTools .grp{
-      min-width: 180px;
-      border:1px solid var(--b);
-      border-radius:12px;
-      padding:8px;
-      background:var(--card);
-    }
-    .ywTools label{
-      margin:0 0 6px;
-      font-size:11px;
-    }
-    .ywTools .mini{
-      display:flex; gap:6px; align-items:center;
-    }
-    .ywTools input{
-      width:110px;
-      padding:8px;
-    }
-    .ywTools button{
-      padding:8px 10px;
-    }
-
-    /* ✅ طباعة عامة: واضحة + بدون أوامر */
+    /* ✅ طباعة عامة */
     @page { size: A4 landscape; margin: 10mm; }
 
     @media print{
@@ -215,18 +218,17 @@
       .panel.right{border:0}
       .wrap{max-width:none; padding:0}
       .wrapX{overflow:visible}
-      .ywTools{display:none !important;}
 
-      /* ✅ لا تطبع أي أوامر/تعليمات */
+      /* لا تطبع أي أوامر/تعليمات */
       .noPrint{display:none !important;}
       .screenOnly{display:none !important;}
       .printOnly{display:block !important;}
 
-      /* ✅ لا نعتمد على input في الطباعة */
+      /* لا نعتمد على input في الطباعة */
       input.inline, select.inline, textarea{ display:none !important; }
       .pv{ display:inline !important; }
 
-      /* ✅ تحسين وضوح الجداول */
+      /* تحسين وضوح الجداول */
       table{width:100%; table-layout:fixed;}
       thead{display: table-header-group;}
       tfoot{display: table-footer-group;}
@@ -238,23 +240,69 @@
         word-break:break-word;
       }
 
-      /* ✅ تكبير اسم الطالبة في طباعة أعمال السنة */
-      td.namecell .pv[data-pv="name"]{
-        font-size:13px !important;
-        font-weight:900 !important;
-      }
-
-      /* ✅ للخطط: خلي القراءة واضحة */
+      /* للخطط */
       .plansPrint th, .plansPrint td{
         font-size:11px !important;
         padding:5px !important;
       }
 
-      /* ✅ تبليغات: وضوح أعلى */
+      /* تبليغات */
       .printOnly{
         font-size:15px !important;
         line-height:2 !important;
       }
+
+      /* اخفاء شريط أدوات التعميم */
+      .ywTools{display:none !important;}
+    }
+
+    /* ===== تحسين طباعة سجل أعمال السنة (اسم كامل + درجات صغيرة + احتواء كامل) ===== */
+    @media print{
+      .yearworkTable{
+        width:100% !important;
+        table-layout:fixed !important;
+      }
+      .yearworkTable th,
+      .yearworkTable td{
+        padding:2px !important;
+        font-size:9px !important;
+        line-height:1.2 !important;
+      }
+
+      /* عمود الاسم أكبر ويظهر كامل بدون تقطيع */
+      .yearworkTable td.namecell{
+        width:60mm !important;
+        white-space:normal !important;
+        word-break:keep-all !important;
+        overflow:visible !important;
+      }
+      .yearworkTable td.namecell .pv{
+        font-size:10.5px !important;
+        font-weight:900 !important;
+        white-space:normal !important;
+        word-break:keep-all !important;
+      }
+
+      /* تصغير أعمدة الدرجات */
+      .yearworkTable td:not(.namecell),
+      .yearworkTable th:not(.vhead){
+        width:12mm !important;
+      }
+    }
+
+    /* توقيعات أصغر + 3 خانات (معلمة/مراجعة/مديرة) */
+    .sigSmall{ padding:8px 10px 10px; }
+    .sigSmall .sig{ padding:8px; border-radius:12px; }
+    .sigSmall .sig input{ padding:6px 0; }
+
+    .pvSig{ display:none; }
+
+    @media print{
+      .pvSig{ display:block !important; font-weight:900; font-size:11px !important; }
+      .sigSmall{ padding:6px 10px !important; gap:8px !important; }
+      .sigSmall .sig{ padding:6px 8px !important; background:#fff !important; }
+      .sigSmall .lbl{ font-size:10px !important; margin:0 0 2px !important; }
+      .siggrid{ grid-template-columns: 1fr 1fr 1fr !important; }
     }
   </style>
 </head>
@@ -334,12 +382,6 @@
         <label>عنوان السجل</label>
         <input id="title" placeholder="مثال: أعمال سنة علوم سادس/أ" />
 
-        <label>اسم المعلمة (يظهر بالطباعة)</label>
-        <input id="teacherName" placeholder="اسم المعلمة" />
-
-        <label>اسم المديرة (يظهر بالطباعة)</label>
-        <input id="principalName" placeholder="اسم المديرة" />
-
         <hr style="border:0;border-top:1px solid var(--b); margin:14px 0">
 
         <label>أسماء الطالبات (كل اسم في سطر)</label>
@@ -366,6 +408,12 @@
 
         <div class="sub" id="importStatus" style="margin-top:10px;font-weight:900"></div>
         <div class="sub" style="margin-top:10px;font-weight:900" id="countHint">عدد الطالبات: 0</div>
+
+        <hr style="border:0;border-top:1px solid var(--b); margin:14px 0">
+        <div class="sub" style="font-weight:900">
+          ✅ لا تداخل بين المعلمات إذا كل معلمة تستخدم رابطها الخاص:
+          <span style="direction:ltr; unicode-bidi:bidi-override">?user=اسم_خاص</span>
+        </div>
       </div>
     </div>
 
@@ -373,7 +421,7 @@
     <div class="panel right">
       <h2>الاستمارة</h2>
       <div class="sub noPrint" style="padding:0 12px 10px">
-        المعاينة قد تظهر أوامر (تعميم/ترحيل...) لكنها لا تظهر في الطباعة.
+        المعاينة قد تظهر أدوات إدخال، لكنها لا تظهر في الطباعة أو PDF.
       </div>
       <div id="printArea"></div>
     </div>
@@ -405,6 +453,7 @@ const esc = (s)=> (s ?? "").toString()
   .replaceAll("&","&amp;").replaceAll("<","&lt;")
   .replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
 
+/* ✅ إصلاح نهائي (كان فيه سطر يكسر الجافاسكربت) */
 function parseNumLoose(v){
   const s2 = (v??"").toString().trim()
     .replace(/[٠١٢٣٤٥٦٧٨٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
@@ -444,17 +493,6 @@ function normalizeGradeClient(g){
     "6":"السادس","سادس":"السادس","السادس":"السادس",
   };
   return map[t] || t;
-}
-
-/* ✅ تطبيع اسم الطالبة للترحيل بين سجلين حسب الاسم */
-function normStudentName(name){
-  return (name||"").toString()
-    .trim()
-    .replace(/\s+/g, " ")
-    .replace(/[ـ]/g, "")
-    .replace(/[\u064B-\u0652]/g, "")
-    .replace(/[أإآ]/g, "ا")
-    .replace(/ى/g, "ي");
 }
 
 /* ===================== JSON / JSONP ===================== */
@@ -497,10 +535,12 @@ function defaultStudent(name=""){
   return {
     id:uid(),
     name,
+
     yearwork:{
       p1Task:"", p1Quiz:"", p2Task:"", p2Quiz:"", final:"",
       _auto_p1Task:"", _auto_p2Task:""
     },
+
     followupByMonth: Array.from({length:12}, () =>
       Array.from({length:6}, () => ({ hw:"", perf:"", part:"" }))
     )
@@ -520,20 +560,29 @@ function defaultRecord(){
     date: `${yyyy}-${mm}-${dd}`,
     termAr: "الأول",
     academicYearAr: "١٤٤٧هـ",
-    signatures:{ teacherName:"", principalName:"" },
+
+    signatures:{ teacherName:"", reviewerName:"", principalName:"" },
+
     students: [],
+
     followupUI: { monthIndex: d.getMonth(), weeks: 4, autoTransfer: true, target: "p1Task" },
+
     plans:{ entries: [] },
+
     parentNotice: {
       date: `${yyyy}-${mm}-${dd}`,
       studentFullName: "",
+      parentName: "",
+      parentPhone: "",
       template: PARENT_TEMPLATES[0],
       reason: PARENT_REASONS[0],
       action: PARENT_ACTIONS[0],
       message: "",
       meetingDate: "",
-      meetingTime: ""
+      meetingTime: "",
+      notes: ""
     },
+
     counselorNotice: {
       date: `${yyyy}-${mm}-${dd}`,
       studentFullName: "",
@@ -552,10 +601,8 @@ function active(){
   return state.records.find(r=>r.id===state.activeId) || null;
 }
 
-/* ===================== LOCAL + CLOUD ===================== */
-function saveLocal(){
-  try{ localStorage.setItem(LKEY, JSON.stringify(state)); }catch{}
-}
+/* ===================== LOCAL + CLOUD (حفظ مضمون) ===================== */
+function saveLocal(){ localStorage.setItem(LKEY, JSON.stringify(state)); }
 function loadLocal(){
   const raw = localStorage.getItem(LKEY);
   if(!raw) return;
@@ -622,8 +669,10 @@ async function cloudSave(){
     }
   }
 }
+
+/* ✅ حفظ مضمون: محلي فورًا + سحابي بعد 700ms */
 function saveAll(){
-  saveLocal();
+  try{ saveLocal(); }catch{}
   clearTimeout(saveTimer);
   saveTimer=setTimeout(()=>cloudSave(), 700);
 }
@@ -634,30 +683,18 @@ function migrateState_(){
   state.records.forEach(rec=>{
     rec.students ||= [];
     rec.plans ||= { entries: [] };
-    rec.signatures ||= { teacherName:"", principalName:"" };
+
+    rec.signatures ||= { teacherName:"", reviewerName:"", principalName:"" };
+    rec.signatures.reviewerName ??= "";
+
     rec.followupUI ||= { monthIndex: 0, weeks: 4, autoTransfer: true, target: "p1Task" };
+    rec.followupUI.monthIndex ??= 0;
+    rec.followupUI.weeks ??= 4;
+    rec.followupUI.autoTransfer ??= true;
+    rec.followupUI.target ||= "p1Task";
 
-    rec.parentNotice ||= {
-      date: rec.date||"",
-      studentFullName:"",
-      template:PARENT_TEMPLATES[0],
-      reason:PARENT_REASONS[0],
-      action:PARENT_ACTIONS[0],
-      message:"",
-      meetingDate:"",
-      meetingTime:""
-    };
-
-    rec.counselorNotice ||= {
-      date: rec.date||"",
-      studentFullName:"",
-      type:COUNSELOR_TYPES[0],
-      urgency:COUNSELOR_URGENCY[2],
-      summary:"",
-      actionsTaken:"",
-      requestedSupport:"متابعة الحالة وإرشاد الطالبة",
-      notes:""
-    };
+    rec.parentNotice ||= { date: rec.date||"", studentFullName:"", parentName:"", parentPhone:"", template:PARENT_TEMPLATES[0], reason:PARENT_REASONS[0], action:PARENT_ACTIONS[0], message:"", meetingDate:"", meetingTime:"", notes:"" };
+    rec.counselorNotice ||= { date: rec.date||"", studentFullName:"", type:COUNSELOR_TYPES[0], urgency:COUNSELOR_URGENCY[2], summary:"", actionsTaken:"", requestedSupport:"متابعة الحالة وإرشاد الطالبة", notes:"" };
 
     rec.students.forEach(st=>{
       st.yearwork ||= { p1Task:"", p1Quiz:"", p2Task:"", p2Quiz:"", final:"", _auto_p1Task:"", _auto_p2Task:"" };
@@ -687,7 +724,7 @@ function migrateState_(){
   });
 }
 
-/* ===================== FOLLOWUP AVG + AUTO TRANSFER ===================== */
+/* ===================== FOLLOWUP AVG + AUTO TRANSFER (داخل نفس السجل) ===================== */
 function followupWeekTotal_(w){
   const num = v => (parseNumLoose(v) ?? 0);
   return num(w.hw) + num(w.perf) + num(w.part);
@@ -717,12 +754,12 @@ function applyFollowupTransfer_(rec, force=false){
     const val = counted ? String(Math.round(avg)) : "";
 
     if(rec.followupUI.target === "p1Task"){
-      if(force || ((st.yearwork.p1Task||"") === "" || (st.yearwork.p1Task||"") === (st.yearwork._auto_p1Task||""))){
+      if(force || ( (st.yearwork.p1Task||"") === "" || (st.yearwork.p1Task||"") === (st.yearwork._auto_p1Task||"") )){
         st.yearwork.p1Task = val;
         st.yearwork._auto_p1Task = val;
       }
     } else if(rec.followupUI.target === "p2Task"){
-      if(force || ((st.yearwork.p2Task||"") === "" || (st.yearwork.p2Task||"") === (st.yearwork._auto_p2Task||""))){
+      if(force || ( (st.yearwork.p2Task||"") === "" || (st.yearwork.p2Task||"") === (st.yearwork._auto_p2Task||"") )){
         st.yearwork.p2Task = val;
         st.yearwork._auto_p2Task = val;
       }
@@ -730,7 +767,16 @@ function applyFollowupTransfer_(rec, force=false){
   });
 }
 
-/* ✅ ترحيل بين سجلين مختلفين حسب الاسم (متابعة -> أعمال سنة) */
+/* ===================== ترحيل بين سجلين حسب اسم الطالبة ===================== */
+function normStudentName(name){
+  return (name||"").toString()
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/[ـ]/g, "")
+    .replace(/[\u064B-\u0652]/g, "")     // تشكيل
+    .replace(/[أإآ]/g, "ا")
+    .replace(/ى/g, "ي");
+}
 function transferMonthlyToYearworkByName(sourceRec, targetRec, {monthIndex, weeks, targetField}, {force=false, addMissing=true} = {}){
   if(!sourceRec || !targetRec) return {moved:0, missing:0};
   const mi = Math.max(0, Math.min(11, parseInt(monthIndex ?? 0, 10)));
@@ -744,6 +790,7 @@ function transferMonthlyToYearworkByName(sourceRec, targetRec, {monthIndex, week
   });
 
   let moved=0, missing=0;
+
   (sourceRec.students||[]).forEach(st=>{
     const name = (st.name||"").trim();
     const key = normStudentName(name);
@@ -759,7 +806,9 @@ function transferMonthlyToYearworkByName(sourceRec, targetRec, {monthIndex, week
         tgt = defaultStudent(name);
         targetRec.students.push(tgt);
         index.set(key, tgt);
-      } else return;
+      }else{
+        return;
+      }
     }
 
     tgt.yearwork ||= { p1Task:"", p1Quiz:"", p2Task:"", p2Quiz:"", final:"", _auto_p1Task:"", _auto_p2Task:"" };
@@ -767,8 +816,8 @@ function transferMonthlyToYearworkByName(sourceRec, targetRec, {monthIndex, week
     const autoKey = targetField === "p1Task" ? "_auto_p1Task" : "_auto_p2Task";
     const current = (tgt.yearwork[targetField]||"");
     const prevAuto = (tgt.yearwork[autoKey]||"");
-    const canWrite = force || current === "" || current === prevAuto;
 
+    const canWrite = force || current === "" || current === prevAuto;
     if(canWrite){
       tgt.yearwork[targetField] = val;
       tgt.yearwork[autoKey] = val;
@@ -846,8 +895,8 @@ function ywCalc(st){
 function refreshYearworkRowUI(rec, i){
   const st = rec.students[i];
   if(!st) return;
-  const t = ywCalc(st);
 
+  const t = ywCalc(st);
   const setOut = (key, val) => {
     const el = document.querySelector(`[data-out="${key}"][data-i="${i}"]`);
     if(el) el.textContent = val;
@@ -940,21 +989,30 @@ function render(){
 function renderSign(rec){
   const wrap=document.createElement("div");
   wrap.innerHTML = `
-    <div class="siggrid">
+    <div class="siggrid sigSmall">
       <div class="sig">
-        <div style="font-weight:900;margin-bottom:6px">المعلمة:</div>
+        <div class="lbl" style="font-weight:900;margin-bottom:4px">المعلمة:</div>
         <input id="sigTeacher" value="${esc(rec.signatures.teacherName||"")}" placeholder="اسم المعلمة">
+        <span class="pv pvSig">${esc(rec.signatures.teacherName||"")}</span>
       </div>
+
       <div class="sig">
-        <div style="font-weight:900;margin-bottom:6px">قائدة المدرسة:</div>
+        <div class="lbl" style="font-weight:900;margin-bottom:4px">المراجعة:</div>
+        <input id="sigReviewer" value="${esc(rec.signatures.reviewerName||"")}" placeholder="اسم المراجعة">
+        <span class="pv pvSig">${esc(rec.signatures.reviewerName||"")}</span>
+      </div>
+
+      <div class="sig">
+        <div class="lbl" style="font-weight:900;margin-bottom:4px">قائدة المدرسة:</div>
         <input id="sigPrincipal" value="${esc(rec.signatures.principalName||"")}" placeholder="اسم المديرة">
+        <span class="pv pvSig">${esc(rec.signatures.principalName||"")}</span>
       </div>
     </div>
   `;
   return wrap;
 }
 
-/* ===== أعمال السنة (شريط التعميم أعلى الجدول + طباعة واضحة) ===== */
+/* ===== أعمال السنة (شريط تعميم أعلى + طباعة محتواة + اسم كامل) ===== */
 function renderYearwork(rec){
   const wrap=document.createElement("div");
   wrap.className="p";
@@ -966,7 +1024,7 @@ function renderYearwork(rec){
         <div class="grp">
           <label>مهام 1 (40)</label>
           <div class="mini">
-            <input class="inline" id="fill_p1Task" placeholder="40">
+            <input id="fill_p1Task" placeholder="40">
             <button class="secondary" data-fillcol="p1Task">تعميم</button>
           </div>
         </div>
@@ -974,7 +1032,7 @@ function renderYearwork(rec){
         <div class="grp">
           <label>تقويم 1 (20)</label>
           <div class="mini">
-            <input class="inline" id="fill_p1Quiz" placeholder="20">
+            <input id="fill_p1Quiz" placeholder="20">
             <button class="secondary" data-fillcol="p1Quiz">تعميم</button>
           </div>
         </div>
@@ -982,7 +1040,7 @@ function renderYearwork(rec){
         <div class="grp">
           <label>مهام 2 (40)</label>
           <div class="mini">
-            <input class="inline" id="fill_p2Task" placeholder="40">
+            <input id="fill_p2Task" placeholder="40">
             <button class="secondary" data-fillcol="p2Task">تعميم</button>
           </div>
         </div>
@@ -990,7 +1048,7 @@ function renderYearwork(rec){
         <div class="grp">
           <label>تقويم 2 (20)</label>
           <div class="mini">
-            <input class="inline" id="fill_p2Quiz" placeholder="20">
+            <input id="fill_p2Quiz" placeholder="20">
             <button class="secondary" data-fillcol="p2Quiz">تعميم</button>
           </div>
         </div>
@@ -998,7 +1056,7 @@ function renderYearwork(rec){
         <div class="grp">
           <label>نهائي (40)</label>
           <div class="mini">
-            <input class="inline" id="fill_final" placeholder="40">
+            <input id="fill_final" placeholder="40">
             <button class="secondary" data-fillcol="final">تعميم</button>
           </div>
         </div>
@@ -1006,7 +1064,7 @@ function renderYearwork(rec){
     </div>
 
     <div class="wrapX">
-      <table>
+      <table class="yearworkTable">
         <thead>
           <tr>
             <th class="tot" style="width:34px">م</th>
@@ -1036,7 +1094,7 @@ function renderYearwork(rec){
               <tr data-ywrow="${i}">
                 <td class="tot">${i+1}</td>
 
-                <td class="namecell" style="width:340px">
+                <td class="namecell" style="width:320px">
                   <input class="inline name" data-st="name" data-i="${i}" value="${esc(st.name||"")}" placeholder="اسم الطالبة">
                   <span class="pv" data-pv="name" data-i="${i}">${esc(st.name||"")}</span>
                 </td>
@@ -1084,7 +1142,7 @@ function renderYearwork(rec){
   return wrap;
 }
 
-/* ===== كشف متابعة + ترحيل إلى سجل أعمال سنة آخر حسب الاسم ===== */
+/* ===== كشف متابعة + ترحيل داخلي + ترحيل إلى سجل أعمال سنة محدد حسب الاسم ===== */
 function renderMonthly(rec){
   rec.followupUI ||= { monthIndex: new Date().getMonth(), weeks: 4, autoTransfer: true, target:"p1Task" };
 
@@ -1118,7 +1176,7 @@ function renderMonthly(rec){
       </div>
 
       <div class="pill" style="background:#fff">
-        ترحيل المتوسط:
+        ترحيل (داخلي):
         <select id="fuTargetSel" style="width:240px;padding:6px 8px;border-radius:10px;border:1px solid var(--b);font-weight:900">
           <option value="p1Task" ${rec.followupUI.target==="p1Task"?"selected":""}>إلى مهام الفترة الأولى (40)</option>
           <option value="p2Task" ${rec.followupUI.target==="p2Task"?"selected":""}>إلى مهام الفترة الثانية (40)</option>
@@ -1128,19 +1186,21 @@ function renderMonthly(rec){
 
       <label class="pill" style="background:#fff; cursor:pointer">
         <input id="fuAutoChk" type="checkbox" ${rec.followupUI.autoTransfer ? "checked":""} style="width:18px;height:18px;margin-left:8px">
-        ترحيل تلقائي داخل نفس السجل
+        تلقائي
       </label>
 
-      <button class="secondary" id="fuPushNow">ترحيل الآن (نفس السجل)</button>
+      <button class="secondary" id="fuPushNow">ترحيل الآن (داخل السجل)</button>
 
       <div class="pill" style="background:#fff">
         ترحيل إلى سجل أعمال السنة:
         <select id="fuYearworkRecSel" style="width:260px;padding:6px 8px;border-radius:10px;border:1px solid var(--b);font-weight:900">
-          ${yearworkRecords.length ? yearworkRecords.map(r=>`<option value="${esc(r.id)}">${esc(r.title || "سجل أعمال سنة")}</option>`).join("") : `<option value="">— لا يوجد سجل أعمال سنة —</option>`}
+          ${yearworkRecords.length
+            ? yearworkRecords.map(r=>`<option value="${esc(r.id)}">${esc(r.title || "سجل أعمال سنة")}</option>`).join("")
+            : `<option value="">(لا يوجد سجلات أعمال سنة بعد)</option>`
+          }
         </select>
       </div>
-
-      <button class="secondary" id="fuPushToYearworkRec" ${yearworkRecords.length ? "" : "disabled"}>ترحيل إلى (سجل أعمال السنة)</button>
+      <button class="secondary" id="fuPushToYearworkRec" ${yearworkRecords.length? "" : "disabled"}>ترحيل حسب الاسم</button>
     </div>
 
     <div class="p">
@@ -1229,7 +1289,7 @@ function renderMonthly(rec){
   return wrap;
 }
 
-/* ===== الخطط + الطباعة المختصرة المطلوبة ===== */
+/* ===== الخطط: شاشة كاملة + طباعة مختصرة واضحة ===== */
 function studentList(rec){
   const list=(rec.students||[]).map(s=>(s.name||"").trim()).filter(Boolean);
   return [...new Set(list)];
@@ -1334,6 +1394,7 @@ function renderPlans(rec){
       </div>
     </div>
 
+    <!-- طباعة الخطط: فقط المطلوب -->
     <div class="printOnly">
       <div style="border:1px solid var(--b); border-radius:14px; padding:12px; background:#fff">
         <div style="margin-bottom:10px">
@@ -1393,7 +1454,7 @@ async function refillAllSkills(rec, root){
   }
 }
 
-/* ===== تبليغ ولي الأمر (طباعة مختصرة: النص + توقيع) ===== */
+/* ===== تبليغ ولي الأمر ===== */
 function buildParentMessage(rec){
   const pn = rec.parentNotice;
   const student = pn.studentFullName || "الطالبة";
@@ -1474,8 +1535,9 @@ function renderParentNotice(rec){
     <div class="printOnly">
       <div style="border:1px solid var(--b); border-radius:14px; padding:12px; background:#fff">
         <div style="white-space:pre-wrap; font-weight:900">${esc(pn.message||"")}</div>
-        <div style="margin-top:18px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap">
+        <div style="margin-top:14px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap">
           <div><b>المعلمة:</b> ${esc(rec.signatures.teacherName||"")}</div>
+          <div><b>المراجعة:</b> ${esc(rec.signatures.reviewerName||"")}</div>
           <div><b>قائدة المدرسة:</b> ${esc(rec.signatures.principalName||"")}</div>
         </div>
       </div>
@@ -1484,7 +1546,7 @@ function renderParentNotice(rec){
   return wrap;
 }
 
-/* ===== تبليغ الموجهة الطلابية (طباعة مختصرة: بيانات أساسية + توقيع) ===== */
+/* ===== تبليغ الموجهة الطلابية ===== */
 function renderCounselorNotice(rec){
   const cn = rec.counselorNotice;
   const students = studentList(rec);
@@ -1550,8 +1612,9 @@ function renderCounselorNotice(rec){
         <div style="margin-top:10px"><b>إجراءات تمت:</b><br>${esc(cn.actionsTaken||"—")}</div>
         <div style="margin-top:10px"><b>الدعم المطلوب:</b><br>${esc(cn.requestedSupport||"—")}</div>
         ${cn.notes ? `<div style="margin-top:10px"><b>ملاحظات:</b><br>${esc(cn.notes)}</div>` : ``}
-        <div style="margin-top:18px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap">
+        <div style="margin-top:14px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap">
           <div><b>المعلمة:</b> ${esc(rec.signatures.teacherName||"")}</div>
+          <div><b>المراجعة:</b> ${esc(rec.signatures.reviewerName||"")}</div>
           <div><b>قائدة المدرسة:</b> ${esc(rec.signatures.principalName||"")}</div>
         </div>
       </div>
@@ -1648,8 +1711,6 @@ function syncForm(rec){
   $("termAr").value = rec.termAr||"الأول";
   $("yearAr").value = rec.academicYearAr||"";
   $("title").value = rec.title||"";
-  $("teacherName").value = rec.signatures.teacherName||"";
-  $("principalName").value = rec.signatures.principalName||"";
   syncCount(rec);
 }
 function syncCount(rec){
@@ -1667,7 +1728,7 @@ function attach(){
 
   $("recordSelect").onchange=(e)=>{
     state.activeId=e.target.value;
-    saveLocal();
+    saveAll();
     const rec=active();
     syncForm(rec);
     render();
@@ -1717,8 +1778,6 @@ function attach(){
   $("termAr").onchange=()=>{ const r=active(); r.termAr=$("termAr").value; saveAll(); render(); };
   $("yearAr").onblur=()=>{ const r=active(); r.academicYearAr=$("yearAr").value.trim(); saveAll(); render(); };
   $("title").oninput=()=>{ const r=active(); r.title=$("title").value; saveAll(); syncSelect(); };
-  $("teacherName").oninput=()=>{ const r=active(); r.signatures.teacherName=$("teacherName").value; saveAll(); };
-  $("principalName").oninput=()=>{ const r=active(); r.signatures.principalName=$("principalName").value; saveAll(); };
 
   $("btnApplyNames").onclick=()=>{
     const r=active();
@@ -1764,17 +1823,11 @@ function attach(){
       const imgW = w;
       const imgH = canvas.height * imgW / canvas.width;
 
-      let position = 0;
-      let heightLeft = imgH;
-
-      pdf.addImage(img,"PNG",0,position,imgW,imgH);
-      heightLeft -= h;
-
-      while(heightLeft > 0){
-        position = position - h;
-        pdf.addPage();
-        pdf.addImage(img,"PNG",0,position,imgW,imgH);
-        heightLeft -= h;
+      let y=0, remaining=imgH;
+      while(remaining>0){
+        pdf.addImage(img,"PNG",0,y,imgW,imgH);
+        remaining -= h;
+        if(remaining>0){ pdf.addPage(); y -= h; }
       }
 
       const name=(rec?.title||"سجل").replace(/[\\/:*?"<>|]/g,"-") + ".pdf";
@@ -1825,11 +1878,11 @@ function attach(){
 
 /* ===================== WIRE ===================== */
 function wire(rec){
-  const st=$("sigTeacher"), sp=$("sigPrincipal");
+  const st=$("sigTeacher"), sr=$("sigReviewer"), sp=$("sigPrincipal");
   if(st) st.oninput=()=>{rec.signatures.teacherName=st.value; saveAll();};
+  if(sr) sr.oninput=()=>{rec.signatures.reviewerName=sr.value; saveAll();};
   if(sp) sp.oninput=()=>{rec.signatures.principalName=sp.value; saveAll();};
 
-  // أسماء الطالبات: تحدث pv للطباعة + أي جداول مرتبطة
   document.querySelectorAll("[data-st='name']").forEach(inp=>{
     inp.oninput=()=>{
       const i = +inp.dataset.i;
@@ -1840,7 +1893,7 @@ function wire(rec){
     };
   });
 
-  // أعمال السنة: تحديث مجموع تلقائي لحظي عند أي تعديل
+  /* أعمال السنة */
   document.querySelectorAll("[data-yw]").forEach(inp=>{
     inp.oninput=()=>{
       const i=+inp.dataset.i;
@@ -1863,11 +1916,11 @@ function wire(rec){
     };
   });
 
-  // تعميم أعمال السنة
+  /* تعميم أعمال السنة (الشريط العلوي) */
   document.querySelectorAll("[data-fillcol]").forEach(btn=>{
     btn.onclick=()=>{
       const key = btn.dataset.fillcol;
-      const box = document.getElementById("fill_" + key);
+      const box = $("fill_" + key);
       if(!box) return;
       const cleaned = clamp(box.value, YW_MAX[key]);
       if(cleaned==="") return;
@@ -1880,7 +1933,7 @@ function wire(rec){
     };
   });
 
-  // متابعة: كتابة الدرجات + تحديث المجاميع والطباعة
+  /* متابعة */
   document.querySelectorAll("[data-fu]").forEach(inp=>{
     inp.oninput=()=>{
       const i=+inp.dataset.i, w=+inp.dataset.w, key=inp.dataset.fu;
@@ -1902,7 +1955,7 @@ function wire(rec){
     };
   });
 
-  // تعميم متابعة
+  /* تعميم متابعة */
   document.querySelectorAll("[data-fufill]").forEach(btn=>{
     btn.onclick=()=>{
       const key = btn.dataset.fufill;
@@ -1923,7 +1976,7 @@ function wire(rec){
     };
   });
 
-  // تبويب الأشهر
+  /* تبويب الأشهر */
   document.querySelectorAll("[data-fu-month]").forEach(t=>{
     t.onclick=()=>{
       rec.followupUI.monthIndex = +t.dataset.fuMonth;
@@ -1940,7 +1993,6 @@ function wire(rec){
       render();
     };
   }
-
   const fuTargetSel = document.getElementById("fuTargetSel");
   if(fuTargetSel){
     fuTargetSel.onchange=()=>{
@@ -1948,7 +2000,6 @@ function wire(rec){
       saveAll();
     };
   }
-
   const fuAutoChk = document.getElementById("fuAutoChk");
   if(fuAutoChk){
     fuAutoChk.onchange=()=>{
@@ -1956,7 +2007,6 @@ function wire(rec){
       saveAll();
     };
   }
-
   const fuPushNow = document.getElementById("fuPushNow");
   if(fuPushNow){
     fuPushNow.onclick=()=>{
@@ -1966,6 +2016,7 @@ function wire(rec){
     };
   }
 
+  /* ✅ زر ترحيل حسب الاسم إلى سجل أعمال سنة آخر */
   const fuPushToYearworkRec = document.getElementById("fuPushToYearworkRec");
   if(fuPushToYearworkRec){
     fuPushToYearworkRec.onclick=()=>{
@@ -1990,11 +2041,11 @@ function wire(rec){
       );
 
       saveAll();
-      alert(`تم الترحيل: ${result.moved} طالبة.\nطالبات تمت إضافتها/غير موجودة سابقًا: ${result.missing}`);
+      alert(`تم الترحيل: ${result.moved} طالبة.\nطالبات أضيفت (لم تكن موجودة): ${result.missing}`);
     };
   }
 
-  // الخطط
+  /* الخطط */
   const addPlanBtn = document.getElementById("btnAddPlan");
   if(addPlanBtn){
     addPlanBtn.onclick=()=>{
@@ -2044,7 +2095,7 @@ function wire(rec){
     };
   });
 
-  // ولي الأمر
+  /* ولي الأمر */
   document.querySelectorAll("[data-parent]").forEach(el=>{
     const k = el.dataset.parent;
     el.oninput=()=>{ if(k!=="studentPick"){ rec.parentNotice[k]=el.value; saveAll(); } };
@@ -2058,7 +2109,7 @@ function wire(rec){
     btnBuildParent.onclick=()=>{ buildParentMessage(rec); saveAll(); render(); };
   }
 
-  // الموجهة
+  /* الموجهة */
   document.querySelectorAll("[data-coun]").forEach(el=>{
     const k = el.dataset.coun;
     el.oninput=()=>{ if(k!=="studentPick"){ rec.counselorNotice[k]=el.value; saveAll(); } };
@@ -2068,7 +2119,7 @@ function wire(rec){
     };
   });
 
-  // تحديث pv/maths بعد render لضمان الطباعة
+  /* بعد render: تحديث الطباعة/الحساب */
   if(rec.formType==="yearwork"){
     rec.students.forEach((_,i)=>refreshYearworkRowUI(rec,i));
   }
