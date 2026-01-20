@@ -90,7 +90,7 @@
     td.namecell{text-align:right}
     .inline{
       width:100%; border:0; outline:0; padding:6px; font-weight:900; background:transparent;
-      text-align:center; font-size:12px;
+      text-align:center; font-size:12px
     }
     .inline.name{text-align:right}
     .tot{background:#f9fafb}
@@ -166,7 +166,7 @@
       }
     }
 
-    /* ✅ طباعة عامة: واضحة + بدون أوامر */
+    /* ✅ طباعة عامة */
     @page { size: A4 landscape; margin: 10mm; }
 
     @media print{
@@ -177,16 +177,13 @@
       .wrap{max-width:none; padding:0}
       .wrapX{overflow:visible}
 
-      /* ✅ لا تطبع أي أوامر/تعليمات */
       .noPrint{display:none !important;}
       .screenOnly{display:none !important;}
       .printOnly{display:block !important;}
 
-      /* ✅ لا نعتمد على input في الطباعة */
       input.inline, select.inline, textarea{ display:none !important; }
       .pv{ display:inline !important; }
 
-      /* ✅ تحسين وضوح الجداول */
       table{width:100%; table-layout:fixed;}
       thead{display: table-header-group;}
       tfoot{display: table-footer-group;}
@@ -198,49 +195,39 @@
         word-break:break-word;
       }
 
-      /* ✅ للخطط: خلي القراءة واضحة */
       .plansPrint th, .plansPrint td{
         font-size:11px !important;
         padding:5px !important;
       }
 
-      /* ✅ تبليغات: وضوح أعلى */
       .printOnly{
         font-size:15px !important;
         line-height:2 !important;
       }
     }
 
-    /* ==========================
-       ✅ تعديل مطلوب فقط للخطط:
-       تكبير مساحة قراءة المهارات
-       ========================== */
-    .plansSkillPreview{
-      margin-top:6px;
-      padding:8px 10px;
+    /* ✅✅ تعديلنا الوحيد: تكبير مساحة المهارات في الخطط + اختيار متعدد */
+    .skillMulti{
+      width:100%;
+      min-height:160px;
+      padding:10px;
       border:1px solid var(--b);
       border-radius:12px;
+      font-weight:900;
       background:#fff;
       text-align:right;
-      white-space:normal;
-      word-break:break-word;
-      line-height:1.8;
+    }
+    .skillChosenBox{
+      margin-top:8px;
+      border:1px solid var(--b);
+      background:var(--card);
+      border-radius:12px;
+      padding:10px;
       font-weight:900;
-      font-size:12px;
-      max-width: 520px;
-    }
-    .plansSkillSelect{
-      min-width:520px; /* يجعل خانة المهارات عريضة للقراءة */
-      width:520px;
-      max-width:100%;
-    }
-    @media (max-width: 980px){
-      .plansSkillSelect{min-width:420px; width:420px;}
-      .plansSkillPreview{max-width:420px;}
-    }
-    @media (max-width: 520px){
-      .plansSkillSelect{min-width:320px; width:320px;}
-      .plansSkillPreview{max-width:320px;}
+      text-align:right;
+      white-space:pre-wrap;
+      line-height:1.9;
+      min-height:90px;
     }
   </style>
 </head>
@@ -473,7 +460,12 @@ function defaultStudent(name=""){
   return {
     id:uid(),
     name,
-    yearwork:{ p1Task:"", p1Quiz:"", p2Task:"", p2Quiz:"", final:"", _auto_p1Task:"", _auto_p2Task:"" },
+
+    yearwork:{
+      p1Task:"", p1Quiz:"", p2Task:"", p2Quiz:"", final:"",
+      _auto_p1Task:"", _auto_p2Task:""
+    },
+
     followupByMonth: Array.from({length:12}, () =>
       Array.from({length:6}, () => ({ hw:"", perf:"", part:"" }))
     )
@@ -495,8 +487,11 @@ function defaultRecord(){
     academicYearAr: "١٤٤٧هـ",
     signatures:{ teacherName:"", principalName:"" },
     students: [],
+
     followupUI: { monthIndex: d.getMonth(), weeks: 4, autoTransfer: true, target: "p1Task" },
+
     plans:{ entries: [] },
+
     parentNotice: {
       date: `${yyyy}-${mm}-${dd}`,
       studentFullName: "",
@@ -510,6 +505,7 @@ function defaultRecord(){
       meetingTime: "",
       notes: ""
     },
+
     counselorNotice: {
       date: `${yyyy}-${mm}-${dd}`,
       studentFullName: "",
@@ -599,7 +595,7 @@ async function cloudSave(){
 function saveAll(){
   saveLocal();
   clearTimeout(saveTimer);
-  saveTimer=setTimeout(()=>cloudSave(), 700);
+  saveTimer=setTimeout(()=>cloudSave(), 900);
 }
 
 /* ===================== MIGRATION ===================== */
@@ -609,7 +605,12 @@ function migrateState_(){
     rec.students ||= [];
     rec.plans ||= { entries: [] };
     rec.signatures ||= { teacherName:"", principalName:"" };
+
     rec.followupUI ||= { monthIndex: 0, weeks: 4, autoTransfer: true, target: "p1Task" };
+    rec.followupUI.monthIndex ??= 0;
+    rec.followupUI.weeks ??= 4;
+    rec.followupUI.autoTransfer ??= true;
+    rec.followupUI.target ||= "p1Task";
 
     rec.parentNotice ||= { date: rec.date||"", studentFullName:"", parentName:"", parentPhone:"", template:PARENT_TEMPLATES[0], reason:PARENT_REASONS[0], action:PARENT_ACTIONS[0], message:"", meetingDate:"", meetingTime:"", notes:"" };
     rec.counselorNotice ||= { date: rec.date||"", studentFullName:"", type:COUNSELOR_TYPES[0], urgency:COUNSELOR_URGENCY[2], summary:"", actionsTaken:"", requestedSupport:"متابعة الحالة وإرشاد الطالبة", notes:"" };
@@ -632,7 +633,20 @@ function migrateState_(){
       row.grade = normalizeGradeClient(row.grade || "السادس");
       row.subject = normSubjectClient(row.subject || "علوم");
       row.type ||= "علاجية";
-      row.skill ||= "";
+
+      // ✅ دعم اختيار متعدد للمهارات (الجديد)
+      if(Array.isArray(row.skills)){
+        row.skills = row.skills.map(x=>String(x||"").trim()).filter(Boolean);
+      } else if(typeof row.skills === "string" && row.skills.trim()){
+        row.skills = row.skills.split(/\n|،|,/).map(x=>x.trim()).filter(Boolean);
+      } else if(row.skill && String(row.skill).trim()){
+        row.skills = [String(row.skill).trim()];
+      } else {
+        row.skills = [];
+      }
+      // حافظي على row.skill للتوافق (لكن المصدر الحقيقي الآن row.skills)
+      row.skill = (row.skills && row.skills.length) ? row.skills.join("\n") : (row.skill||"");
+
       row.pre ||= LEVEL_WORDS[0];
       row.post ||= LEVEL_WORDS[1];
       row.action ||= ACTION_TYPES[0];
@@ -835,7 +849,7 @@ function render(){
 
   if(rec.formType==="yearwork") area.appendChild(renderYearwork(rec));
   else if(rec.formType==="monthly") area.appendChild(renderMonthly(rec));
-  else if(rec.formType==="plans") area.appendChild(renderPlans(rec));
+  else if(rec.formType==="plans") area.appendChild(renderPlans(rec));  // ✅ هنا تعديلنا فقط
   else if(rec.formType==="parentNotice") area.appendChild(renderParentNotice(rec));
   else if(rec.formType==="counselorNotice") area.appendChild(renderCounselorNotice(rec));
 
@@ -860,7 +874,7 @@ function renderSign(rec){
   return wrap;
 }
 
-/* ===== أعمال السنة (بدون أي تغيير) ===== */
+/* ===== أعمال السنة (كما هو) ===== */
 function renderYearwork(rec){
   const wrap=document.createElement("div");
   wrap.className="p";
@@ -982,7 +996,7 @@ function renderYearwork(rec){
   return wrap;
 }
 
-/* ===== كشف متابعة (بدون أي تغيير) ===== */
+/* ===== كشف متابعة (كما هو) ===== */
 function renderMonthly(rec){
   rec.followupUI ||= { monthIndex: new Date().getMonth(), weeks: 4, autoTransfer: true, target:"p1Task" };
 
@@ -1112,11 +1126,12 @@ function renderMonthly(rec){
   return wrap;
 }
 
-/* ===== الخطط: ✅ (التغيير الوحيد هنا: تكبير مساحة المهارات للقراءة) ===== */
+/* ===================== ✅✅ خطط علاجية/إثرائية (التعديل الوحيد) ===================== */
 function studentList(rec){
   const list=(rec.students||[]).map(s=>(s.name||"").trim()).filter(Boolean);
   return [...new Set(list)];
 }
+
 function renderPlans(rec){
   rec.plans ||= { entries: [] };
   const wrap=document.createElement("div");
@@ -1142,17 +1157,19 @@ function renderPlans(rec){
               <th class="tot" style="width:120px">المادة</th>
               <th class="tot" style="width:90px">نوع</th>
 
-              <!-- ✅ تكبير عمود المهارة -->
-              <th class="tot" style="width:560px">المهارة</th>
+              <!-- ✅ مهارات أوسع -->
+              <th class="tot" style="width:560px">المهارات (يمكن اختيار أكثر من مهارة)</th>
 
               <th class="tot" style="width:120px">قبلي</th>
               <th class="tot" style="width:120px">بعدي</th>
               <th class="tot" style="width:160px">إجراء</th>
-              <th class="tot" style="width:220px">ملاحظات</th>
+              <th class="tot" style="width:240px">ملاحظات</th>
             </tr>
           </thead>
           <tbody>
-            ${(rec.plans.entries||[]).map((r,i)=>`
+            ${(rec.plans.entries||[]).map((r,i)=>{
+              const chosen = Array.isArray(r.skills) ? r.skills : (r.skill? [r.skill] : []);
+              return `
               <tr>
                 <td class="tot">${i+1}</td>
                 <td><input class="inline" type="date" data-plan="date" data-i="${i}" value="${esc(r.date||"")}"></td>
@@ -1186,10 +1203,15 @@ function renderPlans(rec){
                   </select>
                 </td>
 
-                <!-- ✅ مهارات: القائمة عريضة + معاينة نص المهارة كاملة تحتها -->
+                <!-- ✅ اختيار متعدد للمهارات + مربع واضح للقراءة -->
                 <td style="text-align:right">
-                  <select class="inline plansSkillSelect" data-plan="skill" data-i="${i}"></select>
-                  <div class="plansSkillPreview" data-skillpreview="${i}">${esc(r.skill||"— اختر المهارة لعرضها هنا كاملة —")}</div>
+                  <div>
+                    <select class="skillMulti" multiple size="8" data-planmulti="skills" data-i="${i}">
+                      <option value="">جاري تحميل المهارات…</option>
+                    </select>
+                    <div class="sub" style="margin-top:8px;font-weight:900">المهارات المختارة:</div>
+                    <div class="skillChosenBox" data-skillbox="${i}">${esc((chosen||[]).join("\\n"))}</div>
+                  </div>
                 </td>
 
                 <td>
@@ -1214,13 +1236,14 @@ function renderPlans(rec){
                   <input class="inline" data-plan="notes" data-i="${i}" value="${esc(r.notes||"")}">
                 </td>
               </tr>
-            `).join("")}
+            `;
+            }).join("")}
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- ✅ طباعة الخطط: كما هي (بدون تغيير) -->
+    <!-- ✅ طباعة الخطط: تعرض كل المهارات المختارة -->
     <div class="printOnly">
       <div style="border:1px solid var(--b); border-radius:14px; padding:12px; background:#fff">
         <div style="margin-bottom:10px">
@@ -1234,36 +1257,39 @@ function renderPlans(rec){
               <th class="tot" style="width:34px">م</th>
               <th class="tot" style="width:220px">اسم الطالبة الثلاثي</th>
               <th class="tot" style="width:110px">نوع الخطة</th>
-              <th class="tot">المهارة</th>
+              <th class="tot">المهارات</th>
               <th class="tot" style="width:170px">نوع الإجراء</th>
               <th class="tot" style="width:110px">قبلي</th>
               <th class="tot" style="width:110px">بعدي</th>
             </tr>
           </thead>
           <tbody>
-            ${(rec.plans.entries||[]).map((r,i)=>`
+            ${(rec.plans.entries||[]).map((r,i)=>{
+              const skills = Array.isArray(r.skills) ? r.skills : (r.skill ? [r.skill] : []);
+              return `
               <tr>
                 <td class="tot">${i+1}</td>
                 <td style="text-align:right">${esc(r.studentFullName||"")}</td>
                 <td>${esc(r.type||"")}</td>
-                <td style="text-align:right">${esc(r.skill||"")}</td>
+                <td style="text-align:right; white-space:pre-wrap">${esc((skills||[]).join("\\n"))}</td>
                 <td style="text-align:right">${esc(r.action||"")}</td>
                 <td>${esc(r.pre||"")}</td>
                 <td>${esc(r.post||"")}</td>
               </tr>
-            `).join("")}
+            `;
+            }).join("")}
           </tbody>
         </table>
       </div>
     </div>
   `;
 
-  setTimeout(async ()=>{ await refillAllSkills(rec, wrap); },0);
+  setTimeout(async ()=>{ await refillAllSkillsMulti(rec, wrap); },0);
   return wrap;
 }
 
-async function refillAllSkills(rec, root){
-  const sels = root.querySelectorAll("select[data-plan='skill']");
+async function refillAllSkillsMulti(rec, root){
+  const sels = root.querySelectorAll("select[data-planmulti='skills']");
   for(const sel of sels){
     const i=+sel.dataset.i;
     const row = rec.plans.entries[i];
@@ -1271,19 +1297,28 @@ async function refillAllSkills(rec, root){
     const subj  = normSubjectClient(row.subject || "علوم");
 
     const list = await getSkillsSmart(grade, subj);
-    const cur = row.skill || "";
+    const cur = Array.isArray(row.skills) ? row.skills : [];
 
-    let opts = `<option value="">— اختر المهارة —</option>` + list.map(s=>`<option ${s===cur?"selected":""} value="${esc(s)}">${esc(s)}</option>`).join("");
-    if(cur && !list.includes(cur)) opts += `<option selected value="${esc(cur)}">${esc(cur)}</option>`;
-    if(list.length===0 && !cur) opts = `<option value="">— (لا توجد مهارات مسجلة لهذه المادة/الصف) —</option>`;
+    let opts = (list.length
+      ? list.map(s=>`<option ${cur.includes(s)?"selected":""} value="${esc(s)}">${esc(s)}</option>`).join("")
+      : `<option value="">— (لا توجد مهارات مسجلة لهذه المادة/الصف) —</option>`
+    );
+
+    // لو كان عندها مهارة قديمة غير موجودة بالقائمة، نضيفها
+    for(const x of (cur||[])){
+      if(x && !list.includes(x)){
+        opts += `<option selected value="${esc(x)}">${esc(x)}</option>`;
+      }
+    }
     sel.innerHTML = opts;
 
-    const prev = root.querySelector(`[data-skillpreview="${i}"]`);
-    if(prev) prev.textContent = row.skill ? row.skill : "— اختر المهارة لعرضها هنا كاملة —";
+    // تحديث صندوق القراءة
+    const box = root.querySelector(`[data-skillbox="${i}"]`);
+    if(box) box.textContent = (cur||[]).join("\n");
   }
 }
 
-/* ===== تبليغ ولي الأمر (بدون أي تغيير) ===== */
+/* ===== تبليغ ولي الأمر (كما هو) ===== */
 function buildParentMessage(rec){
   const pn = rec.parentNotice;
   const student = pn.studentFullName || "الطالبة";
@@ -1374,7 +1409,7 @@ function renderParentNotice(rec){
   return wrap;
 }
 
-/* ===== تبليغ الموجهة (بدون أي تغيير) ===== */
+/* ===== تبليغ الموجهة الطلابية (كما هو) ===== */
 function renderCounselorNotice(rec){
   const cn = rec.counselorNotice;
   const students = studentList(rec);
@@ -1731,13 +1766,16 @@ function wire(rec){
       saveAll();
       refreshYearworkRowUI(rec, i);
     };
+
     inp.onblur=()=>{
       const i=+inp.dataset.i;
       const key=inp.dataset.yw;
       const max = parseInt(inp.dataset.max || "9999", 10);
+
       const cleaned = clamp(inp.value, max);
       rec.students[i].yearwork[key]=cleaned;
       inp.value=cleaned;
+
       saveAll();
       refreshYearworkRowUI(rec, i);
     };
@@ -1838,7 +1876,7 @@ function wire(rec){
     };
   }
 
-  // الخطط
+  // ✅ خطط: إضافة صف
   const addPlanBtn = document.getElementById("btnAddPlan");
   if(addPlanBtn){
     addPlanBtn.onclick=()=>{
@@ -1848,7 +1886,9 @@ function wire(rec){
         grade:"السادس",
         subject:"علوم",
         type:"علاجية",
-        skill:"",
+        // ✅ الجديد
+        skills: [],
+        skill: "",
         pre:LEVEL_WORDS[0],
         post:LEVEL_WORDS[1],
         action:ACTION_TYPES[0],
@@ -1872,31 +1912,36 @@ function wire(rec){
       saveAll(); render();
     };
   });
+
+  // ✅ بقية حقول الخطط (نفس السابق)
   document.querySelectorAll("[data-plan]").forEach(elm=>{
     const key=elm.dataset.plan, i=+elm.dataset.i;
-
-    // ✅ تحديث معاينة المهارة فورًا عند الاختيار
-    if(key==="skill"){
-      elm.onchange=()=>{
-        rec.plans.entries[i][key]=elm.value;
-        const prev = document.querySelector(`[data-skillpreview="${i}"]`);
-        if(prev) prev.textContent = rec.plans.entries[i].skill ? rec.plans.entries[i].skill : "— اختر المهارة لعرضها هنا كاملة —";
-        saveAll();
-      };
-      return;
-    }
-
     elm.oninput=()=>{ rec.plans.entries[i][key]=elm.value; saveAll(); };
-    elm.onchange=async ()=>{
+    elm.onchange=()=>{
       rec.plans.entries[i][key]=elm.value;
       if(key==="grade") rec.plans.entries[i][key] = normalizeGradeClient(elm.value);
       if(key==="subject") rec.plans.entries[i][key] = normSubjectClient(elm.value);
       saveAll();
       if(key==="grade" || key==="subject"){
+        // ✅ عند تغيير الصف/المادة: نفرغ المهارات المختارة
+        rec.plans.entries[i].skills = [];
         rec.plans.entries[i].skill = "";
         saveAll();
         render();
       }
+    };
+  });
+
+  // ✅ مهارات متعددة: حفظ الاختيار + تحديث صندوق القراءة
+  document.querySelectorAll("select[data-planmulti='skills']").forEach(sel=>{
+    sel.onchange=()=>{
+      const i = +sel.dataset.i;
+      const chosen = Array.from(sel.selectedOptions).map(o=>o.value).filter(v=>v && v.trim());
+      rec.plans.entries[i].skills = chosen;
+      rec.plans.entries[i].skill = chosen.join("\n"); // للتوافق
+      const box = document.querySelector(`[data-skillbox="${i}"]`);
+      if(box) box.textContent = chosen.join("\n");
+      saveAll();
     };
   });
 
