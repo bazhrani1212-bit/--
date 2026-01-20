@@ -93,16 +93,6 @@
       background:#fff; color:#111; font-weight:900;
     }
 
-    .siggrid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; padding:10px 14px 14px}
-    @media (max-width: 820px){ .siggrid{grid-template-columns:1fr} }
-    .sig{
-      border:1px solid var(--b); border-radius:14px; padding:10px; background:var(--card);
-    }
-    .sig input{
-      border:0; border-bottom:2px dotted #111; border-radius:0; padding:8px 0;
-      background:transparent;
-    }
-
     /* Month tabs */
     .tabs{
       display:flex; gap:8px; flex-wrap:wrap;
@@ -171,7 +161,7 @@
       border-radius:12px;
       background:#fff;
       padding:10px;
-      max-height:360px; /* أكبر للقراءة */
+      max-height:360px;
       overflow:auto;
       text-align:right;
     }
@@ -200,6 +190,22 @@
       line-height:1.8;
       white-space:pre-wrap;
       text-align:right;
+    }
+
+    /* ✅ صور الشواهد (داخل الخطط) */
+    .imgGrid{
+      display:flex; flex-wrap:wrap; gap:8px;
+      padding:8px; border:1px dashed var(--b); border-radius:12px;
+      background:#fff;
+    }
+    .imgThumb{
+      width:68px; height:68px; object-fit:cover;
+      border-radius:10px; border:1px solid var(--b);
+    }
+    .imgActions{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+    .imgBtn{
+      background:#fff; color:#111; border:1px solid var(--b);
+      padding:8px 10px; border-radius:12px; font-weight:900; cursor:pointer;
     }
 
     /* ✅ طباعة عامة: واضحة + بدون أوامر */
@@ -233,8 +239,8 @@
 
       /* ✅ أعمال السنة: عمود الاسم أعرض + الدرجات أضيق */
       .ywTable col.c-idx{width:4% !important}
-      .ywTable col.c-name{width:28% !important} /* أعرض لظهور الاسم كامل */
-      .ywTable col.c-g{width:7% !important}     /* خانات الدرجات أصغر */
+      .ywTable col.c-name{width:28% !important}
+      .ywTable col.c-g{width:7% !important}
       .ywTable td.namecell .pv{font-size:10px !important; line-height:1.35 !important}
 
       /* ✅ المتابعة: عمود الاسم أعرض */
@@ -242,8 +248,8 @@
       .fuTable col.c-name{width:20% !important}
       .fuTable td.namecell .pv{font-size:10px !important; line-height:1.35 !important}
 
-      /* ✅ نماذج: مضغوطة وواضحة */
-      .printOnly{font-size:14px !important; line-height:1.9 !important;}
+      /* ✅ صور الشواهد في الطباعة */
+      .imgThumb{width:52px; height:52px}
     }
   </style>
 </head>
@@ -365,11 +371,16 @@
 
 <script>
 /* ===================== CONFIG ===================== */
-/* ✅ ضعي رابط Apps Script الخاص بك هنا */
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyTVzXTYP8NKRNY9mqq65fTA1k7tIdpYaBMen8Z-v7AcZ4po00pod6k_P71VL2gQyMJ/exec";
 
 const LEVEL_WORDS = ["متفوق","جيد","يحتاج متابعة","تحسن بتفوق","ضعيف جدا","ضعيف","جيد وبحتاج متابعة"];
-const ACTION_TYPES = ["جلسة علاجية فردية","جلسة علاجية جماعية","واجب علاجي","خطة إثرائية","تعلّم تعاوني","تعليم مقلوب","أنشطة تطبيقية","تدريب إضافي","غير ذلك"];
+
+/* ✅ نوع الإجراء (سيتحول لاختيار متعدد) */
+const ACTION_TYPES = [
+  "جلسة علاجية فردية","جلسة علاجية جماعية","واجب علاجي","خطة إثرائية","تعلّم تعاوني",
+  "تعليم مقلوب","أنشطة تطبيقية","تدريب إضافي","غير ذلك"
+];
+
 const MONTHS_AR = ["يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
 
 const YW_MAX = { p1Task:40, p1Quiz:20, p2Task:40, p2Quiz:20, final:40 };
@@ -452,12 +463,7 @@ async function getJSON(url){
 
 /* ===================== STATE ===================== */
 let LKEY = `irs_single_default`;
-
-const state = {
-  version: 20,
-  records: [],
-  activeId: null
-};
+const state = { version: 21, records: [], activeId: null };
 
 function defaultStudent(name=""){
   return {
@@ -486,7 +492,7 @@ function defaultRecord(){
     students: [],
     followupUI: { monthIndex: d.getMonth(), weeks: 4, autoTransfer: true, target: "p1Task" },
 
-    // ✅ الخطط: skills متعددة
+    // ✅ الخطط: skills متعددة + actions متعددة + images شواهد
     plans:{ entries: [] },
 
     parentNotice: {
@@ -606,11 +612,22 @@ function migrateState_(){
       row.grade = normalizeGradeClient(row.grade || "السادس");
       row.subject = normSubjectClient(row.subject || "علوم");
       row.type ||= "علاجية";
-      row.skills = Array.isArray(row.skills) ? row.skills : (row.skill ? String(row.skill).split("\n").map(x=>x.trim()).filter(Boolean) : []);
-      row.skill = (row.skills||[]).join("\n"); // التوافق مع الطباعة القديمة
+
+      // skills
+      row.skills = Array.isArray(row.skills) ? row.skills
+        : (row.skill ? String(row.skill).split("\n").map(x=>x.trim()).filter(Boolean) : []);
+      row.skill = (row.skills||[]).join("\n");
+
+      // ✅ actions متعددة (توافق مع القديم row.action)
+      row.actions = Array.isArray(row.actions) ? row.actions
+        : (row.action ? String(row.action).split("\n").map(x=>x.trim()).filter(Boolean) : []);
+      row.action = (row.actions||[]).join("\n"); // نخزن كسطور للطباعة
+
+      // images
+      row.images = Array.isArray(row.images) ? row.images : [];
+
       row.pre ||= LEVEL_WORDS[0];
       row.post ||= LEVEL_WORDS[1];
-      row.action ||= ACTION_TYPES[0];
       row.date ||= rec.date || "";
     });
   });
@@ -815,7 +832,7 @@ function render(){
   wire(rec);
 }
 
-/* ===== أعمال السنة (كما هو + تحسين عرض الاسم بالطباعة) ===== */
+/* ===================== أعمال السنة (كما هو) ===================== */
 function renderYearwork(rec){
   const wrap=document.createElement("div");
   wrap.className="p";
@@ -943,7 +960,7 @@ function renderYearwork(rec){
   return wrap;
 }
 
-/* ===== كشف متابعة (كما هو + تحسين عرض الاسم بالطباعة) ===== */
+/* ===================== المتابعة (كما هي) ===================== */
 function renderMonthly(rec){
   rec.followupUI ||= { monthIndex: new Date().getMonth(), weeks: 4, autoTransfer: true, target:"p1Task" };
 
@@ -1079,27 +1096,29 @@ function renderMonthly(rec){
   return wrap;
 }
 
-/* ===== الخطط: شاشة كاملة + مهارات متعددة (Checkbox) + مساحة أكبر ===== */
+/* ===================== الخطط: مهارات متعددة + إجراءات متعددة + صور شواهد ===================== */
 function studentList(rec){
   const list=(rec.students||[]).map(s=>(s.name||"").trim()).filter(Boolean);
   return [...new Set(list)];
 }
-function renderSkillCheckboxesHTML(list, chosen){
+
+function renderCheckboxListHTML(list, chosen){
   const ch = new Set((chosen||[]).map(x=>String(x||"").trim()).filter(Boolean));
   if(!list || !list.length){
-    return `<div style="color:var(--muted);font-weight:900">— لا توجد مهارات مسجلة لهذا الصف/المادة —</div>`;
+    return `<div style="color:var(--muted);font-weight:900">— لا توجد خيارات —</div>`;
   }
   return list.map(s=>{
     const safe = esc(s);
     const checked = ch.has(s) ? "checked" : "";
     return `
       <label class="skillItem">
-        <input type="checkbox" data-skillchk="1" value="${safe}" ${checked}>
+        <input type="checkbox" data-chk="1" value="${safe}" ${checked}>
         <span>${safe}</span>
       </label>
     `;
   }).join("");
 }
+
 async function refillAllSkillsCheckboxes(rec, root){
   const boxes = root.querySelectorAll("[data-skilllist]");
   for(const box of boxes){
@@ -1114,7 +1133,7 @@ async function refillAllSkillsCheckboxes(rec, root){
     const cur = Array.isArray(row.skills) ? row.skills : [];
     const all = [...new Set([...(list||[]), ...cur].filter(Boolean))];
 
-    box.innerHTML = renderSkillCheckboxesHTML(all, cur);
+    box.innerHTML = renderCheckboxListHTML(all, cur).replaceAll('data-chk="1"', 'data-skillchk="1"');
   }
 }
 
@@ -1142,15 +1161,19 @@ function renderPlans(rec){
               <th class="tot" style="width:90px">الصف</th>
               <th class="tot" style="width:110px">المادة</th>
               <th class="tot" style="width:90px">نوع</th>
-              <th class="tot" style="width:560px">المهارات (متعدد)</th>
+              <th class="tot" style="width:520px">المهارات (متعدد)</th>
+              <th class="tot" style="width:360px">نوع الإجراء (متعدد)</th>
+              <th class="tot" style="width:220px">صور شاهد</th>
               <th class="tot" style="width:120px">قبلي</th>
               <th class="tot" style="width:120px">بعدي</th>
-              <th class="tot" style="width:160px">إجراء</th>
             </tr>
           </thead>
           <tbody>
             ${(rec.plans.entries||[]).map((r,i)=>{
-              const chosen = Array.isArray(r.skills) ? r.skills : (r.skill ? String(r.skill).split("\n").map(x=>x.trim()).filter(Boolean) : []);
+              const chosenSkills = Array.isArray(r.skills) ? r.skills : (r.skill ? String(r.skill).split("\n").map(x=>x.trim()).filter(Boolean) : []);
+              const chosenActions = Array.isArray(r.actions) ? r.actions : (r.action ? String(r.action).split("\n").map(x=>x.trim()).filter(Boolean) : []);
+              const imgs = Array.isArray(r.images) ? r.images : [];
+
               return `
                 <tr>
                   <td class="tot">${i+1}</td>
@@ -1190,7 +1213,29 @@ function renderPlans(rec){
                     <input class="skillSearch" data-skillsearch="${i}" placeholder="ابحثي داخل المهارات…" />
                     <div class="skillList" data-skilllist="${i}">جاري تحميل المهارات…</div>
                     <div class="sub" style="margin-top:8px;font-weight:900">المهارات المختارة:</div>
-                    <div class="skillChosenBox" data-skillbox="${i}">${esc((chosen||[]).join("\n"))}</div>
+                    <div class="skillChosenBox" data-skillbox="${i}">${esc((chosenSkills||[]).join("\n"))}</div>
+                  </td>
+
+                  <!-- ✅ نوع الإجراء متعدد (Checkbox) -->
+                  <td style="text-align:right">
+                    <input class="skillSearch" data-actsearch="${i}" placeholder="ابحثي داخل الإجراءات…" />
+                    <div class="skillList" data-actlist="${i}">
+                      ${renderCheckboxListHTML(ACTION_TYPES, chosenActions).replaceAll('data-chk="1"', 'data-actionchk="1"')}
+                    </div>
+                    <div class="sub" style="margin-top:8px;font-weight:900">الإجراءات المختارة:</div>
+                    <div class="skillChosenBox" data-actbox="${i}">${esc((chosenActions||[]).join("\n"))}</div>
+                  </td>
+
+                  <!-- ✅ صور شواهد -->
+                  <td style="text-align:right">
+                    <input type="file" accept="image/*" multiple data-planimg="${i}" class="inline" style="border:1px solid var(--b); border-radius:12px; padding:8px; background:#fff">
+                    <div class="imgGrid" data-imggrid="${i}">
+                      ${imgs.length ? imgs.slice(0,6).map(src=>`<img class="imgThumb" src="${esc(src)}" alt="شاهد">`).join("") : `<span style="color:var(--muted);font-weight:900">لا توجد صور بعد</span>`}
+                    </div>
+                    <div class="imgActions">
+                      <button class="imgBtn" type="button" data-clearimgs="${i}">حذف الصور</button>
+                    </div>
+                    <div class="sub" style="margin-top:6px;font-weight:900">*ملاحظة: كثرة الصور قد تزيد حجم الحفظ</div>
                   </td>
 
                   <td>
@@ -1204,12 +1249,6 @@ function renderPlans(rec){
                       ${LEVEL_WORDS.map(x=>`<option ${r.post===x?"selected":""} value="${x}">${x}</option>`).join("")}
                     </select>
                   </td>
-
-                  <td>
-                    <select class="inline" data-plan="action" data-i="${i}">
-                      ${ACTION_TYPES.map(x=>`<option ${r.action===x?"selected":""} value="${x}">${x}</option>`).join("")}
-                    </select>
-                  </td>
                 </tr>
               `;
             }).join("")}
@@ -1218,7 +1257,7 @@ function renderPlans(rec){
       </div>
     </div>
 
-    <!-- ✅ طباعة الخطط: مختصرة وواضحة (كما طلبتي سابقًا) -->
+    <!-- ✅ طباعة الخطط: مختصرة + خانة صور الشاهد -->
     <div class="printOnly">
       <div style="border:1px solid var(--b); border-radius:14px; padding:12px; background:#fff">
         <div style="margin-bottom:10px">
@@ -1230,32 +1269,42 @@ function renderPlans(rec){
           <thead>
             <tr>
               <th class="tot" style="width:34px">م</th>
-              <th class="tot" style="width:220px">اسم الطالب/الطالبة</th>
+              <th class="tot" style="width:210px">اسم الطالب/الطالبة</th>
               <th class="tot" style="width:110px">نوع الخطة</th>
               <th class="tot">المهارات</th>
-              <th class="tot" style="width:170px">نوع الإجراء</th>
+              <th class="tot" style="width:190px">نوع الإجراء</th>
               <th class="tot" style="width:110px">قبلي</th>
               <th class="tot" style="width:110px">بعدي</th>
+              <th class="tot" style="width:210px">شاهد (صور)</th>
             </tr>
           </thead>
           <tbody>
             ${(rec.plans.entries||[]).map((r,i)=>{
               const skills = (Array.isArray(r.skills) ? r.skills : (r.skill?String(r.skill).split("\n"):[]))
                 .map(x=>String(x||"").trim()).filter(Boolean).join("، ");
+              const actions = (Array.isArray(r.actions) ? r.actions : (r.action?String(r.action).split("\n"):[]))
+                .map(x=>String(x||"").trim()).filter(Boolean).join("، ");
+              const imgs = Array.isArray(r.images) ? r.images : [];
+              const imgsHTML = imgs.length
+                ? imgs.slice(0,4).map(src=>`<img class="imgThumb" src="${esc(src)}" alt="شاهد">`).join(" ")
+                : "—";
+
               return `
                 <tr>
                   <td class="tot">${i+1}</td>
                   <td style="text-align:right">${esc(r.studentFullName||"")}</td>
                   <td>${esc(r.type||"")}</td>
                   <td style="text-align:right">${esc(skills||"")}</td>
-                  <td style="text-align:right">${esc(r.action||"")}</td>
+                  <td style="text-align:right">${esc(actions||"")}</td>
                   <td>${esc(r.pre||"")}</td>
                   <td>${esc(r.post||"")}</td>
+                  <td style="text-align:right">${imgsHTML}</td>
                 </tr>
               `;
             }).join("")}
           </tbody>
         </table>
+        <div style="margin-top:8px;color:var(--muted);font-weight:900">*قد يتم طباعة أول 4 صور فقط لكل صف.</div>
       </div>
     </div>
   `;
@@ -1264,7 +1313,7 @@ function renderPlans(rec){
   return wrap;
 }
 
-/* ===== تبليغ ولي الأمر (كما هو) ===== */
+/* ===================== تبليغ وليّ الأمر (كما هو) ===================== */
 function buildParentMessage(rec){
   const pn = rec.parentNotice;
   const student = pn.studentFullName || "الطالب/الطالبة";
@@ -1349,7 +1398,7 @@ function renderParentNotice(rec){
   return wrap;
 }
 
-/* ===== تبليغ الموجه/الموجهة أو المشرف/المشرفة (كما هو) ===== */
+/* ===================== تبليغ الموجه/الموجهة أو المشرف/المشرفة (كما هو) ===================== */
 function renderCounselorNotice(rec){
   const cn = rec.counselorNotice;
   const students = studentList(rec);
@@ -1513,6 +1562,20 @@ function syncForm(rec){
 }
 function syncCount(rec){
   $("countHint").textContent = `عدد الأسماء: ${(rec.students||[]).length}`;
+}
+
+/* ===================== IMAGE RESIZE (for witness photos) ===================== */
+async function fileToResizedDataURL(file, maxW=900, quality=0.72){
+  const bmp = await createImageBitmap(file);
+  const scale = Math.min(1, maxW / bmp.width);
+  const w = Math.max(1, Math.round(bmp.width * scale));
+  const h = Math.max(1, Math.round(bmp.height * scale));
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const ctx = c.getContext("2d");
+  ctx.drawImage(bmp, 0, 0, w, h);
+  // JPEG لتقليل الحجم
+  return c.toDataURL("image/jpeg", quality);
 }
 
 /* ===================== EVENTS ===================== */
@@ -1816,9 +1879,11 @@ function wire(rec){
         type:"علاجية",
         skills:[],
         skill:"",
+        actions:[],
+        action:"",
+        images:[],
         pre:LEVEL_WORDS[0],
-        post:LEVEL_WORDS[1],
-        action:ACTION_TYPES[0]
+        post:LEVEL_WORDS[1]
       });
       saveAll(); render();
     };
@@ -1855,7 +1920,7 @@ function wire(rec){
     };
   });
 
-  // ✅ حفظ مهارات متعددة من checkboxes + بحث
+  // ✅ مهارات متعددة من checkboxes + بحث
   document.querySelectorAll("[data-skilllist]").forEach(box=>{
     const i = +box.dataset.skilllist;
     box.addEventListener("change", (e)=>{
@@ -1866,7 +1931,7 @@ function wire(rec){
         .map(x=>x.value).filter(v=>v && v.trim());
 
       rec.plans.entries[i].skills = chosen;
-      rec.plans.entries[i].skill  = chosen.join("\n"); // للتوافق والطباعة
+      rec.plans.entries[i].skill  = chosen.join("\n");
 
       const out = document.querySelector(`[data-skillbox="${i}"]`);
       if(out) out.textContent = chosen.join("\n");
@@ -1880,12 +1945,78 @@ function wire(rec){
       const q = (inp.value||"").trim();
       const box = document.querySelector(`[data-skilllist="${i}"]`);
       if(!box) return;
-
       box.querySelectorAll(".skillItem").forEach(item=>{
         const txt = (item.textContent||"").trim();
         item.style.display = (!q || txt.includes(q)) ? "" : "none";
       });
     });
+  });
+
+  // ✅ إجراءات متعددة + بحث
+  document.querySelectorAll("[data-actlist]").forEach(box=>{
+    const i = +box.dataset.actlist;
+    box.addEventListener("change", (e)=>{
+      const chk = e.target;
+      if(!chk || chk.getAttribute("data-actionchk")!=="1") return;
+
+      const chosen = Array.from(box.querySelectorAll("input[data-actionchk='1']:checked"))
+        .map(x=>x.value).filter(v=>v && v.trim());
+
+      rec.plans.entries[i].actions = chosen;
+      rec.plans.entries[i].action  = chosen.join("\n");
+
+      const out = document.querySelector(`[data-actbox="${i}"]`);
+      if(out) out.textContent = chosen.join("\n");
+
+      saveAll();
+    });
+  });
+  document.querySelectorAll("[data-actsearch]").forEach(inp=>{
+    const i = +inp.dataset.actsearch;
+    inp.addEventListener("input", ()=>{
+      const q = (inp.value||"").trim();
+      const box = document.querySelector(`[data-actlist="${i}"]`);
+      if(!box) return;
+      box.querySelectorAll(".skillItem").forEach(item=>{
+        const txt = (item.textContent||"").trim();
+        item.style.display = (!q || txt.includes(q)) ? "" : "none";
+      });
+    });
+  });
+
+  // ✅ صور الشواهد: رفع + تصغير تلقائي + حفظ
+  document.querySelectorAll("[data-planimg]").forEach(inp=>{
+    inp.onchange = async ()=>{
+      const i = +inp.dataset.planimg;
+      const files = Array.from(inp.files||[]);
+      if(!files.length) return;
+
+      const row = rec.plans.entries[i];
+      row.images = Array.isArray(row.images) ? row.images : [];
+
+      // حد أقصى 6 صور لكل صف (لتجنب تضخم الحفظ)
+      const canAdd = Math.max(0, 6 - row.images.length);
+      const pick = files.slice(0, canAdd);
+
+      for(const f of pick){
+        try{
+          const dataUrl = await fileToResizedDataURL(f, 900, 0.72);
+          row.images.push(dataUrl);
+        }catch{}
+      }
+
+      saveAll();
+      render();
+    };
+  });
+  document.querySelectorAll("[data-clearimgs]").forEach(btn=>{
+    btn.onclick = ()=>{
+      const i = +btn.dataset.clearimgs;
+      if(!confirm("حذف جميع صور الشاهد لهذا الصف؟")) return;
+      rec.plans.entries[i].images = [];
+      saveAll();
+      render();
+    };
   });
 
   // ولي الأمر
